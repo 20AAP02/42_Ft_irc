@@ -1,27 +1,47 @@
-NAME = irc_server
+CC			=	c++
+FLAGS		=	-g -Wall -Wextra -Werror -std=c++98 -fsanitize=address
+RMV			=	rm -rf
+NAME		=	irc_server
 
-PATH_SRC = ./src
-
-SRC = $(PATH_SRC)/main.cpp 
-
+PATH_SRC	=	./src
+SRC			=	$(shell find $(PATH_SRC) -name '*.cpp')
 INCLUDES	=	./incs
 
-CC = c++
-
-FLAGS = -g -Wall -Wextra -Werror -std=c++98 -fsanitize=address 
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
+$(NAME): $(SRC)
 	@$(CC) $(FLAGS) -I$(INCLUDES) -o $(NAME) $(SRC)
-	@printf "\033[44m[$(NAME) built!]\033[0m\n"
+	@$(GREEN) && $(BOLD) && printf "[ $(NAME) built! ]\n" && $(RMVMODES)
 
 clean:
-	@rm -rf *.opp
-	@printf "\033[38;5;1m[Cleaned objects!]\033[0m\n"
 
 fclean: clean
-	@rm -rf $(NAME)
-	@printf "\033[38;5;1m[Cleaned Bin!]\033[0m\n"
+	@$(RMV) $(NAME)
+	@$(RED) && $(DIM) && printf "[ Cleaned Bin! ]\n" && $(RMVMODES)
 
 re: fclean all
+
+.PHONY: all clean fclean re
+
+# Complementary --------------------------
+
+# COLORS / TEXT MODES
+
+BLACK			=	tput setaf 0
+RED				=	tput setaf 1
+GREEN			=	tput setaf 2
+YELLOW			=	tput setaf 3
+BLUE			=	tput setaf 4
+MAGENTA			=	tput setaf 5
+CYAN			=	tput setaf 6
+WHITE			=	tput setaf 7
+
+BOLD			=	tput bold
+DIM				=	tput dim
+UNDERLINEon		=	tput smul
+UNDERLINEoff	=	tput rmul
+SATNDOUTon		=	tput smso
+SATNDOUToff		=	tput rmso
+
+RMVMODES		=	tput sgr0
