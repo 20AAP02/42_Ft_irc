@@ -6,8 +6,6 @@ SRC = $(PATH_SRC)/main.cpp
 
 INCLUDES	=	./incs
 
-OBJ = $(SRC:%.cpp = %.o)
-
 CC = c++
 
 FLAGS = -g -Wall -Wextra -Werror -std=c++98 -fsanitize=address 
@@ -15,7 +13,7 @@ FLAGS = -g -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	@$(CC) $(FLAGS) -I$(INCLUDES) -o $(NAME) $(OBJ) 
+	@$(CC) $(FLAGS) -I$(INCLUDES) -o $(NAME) $(SRC)
 	@printf "\033[44m[$(NAME) built!]\033[0m\n"
 
 clean:
