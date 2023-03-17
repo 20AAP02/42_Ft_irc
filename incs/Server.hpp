@@ -1,12 +1,12 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <string>
-# include <map>
-# include <vector>
-# include <poll.h>
 # include <iostream>
-# include <csignal>
+# include <string>
+# include <sys/socket.h> // setsockopt(), etc.
+# include <netinet/in.h> // INADDR_ANY, etc.
+# include <cstdlib> // EXIT_FAILURE, etc.
+# include <unistd.h> // read()
 
 /*			COLOURS		*/
 
