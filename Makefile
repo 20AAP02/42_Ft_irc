@@ -2,11 +2,11 @@ CC			=	c++
 FLAGS		=	-g -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 RMV			=	rm -rf
 NAME		=	irc_server
+INPUT		?=
 
 PATH_SRC	=	./src
 SRC			=	$(shell find $(PATH_SRC) -name '*.cpp')
 INCLUDES	=	./incs
-
 
 all: $(NAME)
 
@@ -22,9 +22,18 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re e v cls
 
 # Complementary --------------------------
+
+cls:
+	@clear
+
+e: cls re cls
+	@./$(NAME) $(INPUT)
+
+v: cls re cls
+	@valgrind ./$(NAME) $(INPUT)
 
 # COLORS / TEXT MODES
 
