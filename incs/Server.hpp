@@ -3,10 +3,16 @@
 
 # include <iostream>
 # include <string>
+# include <cstring>
+// # include <sys/types.h>
 # include <sys/socket.h> // setsockopt(), etc.
 # include <netinet/in.h> // INADDR_ANY, etc.
 # include <cstdlib> // EXIT_FAILURE, etc.
 # include <unistd.h> // read()
+
+# include <cstdio> // perror()
+# include <cerrno> // errno, EINTR
+# include <arpa/inet.h>
 
 /*			COLOURS		*/
 
