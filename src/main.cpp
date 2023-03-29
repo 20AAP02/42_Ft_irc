@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     std::vector<int> client_sockets;
     while (1)
     {
-        struct sockaddr_in client_addr = {};
+        struct sockaddr_in client_addr;
         socklen_t client_addr_len = sizeof(client_addr);
         int client_socket = accept(server_socket, (struct sockaddr *)&client_addr, &client_addr_len);
         if (client_socket < 0)
