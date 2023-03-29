@@ -1,12 +1,17 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <iostream>
-# include <string>
-# include <sys/socket.h> // setsockopt(), etc.
-# include <netinet/in.h> // INADDR_ANY, etc.
-# include <cstdlib> // EXIT_FAILURE, etc.
-# include <unistd.h> // read()
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+#define MAX_CLIENTS 10
+#define BUFFER_SIZE 1024
 
 /*			COLOURS		*/
 
