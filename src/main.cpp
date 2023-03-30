@@ -1,17 +1,5 @@
 #include <Server.hpp>
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <cstring>
-#include <cstdlib>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-
-#define MAX_CLIENTS 10
-#define BUFFER_SIZE 1024
-
 int main(int argc, char **argv)
 {
 	if (argc != 3)
@@ -53,7 +41,7 @@ int main(int argc, char **argv)
             continue;
         }
         client_sockets.push_back(client_socket);
-        std::string welcome_msg = "Welcome to our IRC server!\r\n";
+        std::string welcome_msg = "Welcome to Dani and Toni server!\n";
         send(client_socket, welcome_msg.c_str(), welcome_msg.size(), 0);
         char buffer[BUFFER_SIZE];
         while (1)
@@ -70,8 +58,7 @@ int main(int argc, char **argv)
                 std::cout << "Client disconnected" << std::endl;
                 break;
             }
-            std::string command = buffer;
-            std::cout << "Received command: " << command << std::endl;
+            std::cout << "Received command: " << buffer << std::endl;
             // TODO: Implement commands handling 
         }
     }
