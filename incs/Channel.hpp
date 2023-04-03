@@ -2,14 +2,17 @@
 #include <vector>
 #include <iostream>
 
-class Channel {
-public:
-    Channel(const std::string& name);
-    void addUser(const std::string& username);
-    void removeUser(const std::string& username);
-    const std::vector<std::string>& getUsers() const ;
-    const std::string& getName() const ;
-private:
-    std::string ChannelName_;
-    std::vector<std::string> users_;
+typedef std::string	str;
+
+class Channel
+{
+    public:
+        Channel(const str& name);
+        void addUser(const str& username);
+        void removeUser(const str& username);
+        const std::vector<str>& getUsers() const ;
+        const str& getName() const ;
+    private:
+        str _ChannelName;
+        std::vector<str> _users;
 };
