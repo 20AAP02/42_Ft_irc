@@ -13,6 +13,23 @@
 #define MAX_CLIENTS 10
 #define BUFFER_SIZE 1024
 
+typedef std::string	str;
+
+class Server {
+public:
+    Server(const str& port, const str& password);
+private:
+    int port_;
+    str password_;
+    int server_socket_;
+    std::vector<int> client_sockets_;
+    void getPortAndPassword(const str& port, const str& password);
+    void createServerSocket();
+    void bindServerSocket();
+    void listenForIncomingConnections();
+    void handleClientCommunication();
+};
+
 /*			COLOURS		*/
 
 # define BLANK "\033[0m"
