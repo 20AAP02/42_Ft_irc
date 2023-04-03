@@ -52,55 +52,45 @@ void Server::listenForIncomingConnections()
 void Server::handleClientCommunication() 
 {
     std::cout << GREEN "Server Started" BLANK << std::endl;
-    struct pollfd client_fds[MAX_CLIENTS + 1];
+    struct pollfd client_fds[MAX_CLIENTS + 1]; // +1 because server socket
     int num_clients = 0;
     client_fds[0].fd = this->server_socket_;
     client_fds[0].events = POLLIN;
-
     while (1)
     {
         while (num_clients < MAX_CLIENTS && client_sockets_.size() > 0)
         {
             int client_socket = client_sockets_.back();
             client_sockets_.pop_back();
-
             client_fds[num_clients + 1].fd = client_socket;
             client_fds[num_clients + 1].events = POLLIN;
-
             num_clients++;
         }
-
         int ret = poll(client_fds, num_clients + 1, -1);
         if (ret < 0)
-        {
-            std::cerr << "Error in poll()" << std::endl;
-            break;
-        }
+            ft_error("Error in poll()");
+        int client_socket;            
         for (int i = 0; i <= num_clients; i++)
         {
-            if (client_fds[i].revents & POLLIN)
+            if (client_fds[i].revents == POLLIN)
             {
                 if (i == 0) // Server socket is ready 
                 {
                     struct sockaddr_in client_addr;
                     socklen_t client_addr_len = sizeof(client_addr);
-                    int client_socket = accept(this->server_socket_, (struct sockaddr *)&client_addr, &client_addr_len);
+                    client_socket = accept(this->server_socket_, (struct sockaddr *)&client_addr, &client_addr_len);
                     if (client_socket < 0)
                     {
                         std::cerr << "Failed to accept incoming connection" << std::endl;
                         continue;
                     }
-
                     client_sockets_.push_back(client_socket);
                     std::string welcome_msg = "Welcome to Dani's and Toni's server!\n";
                     send(client_socket, welcome_msg.c_str(), welcome_msg.size(), 0);
-
-                    // Add new client socket to the pollfd array
                     if (num_clients < MAX_CLIENTS)
                     {
                         client_fds[num_clients + 1].fd = client_socket;
                         client_fds[num_clients + 1].events = POLLIN;
-
                         num_clients++;
                     }
                     else
@@ -109,7 +99,7 @@ void Server::handleClientCommunication()
                         close(client_socket);
                     }
                 }
-                else // Client socket is ready for recv()
+                else // Client socket is ready 
                 {
                     char buffer[BUFFER_SIZE];
                     std::memset(buffer, 0, sizeof(buffer));
@@ -123,17 +113,14 @@ void Server::handleClientCommunication()
                     {
                         std::cout << "Client disconnected" << std::endl;
                         close(client_fds[i].fd);
-
-                        // Remove client socket from the pollfd array
                         client_fds[i].fd = -1;
                         client_fds[i].events = 0;
                         num_clients--;
                     }
                     else
                     {
-                        std::cout << "Received command: " << buffer << std::endl;
-
                         // TODO: Implement commands handling 
+                        std::cout << "Received command: " << buffer << std::endl;
                     }
                 }
             }
