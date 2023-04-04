@@ -10,7 +10,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <poll.h>
-
+#include <fcntl.h>
+#include <errno.h>
 #define MAX_CLIENTS 10
 #define BUFFER_SIZE 1024
 
