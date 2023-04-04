@@ -70,7 +70,8 @@ void Server::handleClientCommunication()
             fcntl(client_socket, F_SETFL, flags | O_NONBLOCK);
             num_clients++;
         }
-        poll(client_fds, num_clients + 1, -1);   
+        if (poll(client_fds, num_clients + 1, -1) < 0)
+            ft_error("Error in poll()");     
         for (int i = 0; i <= num_clients; i++)
         {
             if (client_fds[i].revents == POLLIN)
