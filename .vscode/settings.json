@@ -44,6 +44,10 @@
 		"numeric": "cpp",
 		"random": "cpp",
 		"tuple": "cpp",
-		"utility": "cpp"
+		"utility": "cpp",
+		"optional": "cpp",
+		"fstream": "cpp",
+		"ranges": "cpp",
+		"sstream": "cpp"
 	}
 }
