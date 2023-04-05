@@ -70,8 +70,7 @@ void Server::handleClientCommunication()
             client_sockets_.pop_back();
             client_fds[num_clients + 1].fd = client_socket;
             client_fds[num_clients + 1].events = POLLIN;
-            int flags = fcntl(client_socket, F_GETFL, 0);
-            fcntl(client_socket, F_SETFL, flags | O_NONBLOCK);
+            fcntl(client_socket, F_SETFL, O_NONBLOCK);
             num_clients++;
         }
         if (poll(client_fds, num_clients + 1, -1) < 0)
@@ -98,7 +97,7 @@ void Server::handleClientCommunication()
                         client_fds[num_clients + 1].fd = client_socket;
                         client_fds[num_clients + 1].events = POLLIN;
                         int flags = fcntl(client_socket, F_GETFL, 0);
-                        fcntl(client_socket, F_SETFL, flags | O_NONBLOCK);
+                        fcntl(client_socket, F_SETFL, O_NONBLOCK);
                         num_clients++;
                     }
                     else
