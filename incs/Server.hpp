@@ -12,6 +12,8 @@
 #include <poll.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sstream>
+
 #define MAX_CLIENTS 10
 #define BUFFER_SIZE 1024
 

@@ -39,8 +39,12 @@ void Server::bindServerSocket()
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(port_);
-    if (bind(server_socket_, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) 
-        ft_error("Failed to bind server socket to port " + port_);
+    if (bind(server_socket_, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+    {
+        std::ostringstream oss;
+        oss << "Failed to bind server socket to port " << port_;
+        ft_error(oss.str());
+    }
 }
 
 void Server::listenForIncomingConnections() 
