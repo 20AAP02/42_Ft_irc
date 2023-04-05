@@ -26,12 +26,19 @@ private:
     int port_;
     str password_;
     int server_socket_;
+    int num_clients_;
     std::vector<int> client_sockets_;
+    struct pollfd client_fds_[MAX_CLIENTS + 1]; // +1 because server socket
     void getPortAndPassword(const str& port, const str& password);
     void createServerSocket();
     void bindServerSocket();
     void listenForIncomingConnections();
+    void setServerPoll();
     void handleClientCommunication();
+    void handleNewConnection();
+    void addNewClientToPoll();
+    void handleClientDisconnection(int iter);
+    void handleClientInput(str input);
 };
 
 # include <cstdio> // perror()
