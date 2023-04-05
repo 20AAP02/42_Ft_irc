@@ -1,5 +1,6 @@
 #include <Server.hpp>
 
+<<<<<<< HEAD
 #define TRUE   1 
 #define FALSE  0 
 #define PORT 8888
@@ -165,4 +166,15 @@ int main()
     }  
          
     return 0;  
+=======
+int main(int argc, char **argv)
+{
+	if (argc != 3)
+	{
+		std::cout << RED "Wrong Arguments!" BLANK << std::endl;
+		std::cout << GREEN "\t->Usage :\"./ircserv <port> <password>\"" BLANK << std::endl;
+		return 1;
+	}
+    Server server(argv[1], argv[2]);
+>>>>>>> 5ed6a97f0da9927e1e7c49975c8cbedf435676f5
 }
