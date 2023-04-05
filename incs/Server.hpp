@@ -1,19 +1,19 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <cstring>
-#include <cstdlib>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <poll.h>
-#include <fcntl.h>
-#include <errno.h>
-#define MAX_CLIENTS 10
-#define BUFFER_SIZE 1024
+# include <iostream>
+# include <vector>
+# include <string>
+# include <cstring>
+# include <cstdlib>
+# include <unistd.h>
+# include <sys/socket.h>
+# include <arpa/inet.h>
+# include <poll.h>
+# include <fcntl.h>
+# include <errno.h>
+# define MAX_CLIENTS 10
+# define BUFFER_SIZE 1024
 
 typedef std::string	str;
 
