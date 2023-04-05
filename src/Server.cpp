@@ -63,6 +63,15 @@ void Server::listenForIncomingConnections()
         ft_error("Failed to listen for incoming connections");
 }
 
+void Server::addNewClientToPoll()
+{  
+    int client_socket = client_sockets_.back();
+    client_sockets_.pop_back();
+    client_fds_[num_clients_ + 1].fd = client_socket;
+    client_fds_[num_clients_ + 1].events = POLLIN;
+    fcntl(client_socket, F_SETFL, O_NONBLOCK);
+    num_clients_++;
+}
 
 void Server::handleNewConnection()
 {
@@ -83,15 +92,6 @@ void Server::handleNewConnection()
     }
 }
 
-void Server::addNewClientToPoll()
-{  
-    int client_socket = client_sockets_.back();
-    client_sockets_.pop_back();
-    client_fds_[num_clients_ + 1].fd = client_socket;
-    client_fds_[num_clients_ + 1].events = POLLIN;
-    fcntl(client_socket, F_SETFL, O_NONBLOCK);
-    num_clients_++;
-}
 
 void Server::handleClientDisconnection(int i)
 {
@@ -128,9 +128,7 @@ void Server::handleClientCommunication()
                     char buffer[BUFFER_SIZE];
                     std::memset(buffer, 0, sizeof(buffer));
                     int num_bytes = recv(client_fds_[i].fd, buffer, sizeof(buffer), 0);
-                    if (num_bytes == -1)
-                        continue;
-                    if (num_bytes == 0)
+                    if (!num_bytes)
                         handleClientDisconnection(i);
                     else
                         handleClientInput(buffer);
