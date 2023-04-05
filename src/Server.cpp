@@ -96,7 +96,6 @@ void Server::handleClientCommunication()
                     {
                         client_fds[num_clients + 1].fd = client_socket;
                         client_fds[num_clients + 1].events = POLLIN;
-                        int flags = fcntl(client_socket, F_GETFL, 0);
                         fcntl(client_socket, F_SETFL, O_NONBLOCK);
                         num_clients++;
                     }
