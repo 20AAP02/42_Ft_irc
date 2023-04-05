@@ -13,7 +13,7 @@ class Channel
 
 	public:
 
-		Channel(const str& name);
+		Channel(const str &name, const str &topic);
 		Channel( Channel const & src );
 		~Channel();
 		
@@ -28,9 +28,9 @@ class Channel
 		// Operators
 		Channel &		operator=( Channel const & rhs );
 
-		const std::vector<Client>& getUsers() const;
-        const str& getName() const;
-        const str& getTopic() const;
+		const std::vector<Client> &getUsers() const;
+        const str &getName() const;
+        const str &getTopic() const;
 
 	private:
 		str _channelName;
