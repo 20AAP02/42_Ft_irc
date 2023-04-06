@@ -1,19 +1,21 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <iostream>
-# include <vector>
-# include <string>
-# include <cstring>
-# include <cstdlib>
-# include <unistd.h>
-# include <sys/socket.h>
-# include <arpa/inet.h>
-# include <poll.h>
-# include <fcntl.h>
-# include <errno.h>
-# define MAX_CLIENTS 10
-# define BUFFER_SIZE 1024
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <poll.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sstream>
+
+#define MAX_CLIENTS 10
+#define BUFFER_SIZE 1024
 
 typedef std::string	str;
 
@@ -24,12 +26,19 @@ private:
     int port_;
     str password_;
     int server_socket_;
+    int num_clients_;
     std::vector<int> client_sockets_;
+    struct pollfd client_fds_[MAX_CLIENTS + 1]; // +1 because server socket
     void getPortAndPassword(const str& port, const str& password);
     void createServerSocket();
     void bindServerSocket();
     void listenForIncomingConnections();
+    void setServerPoll();
     void handleClientCommunication();
+    void handleNewConnection();
+    void addNewClientToPoll();
+    void handleClientDisconnection(int iter);
+    void handleClientInput(str input);
 };
 
 # include <cstdio> // perror()
