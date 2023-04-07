@@ -1,8 +1,11 @@
 #include "Server.hpp"
+#include "Msg_Handle.hpp"
 
+Msg_Handle  msg_handler;
 
 Server::Server(const str& port, const str& password)
 {
+    msg_handler.set_password(password);
     getPortAndPassword(port, password);
     createServerSocket();
     bindServerSocket();
@@ -130,8 +133,11 @@ void Server::handleClientCommunication()
                     int num_bytes = recv(client_fds_[i].fd, buffer, sizeof(buffer), 0);
                     if (!num_bytes)
                         handleClientDisconnection(i);
-                    else
+                    else{
                         handleClientInput(buffer);
+                        std::cout<< msg_handler.get_password()<<std::endl;
+                    }
+                        
                 }
             }
         }
