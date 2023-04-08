@@ -26,15 +26,14 @@ public:
     struct pollfd *get_client_poll();
     Msg_Handle();
 
-    void check_input(str in, Server server_);
-    void check_input(str in, int fd);
+    //0 keep connection alive or 1 to disconnect
+    int check_input(str in, Server server_);
+    int check_input(str in, int fd);
     void set_password(str pass);
 
     void add_client(int fd);
 
-    void set_pollfd_server_fd(int fd);
-    void set_pollfd_server_events(int events);
-    void set_pollfd_server_revents(int revents);
+   
 
     void set_pollfd_clients_fd(int fd, int index);
     void set_pollfd_clients_events(int events, int index);

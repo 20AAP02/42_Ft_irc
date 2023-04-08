@@ -9,7 +9,7 @@ Msg_Handle::Msg_Handle()
     num_clients = 0;
 };
 
-void Msg_Handle::check_input(str in, Server server_)
+int Msg_Handle::check_input(str in, Server server_)
 {
     if (in == "ola")
         std::cout << "tes";
@@ -40,26 +40,32 @@ void Msg_Handle::check_input(str in, Server server_)
     TOPIC
     LIST
     */
+   return 0;
 };
 
-void Msg_Handle::check_input(str in, int fd)
+int Msg_Handle::check_input(str in, int fd)
 {
-    std::cout << in << std::endl;
+    std::cout <<"Client MSG: "<< in << std::endl;
     if (in.find("PASS") != std::string::npos)
     {
         if (in.substr(5, this->_password.size()) == this->_password)
         {
             // PASSword correcta
             std::cout << "Encontrei" << std::endl;
+            return 0;
         }
         else
         {
             std::string exit_msg = ":127.0.0.1 464 nunouser :WrongPass\n";
             send(fd, exit_msg.c_str(), exit_msg.size(), 0);
+            std::cout<<"Server RES: "<<exit_msg;
+            return 1;
+            
         }
     }
 
     // if(in.find(""))
+    return 0;
 }
 
 void Msg_Handle::add_cli_num(){
@@ -78,21 +84,6 @@ struct pollfd *Msg_Handle::get_client_poll()
     return this->client_pollfd;
 }
 
-void Msg_Handle::set_pollfd_server_fd(int fd)
-{
-
-    client_pollfd[0].fd = fd;
-}
-void Msg_Handle::set_pollfd_server_events(int events)
-{
-
-    client_pollfd[0].events = events;
-}
-void Msg_Handle::set_pollfd_server_revents(int revents)
-{
-
-    client_pollfd[0].revents = revents;
-}
 
 void Msg_Handle::set_pollfd_clients_revents(int revents, int index)
 {
