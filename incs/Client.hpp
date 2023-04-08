@@ -13,12 +13,20 @@ private:
     str _user;
     bool _is_admin;
     int _socket_fd;
+   // struct pollfd client_pollfd;
     // Channels with access list std::list<Channel>
 
 public:
     Client(str nick, int socket_fd);
     Client(str nick, str user, int socket_fd);
     ~Client();
+
+
+    /*void set_pollfd_fd(int in);
+    void set_pollfd_revents(int in);
+    void set_pollfd_events(int in);
+
+    struct pollfd get_client_poll();*/
 
     const str &getclientnick() const;
     const str &getclientuser() const;

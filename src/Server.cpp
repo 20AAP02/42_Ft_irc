@@ -1,12 +1,12 @@
 #include "Server.hpp"
 #include "Msg_Handle.hpp"
 
-Msg_Handle  msg_handler;
+Msg_Handle msg_handler;
 
-Server::Server(const str& port, const str& password)
+Server::Server(const str &port, const str &password)
 {
     msg_handler.set_password(password);
-    getPortAndPassword(port, password);
+    getPortAndPassword(port);
     createServerSocket();
     bindServerSocket();
     listenForIncomingConnections();
@@ -16,9 +16,9 @@ Server::Server(const str& port, const str& password)
 
 void Server::setServerPoll()
 {
-    num_clients_ = 0;
-    client_fds_[0].fd = this->server_socket_;
-    client_fds_[0].events = POLLIN;
+    msg_handler.set_pollfd_server_fd(this->server_socket_);
+    msg_handler.set_pollfd_server_events(POLLIN);
+    msg_handler.set_pollfd_server_revents(POLLIN);
     fcntl(this->server_socket_, F_SETFL, O_NONBLOCK);
 }
 
@@ -28,7 +28,7 @@ void ft_error(str msg)
     exit(0);
 }
 
-void Server::getPortAndPassword(const str& port, const str& password)
+void Server::getPortAndPassword(const str &port)
 {
     for (std::string::const_iterator it = port.begin(); it != port.end(); ++it)
     {
@@ -36,17 +36,16 @@ void Server::getPortAndPassword(const str& port, const str& password)
             ft_error("Wrong Input! => " + port);
     }
     this->port_ = std::atoi(port.c_str());
-    this->password_ = password;
 }
 
-void Server::createServerSocket() 
+void Server::createServerSocket()
 {
     server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket_ < 0)
         ft_error("Failed to create server socket");
 }
 
-void Server::bindServerSocket() 
+void Server::bindServerSocket()
 {
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
@@ -60,86 +59,104 @@ void Server::bindServerSocket()
     }
 }
 
-void Server::listenForIncomingConnections() 
+void Server::listenForIncomingConnections()
 {
-    if (listen(server_socket_, MAX_CLIENTS) < 0) 
+    if (listen(server_socket_, MAX_CLIENTS) < 0)
         ft_error("Failed to listen for incoming connections");
 }
 
 void Server::addNewClientToPoll()
-{  
-    int client_socket = client_sockets_.back();
-    client_sockets_.pop_back();
-    client_fds_[num_clients_ + 1].fd = client_socket;
-    client_fds_[num_clients_ + 1].events = POLLIN;
+{
+  
+    int client_socket = msg_handler.get_client_socket_last();
+    msg_handler.delete_last_client();
+
+    msg_handler.set_pollfd_clients_fd(client_socket, msg_handler.get_cli_num() + 1 );
+    msg_handler.set_pollfd_clients_events(POLLIN, msg_handler.get_cli_num() + 1 );
+
     fcntl(client_socket, F_SETFL, O_NONBLOCK);
-    num_clients_++;
+    msg_handler.add_cli_num();
 }
 
 void Server::handleNewConnection()
 {
+   
     struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
     int client_socket = accept(this->server_socket_, (struct sockaddr *)&client_addr, &client_addr_len);
     if (client_socket < 0)
         std::cerr << "Failed to accept incoming connection" << std::endl;
-    client_sockets_.push_back(client_socket);
+    // client_sockets_.push_back(client_socket);
+    //msg_handler.add_client(client_socket);
     str welcome_msg = "Welcome to Dani's and Toni's server!\n";
     send(client_socket, welcome_msg.c_str(), welcome_msg.size(), 0);
-    if (num_clients_ < MAX_CLIENTS)
+    std::cout<< msg_handler.num_of_clients()<<std::endl;
+    if (msg_handler.get_cli_num() < MAX_CLIENTS)
+    {
+        msg_handler.add_client(client_socket);
         addNewClientToPoll();
+    }
     else
     {
         std::cerr << "Maximum number of clients reached" << std::endl;
         close(client_socket);
+        msg_handler.delete_client(client_socket);
     }
 }
 
-
 void Server::handleClientDisconnection(int i)
 {
-    close(client_fds_[i].fd);
-    client_fds_[i].fd = -1;
-    client_fds_[i].events = 0;
-    num_clients_--;
+    close(msg_handler.get_pollfd_clients_fd(i));
+    msg_handler.set_pollfd_clients_fd(-1, i);
+    msg_handler.set_pollfd_clients_events(0, i);
+    msg_handler.delete_client(i);
     std::cout << "Client disconnected" << std::endl;
 }
 
 void Server::handleClientInput(str input)
 {
-    // TODO: Implement commands handling 
+    // TODO: Implement commands handling
     std::cout << "Received command: " << input;
 }
 
-void Server::handleClientCommunication() 
+void Server::handleClientCommunication()
 {
     std::cout << GREEN "Server Started" BLANK << std::endl;
     while (1)
     {
-        while (num_clients_ < MAX_CLIENTS && client_sockets_.size() > 0)
+        while (msg_handler.get_cli_num() < MAX_CLIENTS && msg_handler.num_of_clients() > 0){
+            
             addNewClientToPoll();
-        if (poll(client_fds_, num_clients_ + 1, -1) < 0)
-            ft_error("Error in poll()");     
-        for (int i = 0; i <= num_clients_; i++)
-        {
-            if (client_fds_[i].revents == POLLIN)
+        }
+       
+        if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, -1) < 0)
+            ft_error("Error in poll()");
+        for(int i = 0; i <= msg_handler.get_cli_num(); i++)
+        {   
+            if (msg_handler.get_pollfd_clients_revents(i) == POLLIN)
             {
                 if (i == 0)
+                {
                     handleNewConnection();
+
+                }    
                 else
                 {
                     char buffer[BUFFER_SIZE];
                     std::memset(buffer, 0, sizeof(buffer));
-                    int num_bytes = recv(client_fds_[i].fd, buffer, sizeof(buffer), 0);
+                    int num_bytes = recv(msg_handler.get_pollfd_clients_fd(i), buffer, sizeof(buffer), 0);
+                        std::cout<< buffer<<std::endl;
                     if (!num_bytes)
                         handleClientDisconnection(i);
-                    else{
+                    else
+                    {
                         handleClientInput(buffer);
-                        std::cout<< msg_handler.get_password()<<std::endl;
+                        msg_handler.check_input(buffer, msg_handler.get_pollfd_clients_fd(i));
                     }
-                        
                 }
             }
         }
+         
+
     }
 }

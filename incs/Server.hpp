@@ -24,12 +24,12 @@ public:
     Server(const str& port, const str& password);
 private:
     int port_;
-    str password_;
     int server_socket_;
-    int num_clients_;
-    std::vector<int> client_sockets_;
-    struct pollfd client_fds_[MAX_CLIENTS + 1]; // +1 because server socket
-    void getPortAndPassword(const str& port, const str& password);
+    //int num_clients_;
+    //std::vector<int> client_sockets_;
+    //struct pollfd client_fds_[MAX_CLIENTS + 1]; // +1 because server socket
+    struct pollfd server_pollfd;
+    void getPortAndPassword(const str& port);
     void createServerSocket();
     void bindServerSocket();
     void listenForIncomingConnections();

@@ -19,6 +19,21 @@ const str &Client::getclientnick() const
     return this->_nick;
 };
 
+/*void Client::set_pollfd_fd(int in){
+    this->client_pollfd.fd = in;
+};
+void Client::set_pollfd_revents(int in){
+     this->client_pollfd.revents = in;
+};
+void Client::set_pollfd_events(int in){
+    this->client_pollfd.events = in;
+};
+
+struct pollfd Client::get_client_poll(){
+    struct pollfd aux = client_pollfd;
+    return client_pollfd;
+}
+*/
 const str &Client::getclientuser() const
 {
     return this->_user;
