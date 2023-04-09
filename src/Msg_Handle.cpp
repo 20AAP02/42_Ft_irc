@@ -9,73 +9,92 @@ Msg_Handle::Msg_Handle()
     num_clients = 0;
 };
 
-int Msg_Handle::check_input(str in, Server server_)
-{
-    if (in == "ola")
-        std::cout << "tes";
-    (void)server_;
-    if (in.find("CAP LS") != std::string::npos)
-    {
-        std::cout << "Encontrei" << std::endl;
-    }
-    /*Reposta ao CAP LS302
-    CAP * LS :
-    */
-    /*
-    CAP LS 302
-    PASS 123
-    NICK nickname
-    USER username 0 * :realname
-    JOIN #canal
-    PRIVMSG :conversada
-    PART é o /leave
-    QUIT :Leaving
-    */
+/*Reposta ao CAP LS302
+CAP * LS :
+*/
+/*
+CAP LS 302
+PASS 123
+NICK nickname
+USER username 0 * :realname
+JOIN #canal
+PRIVMSG :conversada
+PART é o /leave
+QUIT :Leaving
+*/
 
-    /*
-    MODE #channel
-    WHO #channel
-    KICK
-    INVITE
-    TOPIC
-    LIST
-    */
-   return 0;
-};
+/*
+MODE #channel
+WHO #channel
+KICK
+INVITE
+TOPIC
+LIST
+*/
 
 int Msg_Handle::check_input(str in, int fd)
 {
-    std::cout <<"Client MSG: "<< in << std::endl;
-    if (in.find("PASS") != std::string::npos)
+  
+    std::vector<Client>::iterator it = get_client_by_fd(fd);
+    
+    std::cout << "Client MSG [" <<fd<<"] :" <<in << std::endl;
+   if (in.find("PASS") != std::string::npos && !it->is_logged_in())
     {
-        if (in.substr(5, this->_password.size()) == this->_password)
+
+        if (in.substr(in.find("PASS") + 5, this->_password.size()) == this->_password)
         {
-            // PASSword correcta
-            std::cout << "Encontrei" << std::endl;
-            return 0;
+            it->set_logged();
+            std::cout << "Password correcta" << std::endl;
         }
         else
         {
             std::string exit_msg = ":127.0.0.1 464 nunouser :WrongPass\n";
             send(fd, exit_msg.c_str(), exit_msg.size(), 0);
-            std::cout<<"Server RES: "<<exit_msg;
+            std::cout << "Server RES: " << exit_msg;
             return 1;
-            
         }
     }
+    if (in.find("NICK") != std::string::npos)
+    {
+        std::string nickname = in.substr(in.find("NICK") + 5, in.find('\r', in.find("NICK")) - 5);
+        it->setnick(nickname);
+        it->set_nick_bool();
+    }
+    if (in.find("USER") != std::string::npos)
+    {
+        std::string username = in.substr(in.find("USER") + 5, in.find(" :", in.find("USER")) - 5);
+        username = username.substr(0, username.find(' '));
+        it->setuser(username);
+        it->set_user_bool();
+        //std::cout << "BEG USER" << it->getclientuser() << " Nick " << it->getclientnick() << "ENDE\n";
+    }
+    
 
-    // if(in.find(""))
+
+    /*std::vector<Client> clients = _channels.back().getUsers();
+    std::find(_channels.back().getUsers().begin(),_channels.back().getUsers().end(), Client("",fd));*/
+    //!it->is admin é só para não estar a repetir isto vaias vezes,
+    //terá de ser obtido atraves do get users do channel e verificar se o user já está no public
+    if (!it->is_admin() && it->get_nick_bool() && it->get_user_bool() && it->is_logged_in())
+    {
+        std::string msg1 = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + "=#nuns:@" + it->getclientnick() + "\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost" + it->getclientnick() + " #nuns\n:End of /NAMES list\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\n: realname\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + " " + it->getclientuser() + " :End of /WHO list\r";
+        send(fd, msg1.c_str(), msg1.size(), 0);
+        it->set_admin(true);
+    }
     return 0;
 }
 
-void Msg_Handle::add_cli_num(){
+void Msg_Handle::add_cli_num()
+{
     num_clients++;
 };
-void Msg_Handle::del_cli_num(){
+void Msg_Handle::del_cli_num()
+{
     num_clients--;
 };
 
-int Msg_Handle::get_cli_num(){
+int Msg_Handle::get_cli_num()
+{
     return num_clients;
 };
 
@@ -83,7 +102,6 @@ struct pollfd *Msg_Handle::get_client_poll()
 {
     return this->client_pollfd;
 }
-
 
 void Msg_Handle::set_pollfd_clients_revents(int revents, int index)
 {
@@ -153,15 +171,30 @@ int Msg_Handle::num_of_clients()
 
 void Msg_Handle::delete_client(int fd)
 {
-    std::list<Client>::iterator it = _clients.begin();
+    if (get_client_by_fd(fd) != _clients.end())
+        _clients.erase(get_client_by_fd(fd));
+}
+
+std::vector<Client>::iterator Msg_Handle::get_client_by_fd(int fd)
+{
+    std::vector<Client>::iterator it = _clients.begin();
+    // for (; it != _clients.end(); ++it)
+    // {
+
+    //     std::cout << " começo ciclo" << it->getclientsocket() << ' ' << std::endl;
+    // }
+    // it = _clients.begin();
+
     for (; it != _clients.end(); ++it)
     {
         if (it->getclientsocket() == fd)
         {
-            _clients.erase(it);
-            return;
+
+            return it;
         }
     }
+
+    return _clients.end();
 }
 
 Msg_Handle::~Msg_Handle(){};

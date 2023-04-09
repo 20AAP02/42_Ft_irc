@@ -15,25 +15,23 @@ typedef std::string str;
 class Msg_Handle
 {
 private:
-    std::list<Client> _clients;
-    std::list<Channel> _channels;
+    std::vector<Client> _clients;
+    std::vector<Channel> _channels;
     str _password;
     int num_clients;
 
 public:
+    //Para já fica como public
     struct pollfd client_pollfd[MAX_CLIENTS + 1];
-
     struct pollfd *get_client_poll();
+
     Msg_Handle();
 
-    //0 keep connection alive or 1 to disconnect
-    int check_input(str in, Server server_);
+    // 0 keep connection alive or 1 to disconnect
     int check_input(str in, int fd);
     void set_password(str pass);
 
     void add_client(int fd);
-
-   
 
     void set_pollfd_clients_fd(int fd, int index);
     void set_pollfd_clients_events(int events, int index);
@@ -52,7 +50,7 @@ public:
     int get_cli_num();
 
     void delete_last_client(void);
-
+    std::vector<Client>::iterator get_client_by_fd(int fd);
     std::string get_password();
     ~Msg_Handle();
 };

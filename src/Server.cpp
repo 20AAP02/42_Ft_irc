@@ -68,8 +68,9 @@ void Server::listenForIncomingConnections()
 void Server::addNewClientToPoll()
 {
 
+ 
     int client_socket = msg_handler.get_client_socket_last();
-    msg_handler.delete_last_client();
+    //msg_handler.delete_last_client();
 
     msg_handler.set_pollfd_clients_fd(client_socket, msg_handler.get_cli_num() + 1);
     msg_handler.set_pollfd_clients_events(POLLIN, msg_handler.get_cli_num() + 1);
@@ -80,7 +81,7 @@ void Server::addNewClientToPoll()
 
 void Server::handleNewConnection()
 {
-
+    
     struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
     int client_socket = accept(this->server_socket_, (struct sockaddr *)&client_addr, &client_addr_len);
@@ -90,7 +91,7 @@ void Server::handleNewConnection()
     // msg_handler.add_client(client_socket);
     str welcome_msg = "Welcome to Dani's and Toni's server!\n";
     send(client_socket, welcome_msg.c_str(), welcome_msg.size(), 0);
-    std::cout << msg_handler.num_of_clients() << std::endl;
+
     if (msg_handler.get_cli_num() < MAX_CLIENTS)
     {
         msg_handler.add_client(client_socket);
@@ -110,6 +111,7 @@ void Server::handleClientDisconnection(int i)
     msg_handler.set_pollfd_clients_fd(-1, i);
     msg_handler.set_pollfd_clients_events(0, i);
     msg_handler.delete_client(i);
+    msg_handler.del_cli_num();
     std::cout << "Client disconnected" << std::endl;
 }
 
@@ -118,11 +120,11 @@ void Server::handleClientCommunication()
     std::cout << GREEN "Server Started" BLANK << std::endl;
     while (1)
     {
-        while (msg_handler.get_cli_num() < MAX_CLIENTS && msg_handler.num_of_clients() > 0)
+        /*while (msg_handler.get_cli_num() < MAX_CLIENTS && msg_handler.num_of_clients() > 0)
         {
 
             addNewClientToPoll();
-        }
+        }*/
 
         if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, -1) < 0)
             ft_error("Error in poll()");

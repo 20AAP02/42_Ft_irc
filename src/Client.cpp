@@ -5,6 +5,10 @@ typedef std::string str;
 Client::Client(str nick, int socket_fd) : _nick(nick), _socket_fd(socket_fd)
 {
     this->_is_admin = false;
+    this->_is_logged_in = false;
+    this->_password = false;
+    this->_nick_cl = false;
+    this->_user_cl = false;
 };
 
 Client::Client(str nick, str user, int socket_fd) : _nick(nick), _user(user), _socket_fd(socket_fd)
@@ -49,6 +53,21 @@ bool Client::is_admin() const
     return this->_is_admin;
 };
 
+bool Client::is_logged_in() const{
+    return this->_is_logged_in;
+}
+
+bool Client::get_pass_bool() {
+    return this->_password;
+}
+bool Client::get_nick_bool(){
+    return this->_nick_cl;
+}
+bool Client::get_user_bool() {
+    return this->_user_cl;
+}
+
+
 int Client::getclientsocket() const
 {
     return this->_socket_fd;
@@ -63,6 +82,27 @@ void Client::set_admin(bool switch_admin)
     this->_is_admin = switch_admin;
 }
 
+void Client::set_logged()
+{
+    this->_is_logged_in = true;
+}
+
+
+void Client::set_pass_bool()
+{
+    this->_password = true;
+}
+void Client::set_nick_bool()
+{
+    this->_nick_cl = true;
+}
+void Client::set_user_bool()
+{
+    this->_user_cl = true;
+}
+
+
+
 void Client::setnick(str new_nick)
 {
     this->_nick = new_nick;
@@ -72,3 +112,5 @@ void Client::setuser(str new_user)
 {
     this->_user = new_user;
 }
+
+
