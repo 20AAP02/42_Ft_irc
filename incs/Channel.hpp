@@ -60,6 +60,8 @@ class Channel
 		std::map<str, std::vector<str> > _channelModes;
 };
 
+const std::string getNickmask(const Client &user);
+
 std::ostream &			operator<<( std::ostream & o, Channel const & i );
 
 #endif /* ********************************************************* CHANNEL_H */

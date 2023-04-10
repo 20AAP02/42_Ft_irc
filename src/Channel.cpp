@@ -100,10 +100,25 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 
 void Channel::addUser(const Client& user)
 {
+	if ((int)this->_founders.size() == 0)
+		this->_founders.push_back(getNickmask(user));
 	this->_users.push_back(user);
 }
 
+const std::string getNickmask(const Client &user)
+{
+	std::string nickmask;
+
+	nickmask.append(user.getclientnick());
+	nickmask.append("!");
+	nickmask.append(user.getclientuser());
+	nickmask.append("@");
+	nickmask.append("local");
+	return nickmask;
+}
+
 // -- Commands for channel moderators --
+
 
 void Channel::changeChannelMode(const str& mode)
 {
