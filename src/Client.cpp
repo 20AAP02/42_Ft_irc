@@ -113,4 +113,16 @@ void Client::setuser(str new_user)
     this->_user = new_user;
 }
 
+str Client::getNickmask(){
+    str nickmask;
+
+    nickmask.append(this->getclientnick());
+    nickmask.append("!");
+    nickmask.append(this->getclientuser());
+    nickmask.append("@");
+    nickmask.append("localhost");
+    return nickmask;
+
+}
+
 
