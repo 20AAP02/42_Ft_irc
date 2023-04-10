@@ -100,8 +100,9 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 
 void Channel::addUser(const Client& user)
 {
-	if ((int)this->_founders.size() == 0)
-		this->_founders.push_back(getNickmask(user));
+	std::string message = "#nuns ";
+	message.append(this->_channelName);
+	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 	this->_users.push_back(user);
 }
 
@@ -112,8 +113,7 @@ const std::string getNickmask(const Client &user)
 	nickmask.append(user.getclientnick());
 	nickmask.append("!");
 	nickmask.append(user.getclientuser());
-	nickmask.append("@");
-	nickmask.append("local");
+	nickmask.append("@localhost");
 	return nickmask;
 }
 

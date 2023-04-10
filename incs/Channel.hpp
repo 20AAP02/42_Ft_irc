@@ -6,6 +6,7 @@
 # include <vector>
 # include <map>
 # include <Client.hpp>
+# include <sys/socket.h> // send()
 
 typedef std::string	str;
 
