@@ -106,17 +106,6 @@ void Channel::addUser(const Client& user)
 	this->_users.push_back(user);
 }
 
-const std::string getNickmask(const Client &user)
-{
-	std::string nickmask;
-
-	nickmask.append(user.getclientnick());
-	nickmask.append("!");
-	nickmask.append(user.getclientuser());
-	nickmask.append("@localhost");
-	return nickmask;
-}
-
 // -- Commands for channel moderators --
 
 
