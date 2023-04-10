@@ -72,7 +72,6 @@ void Msg_Handle::Client_login(str in, int fd)
 		else if (word == "JOIN")
 		{
 			s >> word;
-			std::cout << "trying to join channel " + word << " | testFd: " << fd << std::endl;
 			Channel chann(word, "no topic");
             //Adicionar o channel à lista
             _channels.push_back(chann);
