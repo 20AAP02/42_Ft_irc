@@ -14,6 +14,8 @@
 #include <errno.h>
 #include <sstream>
 
+# include <Channel.hpp>
+
 #define MAX_CLIENTS 10
 #define BUFFER_SIZE 1024
 

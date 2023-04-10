@@ -100,8 +100,9 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 
 void Channel::addUser(const Client& user)
 {
-	std::string message = "#nuns ";
-	message.append(this->_channelName);
+	std::string message = ":" + user.getclientnick() + "!~"; 
+	message.append(getNickmask(user));
+	message.append(" JOIN " + this->_channelName);
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 	this->_users.push_back(user);
 }
