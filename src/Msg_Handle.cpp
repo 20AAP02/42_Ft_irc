@@ -40,6 +40,7 @@ void Msg_Handle::Client_login(str in, int fd)
 
     while(s >> word)
     {
+		std::cout << "ola\n";
         if (word == "PASS")
         {
             s >> word;

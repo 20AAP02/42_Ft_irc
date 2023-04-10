@@ -23,11 +23,5 @@ int main(int argc, char **argv)
 		std::cout << GREEN "\t->Usage :\"./ircserv <port> <password>\"" BLANK << std::endl;
 		return 1;
 	}
-    // Server server(argv[1], argv[2]);
-	(void) argv;
-	Channel testChannel("#welcome", "welcome channel");
-	std::cout << "Created " << testChannel << std::endl;
-	Client user("antonio", 0);
-	testChannel.addUser(user);
-	printVector(testChannel.getFounders());
+    Server server(argv[1], argv[2]);
 }
