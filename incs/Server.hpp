@@ -37,7 +37,6 @@ private:
     void handleNewConnection();
     void addNewClientToPoll();
     void handleClientDisconnection(int iter);
-
 };
 
 # include <cstdio> // perror()

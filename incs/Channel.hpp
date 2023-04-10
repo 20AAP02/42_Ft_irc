@@ -19,13 +19,18 @@ class Channel
 		Channel( Channel const & src );
 		~Channel();
 		
-		void addUser(const Client& user);
+		void addUser(const Client &user);
 
 		// Commands for channel moderators
-		void changeChannelMode(const str& mode);
-		void inviteUser(const Client& user);
-        void removeUser(const Client& user);
-		void changeTopic(const str& newTopic);
+		void changeChannelMode(const str &mode);
+		void inviteUser(const Client &user);
+        void removeUser(const Client &user);
+		void changeTopic(const str &newTopic);
+
+		// Commands for all channel members
+		void sendMessage(const Client &user, const str &message) const;
+		void modeCommand(const Client &user) const;
+		void whoCommand(const Client &user) const;
 
 		// Operators
 		Channel &		operator=( Channel const & rhs );
@@ -45,6 +50,7 @@ class Channel
 				return "Coudn't create channel.";
 			}
 		};
+
 
 	private:
 		str _channelName;

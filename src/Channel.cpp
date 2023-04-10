@@ -104,6 +104,8 @@ void Channel::addUser(const Client& user)
 	message.append(user.getNickmask() + " JOIN " + this->_channelName + "\n");
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 	this->_users.push_back(user);
+	if ((int)this->_founders.size() == 0)
+		this->_founders.push_back(user.getNickmask());
 }
 
 // -- Commands for channel moderators --
@@ -128,6 +130,25 @@ void Channel::changeTopic(const str& newTopic)
 {
 	(void)newTopic;
 }
+
+// -- Commands for all channel members --
+
+void Channel::sendMessage(const Client &user, const str &message) const
+{
+	(void) user;
+	(void) message;
+}
+
+void Channel::modeCommand(const Client &user) const
+{
+	(void) user;
+}
+
+void Channel::whoCommand(const Client &user) const
+{
+	(void) user;
+}
+
 
 
 /*
