@@ -89,7 +89,7 @@ void Server::handleNewConnection()
         std::cerr << "Failed to accept incoming connection" << std::endl;
     // client_sockets_.push_back(client_socket);
     // msg_handler.add_client(client_socket);
-    str welcome_msg = "Welcome to Dani's and Toni's server!\n";
+    str welcome_msg = "Welcome to our server!\n";
     send(client_socket, welcome_msg.c_str(), welcome_msg.size(), 0);
 
     if (msg_handler.get_cli_num() < MAX_CLIENTS)

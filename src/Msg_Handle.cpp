@@ -32,15 +32,11 @@ TOPIC
 LIST
 */
 
-int Msg_Handle::check_input(str in, int fd)
+void Msg_Handle::Client_login(str in, int fd)
 {
-  
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-    
-    std::cout << "Client MSG [" <<fd<<"] :" <<in << std::endl;
-   if (in.find("PASS") != std::string::npos && !it->is_logged_in())
+    if (in.find("PASS") != std::string::npos && !it->is_logged_in())
     {
-
         if (in.substr(in.find("PASS") + 5, this->_password.size()) == this->_password)
         {
             it->set_logged();
@@ -51,7 +47,7 @@ int Msg_Handle::check_input(str in, int fd)
             std::string exit_msg = ":127.0.0.1 464 nunouser :WrongPass\n";
             send(fd, exit_msg.c_str(), exit_msg.size(), 0);
             std::cout << "Server RES: " << exit_msg;
-            return 1;
+            return ;
         }
     }
     if (in.find("NICK") != std::string::npos)
@@ -68,19 +64,23 @@ int Msg_Handle::check_input(str in, int fd)
         it->set_user_bool();
         //std::cout << "BEG USER" << it->getclientuser() << " Nick " << it->getclientnick() << "ENDE\n";
     }
-    
-
-
-    /*std::vector<Client> clients = _channels.back().getUsers();
-    std::find(_channels.back().getUsers().begin(),_channels.back().getUsers().end(), Client("",fd));*/
-    //!it->is admin é só para não estar a repetir isto vaias vezes,
-    //terá de ser obtido atraves do get users do channel e verificar se o user já está no public
     if (!it->is_admin() && it->get_nick_bool() && it->get_user_bool() && it->is_logged_in())
     {
         std::string msg1 = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + "=#nuns:@" + it->getclientnick() + "\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost" + it->getclientnick() + " #nuns\n:End of /NAMES list\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\n: realname\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + " " + it->getclientuser() + " :End of /WHO list\r";
         send(fd, msg1.c_str(), msg1.size(), 0);
         it->set_admin(true);
     }
+}
+
+int Msg_Handle::check_input(str in, int fd)
+{
+    std::cout << "Client MSG [" <<fd<<"] :" <<in << std::endl;
+    Client_login(in, fd);
+    /*std::vector<Client> clients = _channels.back().getUsers();
+    std::find(_channels.back().getUsers().begin(),_channels.back().getUsers().end(), Client("",fd));*/
+    //!it->is admin é só para não estar a repetir isto vaias vezes,
+    //terá de ser obtido atraves do get users do channel e verificar se o user já está no public
+
     return 0;
 }
 
