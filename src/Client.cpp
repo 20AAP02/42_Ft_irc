@@ -113,7 +113,7 @@ void Client::setuser(str new_user)
     this->_user = new_user;
 }
 
-str Client::getNickmask(){
+str Client::getNickmask() const {
     str nickmask;
 
     nickmask.append(this->getclientnick());

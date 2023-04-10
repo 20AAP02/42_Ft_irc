@@ -49,7 +49,7 @@ public:
     bool get_pass_bool();
     bool get_nick_bool();
     bool get_user_bool();
-    str getNickmask();
+    str getNickmask() const;
 
     // Add Channel to list
     // Remove Channel to list
