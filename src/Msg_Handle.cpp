@@ -66,6 +66,8 @@ void Msg_Handle::Client_login(str in, int fd)
     }
     if (!it->is_admin() && it->get_nick_bool() && it->get_user_bool() && it->is_logged_in())
     {
+        std::string join_msg = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\r\n";
+        send(fd, join_msg.c_str(), join_msg.size(), 0);
         std::string msg1 = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + "=#nuns:@" + it->getclientnick() + "\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost" + it->getclientnick() + " #nuns\n:End of /NAMES list\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\n: realname\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + " " + it->getclientuser() + " :End of /WHO list\r";
         send(fd, msg1.c_str(), msg1.size(), 0);
         it->set_admin(true);
@@ -80,7 +82,6 @@ int Msg_Handle::check_input(str in, int fd)
     std::find(_channels.back().getUsers().begin(),_channels.back().getUsers().end(), Client("",fd));*/
     //!it->is admin é só para não estar a repetir isto vaias vezes,
     //terá de ser obtido atraves do get users do channel e verificar se o user já está no public
-
     return 0;
 }
 
