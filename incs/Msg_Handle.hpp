@@ -11,6 +11,8 @@
 #include <list>
 #include <sstream>
 
+#include <Channel.hpp>
+
 
 typedef std::string str;
 

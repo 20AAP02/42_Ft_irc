@@ -69,6 +69,13 @@ void Msg_Handle::Client_login(str in, int fd)
             it->setuser(word);
             it->set_user_bool();
         }
+		else if (word == "JOIN")
+		{
+			s >> word;
+			std::cout << "trying to join channel " + word << " | testFd: " << fd << std::endl;
+			Channel test(word, "no topic");
+			test.addUser(*it);
+		}
     }
     if (!it->is_admin() && it->get_nick_bool() && it->get_user_bool() && it->is_logged_in())
     {

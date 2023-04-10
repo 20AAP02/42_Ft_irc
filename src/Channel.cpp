@@ -103,6 +103,7 @@ void Channel::addUser(const Client& user)
 	std::string message = ":" + user.getclientnick() + "!~"; 
 	message.append(getNickmask(user));
 	message.append(" JOIN " + this->_channelName);
+	std::cout << "sending message to " << user.getclientsocket() << std::endl;
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 	this->_users.push_back(user);
 }
