@@ -6,6 +6,7 @@
 # include <vector>
 # include <map>
 # include <Client.hpp>
+# include <sys/socket.h> // send()
 
 typedef std::string	str;
 
@@ -39,10 +40,6 @@ class Channel
 		const std::vector<str> &getProtectedUsers() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
 
-
-
-
-
 		class channelErrorException : public std::exception {
 			public: virtual const char* what() const throw() {
 				return "Coudn't create channel.";
@@ -63,6 +60,8 @@ class Channel
 		// Channel Modes Map
 		std::map<str, std::vector<str> > _channelModes;
 };
+
+const std::string getNickmask(const Client &user);
 
 std::ostream &			operator<<( std::ostream & o, Channel const & i );
 

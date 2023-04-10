@@ -1,5 +1,19 @@
 #include <Server.hpp>
 #include <Client.hpp>
+#include <Channel.hpp>
+
+template <typename T>
+void printVector(const std::vector<T> &vec)
+{
+	std::cout << "Vector: (";
+	for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); it++)
+	{
+		std::cout << *it << ", ";
+	}
+	if ((int)vec.size() > 0)
+		std::cout << "\b\b";
+	std::cout << ")\n";
+}
 
 int main(int argc, char **argv)
 {
@@ -9,5 +23,11 @@ int main(int argc, char **argv)
 		std::cout << GREEN "\t->Usage :\"./ircserv <port> <password>\"" BLANK << std::endl;
 		return 1;
 	}
-    Server server(argv[1], argv[2]);
+    // Server server(argv[1], argv[2]);
+	(void) argv;
+	Channel testChannel("#welcome", "welcome channel");
+	std::cout << "Created " << testChannel << std::endl;
+	Client user("antonio", 0);
+	testChannel.addUser(user);
+	printVector(testChannel.getFounders());
 }

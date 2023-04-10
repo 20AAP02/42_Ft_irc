@@ -100,10 +100,26 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 
 void Channel::addUser(const Client& user)
 {
+	std::string message = ":" + user.getclientnick() + "!~"; 
+	message.append(getNickmask(user));
+	message.append(" JOIN " + this->_channelName);
+	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 	this->_users.push_back(user);
 }
 
+const std::string getNickmask(const Client &user)
+{
+	std::string nickmask;
+
+	nickmask.append(user.getclientnick());
+	nickmask.append("!");
+	nickmask.append(user.getclientuser());
+	nickmask.append("@localhost");
+	return nickmask;
+}
+
 // -- Commands for channel moderators --
+
 
 void Channel::changeChannelMode(const str& mode)
 {
