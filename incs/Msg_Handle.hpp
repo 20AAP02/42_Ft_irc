@@ -9,6 +9,8 @@
 #include <Channel.hpp>
 #include <Server.hpp>
 #include <list>
+#include <sstream>
+
 
 typedef std::string str;
 

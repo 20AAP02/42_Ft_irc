@@ -120,12 +120,6 @@ void Server::handleClientCommunication()
     std::cout << GREEN "Server Started" BLANK << std::endl;
     while (1)
     {
-        /*while (msg_handler.get_cli_num() < MAX_CLIENTS && msg_handler.num_of_clients() > 0)
-        {
-
-            addNewClientToPoll();
-        }*/
-
         if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, -1) < 0)
             ft_error("Error in poll()");
         for (int i = 0; i <= msg_handler.get_cli_num(); i++)
@@ -145,7 +139,6 @@ void Server::handleClientCommunication()
                         handleClientDisconnection(i);
                     else
                     {
-                         
                         if(msg_handler.check_input(buffer, msg_handler.get_pollfd_clients_fd(i)))
                             handleClientDisconnection(i);
                     }

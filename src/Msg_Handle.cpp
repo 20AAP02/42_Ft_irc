@@ -34,49 +34,60 @@ LIST
 
 void Msg_Handle::Client_login(str in, int fd)
 {
+    std::stringstream s(in);
+    str word;
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-    if (in.find("PASS") != std::string::npos && !it->is_logged_in())
+
+    while(s >> word)
     {
-        if (in.substr(in.find("PASS") + 5, this->_password.size()) == this->_password)
+        if (word == "PASS")
         {
-            it->set_logged();
-            std::cout << "Password correcta" << std::endl;
+            s >> word;
+            if (word == _password)
+            {
+                it->set_logged();
+                std::cout << "Password correcta" << std::endl;
+            }
+            else
+            {
+                std::cout << "Password INcorrecta" << std::endl;
+                std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
+                send(fd, exit_msg.c_str(), exit_msg.size(), 0);
+                std::cout << "Server RES: " << exit_msg;
+                return ;
+            }
         }
-        else
+        else if (word == "NICK")
         {
-            std::string exit_msg = ":127.0.0.1 464 nunouser :WrongPass\n";
-            send(fd, exit_msg.c_str(), exit_msg.size(), 0);
-            std::cout << "Server RES: " << exit_msg;
-            return ;
+            s >> word;
+            it->setnick(word);
+            it->set_nick_bool();
         }
-    }
-    if (in.find("NICK") != std::string::npos)
-    {
-        std::string nickname = in.substr(in.find("NICK") + 5, in.find('\r', in.find("NICK")) - 5);
-        it->setnick(nickname);
-        it->set_nick_bool();
-    }
-    if (in.find("USER") != std::string::npos)
-    {
-        std::string username = in.substr(in.find("USER") + 5, in.find(" :", in.find("USER")) - 5);
-        username = username.substr(0, username.find(' '));
-        it->setuser(username);
-        it->set_user_bool();
-        //std::cout << "BEG USER" << it->getclientuser() << " Nick " << it->getclientnick() << "ENDE\n";
+        else if (word == "USER")
+        {
+            s >> word;
+            it->setuser(word);
+            it->set_user_bool();
+        }
     }
     if (!it->is_admin() && it->get_nick_bool() && it->get_user_bool() && it->is_logged_in())
     {
-        std::string join_msg = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\r\n";
-        send(fd, join_msg.c_str(), join_msg.size(), 0);
+        // std::string join_msg = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\r\n";
+        // send(fd, join_msg.c_str(), join_msg.size(), 0);
         std::string msg1 = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + "=#nuns:@" + it->getclientnick() + "\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost" + it->getclientnick() + " #nuns\n:End of /NAMES list\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\n: realname\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + " " + it->getclientuser() + " :End of /WHO list\r";
         send(fd, msg1.c_str(), msg1.size(), 0);
+        std::cout << it->getclientnick() <<" ->LOGGED IN \n";
         it->set_admin(true);
     }
+
+    std::cout << "Client MSG [" <<fd<<"]" << in << std::endl;
+    std::cout << "## sent by: NICK->" << it->getclientnick() << "USER->" << it->getclientuser() << "##" << std::endl ;
+
 }
 
 int Msg_Handle::check_input(str in, int fd)
 {
-    std::cout << "Client MSG [" <<fd<<"] :" <<in << std::endl;
+
     Client_login(in, fd);
     /*std::vector<Client> clients = _channels.back().getUsers();
     std::find(_channels.back().getUsers().begin(),_channels.back().getUsers().end(), Client("",fd));*/
