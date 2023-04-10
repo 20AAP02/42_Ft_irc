@@ -73,16 +73,19 @@ void Msg_Handle::Client_login(str in, int fd)
 		{
 			s >> word;
 			std::cout << "trying to join channel " + word << " | testFd: " << fd << std::endl;
-			Channel test(word, "no topic");
-			test.addUser(*it);
+			Channel chann(word, "no topic");
+            //Adicionar o channel à lista
+            _channels.push_back(chann);
+			chann.addUser(*it);
 		}
     }
     if (!it->is_admin() && it->get_nick_bool() && it->get_user_bool() && it->is_logged_in())
     {
         // std::string join_msg = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\r\n";
         // send(fd, join_msg.c_str(), join_msg.size(), 0);
-        std::string msg1 = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + "=#nuns:@" + it->getclientnick() + "\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost" + it->getclientnick() + " #nuns\n:End of /NAMES list\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\n: realname\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + " " + it->getclientuser() + " :End of /WHO list\r";
-        send(fd, msg1.c_str(), msg1.size(), 0);
+        /*std::string msg1 = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + "=#nuns:@" + it->getclientnick() + "\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost" + it->getclientnick() + " #nuns\n:End of /NAMES list\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\n: realname\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + " " + it->getclientuser() + " :End of /WHO list\r";
+        send(fd, msg1.c_str(), msg1.size(), 0);*/
+        _channels[0].addUser(*it);
         std::cout << it->getclientnick() <<" ->LOGGED IN \n";
         it->set_admin(true);
     }
