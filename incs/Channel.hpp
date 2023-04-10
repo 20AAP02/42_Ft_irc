@@ -39,10 +39,6 @@ class Channel
 		const std::vector<str> &getProtectedUsers() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
 
-
-
-
-
 		class channelErrorException : public std::exception {
 			public: virtual const char* what() const throw() {
 				return "Coudn't create channel.";
