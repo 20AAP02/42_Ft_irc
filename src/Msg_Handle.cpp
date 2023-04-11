@@ -43,7 +43,7 @@ void Msg_Handle::Client_login(str in, int fd)
         if (word == "PASS")
         {
             s >> word;
-            if (word == _password)
+            if (word == _password || word == ":"+_password)
             {
                 it->set_logged();
                 std::cout << "Password correcta" << std::endl;
