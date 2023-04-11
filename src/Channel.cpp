@@ -9,9 +9,9 @@ Channel::Channel(const str &name, const str &topic)
 	str notPermittedChars = " \f\n\r\t\v,";
 	notPermittedChars.push_back(7); // 7 ascii -> ctrl G
 	if (name.find_first_of(notPermittedChars) != name.npos)
-		throw Channel::channelErrorException();
+		throw channelErrorException("name contains invalid characters");
 	if (name[0] != '#' && name[0] != '&')
-		throw Channel::channelErrorException();
+		throw channelErrorException("name doesn't contain type character (ex: #name or &name)");
 	this->_channelName = name;
 	this->_channelTopic = topic;
 	this->_channelType.push_back(name[0]);

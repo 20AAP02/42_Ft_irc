@@ -59,6 +59,4 @@ public:
     ~Msg_Handle();
 };
 
-std::list<Channel> _gobalChannels;
-
 #endif
