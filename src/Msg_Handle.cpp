@@ -40,6 +40,9 @@ void Msg_Handle::Client_login(str in, int fd)
     str word;
     std::vector<Client>::iterator it = get_client_by_fd(fd);
 
+   
+    if (it->is_logged_in())
+        return ;
     while(s >> word)
     {
         if (word == "PASS")
@@ -100,17 +103,42 @@ void Msg_Handle::Client_login(str in, int fd)
         _channels[0].addUser(*it);
         std::cout << it->getclientnick() <<" ->LOGGED IN \n";
         it->set_admin(true);
+        str welcome_msg = "Welcome to our server!\n";
+        send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
     }
+    //std::cout << "Client MSG [" <<fd<<"]" << in << std::endl;
+    //std::cout << "## sent by: NICK->" << it->getclientnick() << "USER->" << it->getclientuser() << "##" << std::endl ;
 
-    std::cout << "Client MSG [" <<fd<<"]" << in << std::endl;
+}
+
+
+void Msg_Handle::handleClientCommand(str in, int fd)
+{
+    std::vector<Client>::iterator it = get_client_by_fd(fd);
+    std::cout << "Client MSG [" <<fd<<"]" << in;
     std::cout << "## sent by: NICK->" << it->getclientnick() << "USER->" << it->getclientuser() << "##" << std::endl ;
-
+    std::stringstream s(in);
+    str word;
+    while(s >> word)
+    {
+        if (word == "PASS" || word == "USER" || word == "NICK")
+            continue;
+        else if (word == "JOIN")
+        {
+			s >> word;
+			Channel chann(word, "no topic");
+            //Adicionar o channel à lista
+            _channels.push_back(chann);
+			chann.addUser(*it);
+        }
+    }
 }
 
 int Msg_Handle::check_input(str in, int fd)
 {
 
     Client_login(in, fd);
+    handleClientCommand(in, fd);
     /*std::vector<Client> clients = _channels.back().getUsers();
     std::find(_channels.back().getUsers().begin(),_channels.back().getUsers().end(), Client("",fd));*/
     //!it->is admin é só para não estar a repetir isto vaias vezes,

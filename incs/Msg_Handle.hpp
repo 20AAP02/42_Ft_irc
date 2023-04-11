@@ -30,6 +30,7 @@ public:
 
     Msg_Handle();
     void Client_login(str in, int fd);
+    void handleClientCommand(str in, int fd);
     // 0 keep connection alive or 1 to disconnect
     int check_input(str in, int fd);
     void set_password(str pass);

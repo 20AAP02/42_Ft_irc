@@ -2,6 +2,8 @@
 #include "Msg_Handle.hpp"
 
 Msg_Handle msg_handler;
+int run  = 1;
+
 
 Server::Server(const str &port, const str &password)
 {
@@ -89,9 +91,6 @@ void Server::handleNewConnection()
         std::cerr << "Failed to accept incoming connection" << std::endl;
     // client_sockets_.push_back(client_socket);
     // msg_handler.add_client(client_socket);
-    str welcome_msg = "Welcome to our server!\n";
-    send(client_socket, welcome_msg.c_str(), welcome_msg.size(), 0);
-
     if (msg_handler.get_cli_num() < MAX_CLIENTS)
     {
         msg_handler.add_client(client_socket);
@@ -115,12 +114,22 @@ void Server::handleClientDisconnection(int i)
     std::cout << "Client disconnected" << std::endl;
 }
 
+void Server::signal_handler(int sig)
+{
+    (void)sig;
+    run = 0;
+    for (int i = 1; i <= msg_handler.get_cli_num(); i++)
+        close(msg_handler.get_pollfd_clients_fd(i));
+}
+
+
 void Server::handleClientCommunication()
 {
+    signal(SIGINT, &Server::signal_handler);
     std::cout << GREEN "Server Started" BLANK << std::endl;
-    while (1)
+    while (run)
     {
-        if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, -1) < 0)
+        if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, -1) < 0 && run)
             ft_error("Error in poll()");
         for (int i = 0; i <= msg_handler.get_cli_num(); i++)
         {
@@ -146,4 +155,7 @@ void Server::handleClientCommunication()
             }
         }
     }
+    close(server_socket_);
+    std::cout << RED "Server Closed!" BLANK << std::endl;
+    exit(0);
 }
