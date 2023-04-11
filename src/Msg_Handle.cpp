@@ -87,6 +87,8 @@ void Msg_Handle::Client_login(str in, int fd)
         _channels[0].addUser(*it);
         std::cout << it->getclientnick() <<" ->LOGGED IN \n";
         it->set_admin(true);
+        str welcome_msg = "Welcome to our server!\n";
+        send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
     }
 
     std::cout << "Client MSG [" <<fd<<"]" << in << std::endl;
