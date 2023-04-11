@@ -38,6 +38,8 @@ void Msg_Handle::Client_login(str in, int fd)
     str word;
     std::vector<Client>::iterator it = get_client_by_fd(fd);
 
+    if (it->is_logged_in())
+        return ;
     while(s >> word)
     {
         if (word == "PASS")
