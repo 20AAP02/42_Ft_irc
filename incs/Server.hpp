@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sstream>
+#include <signal.h>
 
 # include <Channel.hpp>
 
@@ -37,6 +38,7 @@ private:
     void handleNewConnection();
     void addNewClientToPoll();
     void handleClientDisconnection(int iter);
+    static void signal_handler(int sig);
 };
 
 # include <cstdio> // perror()

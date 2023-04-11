@@ -2,7 +2,7 @@
 #include "Msg_Handle.hpp"
 
 Msg_Handle msg_handler;
-
+int run  = 1;
 Server::Server(const str &port, const str &password)
 {
     msg_handler.set_password(password);
@@ -115,12 +115,22 @@ void Server::handleClientDisconnection(int i)
     std::cout << "Client disconnected" << std::endl;
 }
 
+void Server::signal_handler(int sig)
+{
+    (void)sig;
+    run = 0;
+    for (int i = 1; i <= msg_handler.get_cli_num(); i++)
+        close(msg_handler.get_pollfd_clients_fd(i));
+}
+
+
 void Server::handleClientCommunication()
 {
+    signal(SIGINT, &Server::signal_handler);
     std::cout << GREEN "Server Started" BLANK << std::endl;
-    while (1)
+    while (run)
     {
-        if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, -1) < 0)
+        if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, -1) < 0 && run)
             ft_error("Error in poll()");
         for (int i = 0; i <= msg_handler.get_cli_num(); i++)
         {
@@ -146,4 +156,7 @@ void Server::handleClientCommunication()
             }
         }
     }
+    close(server_socket_);
+    std::cout << RED "Server Closed!" BLANK << std::endl;
+    exit(0);
 }
