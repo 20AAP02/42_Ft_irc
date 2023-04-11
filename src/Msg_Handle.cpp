@@ -39,8 +39,6 @@ void Msg_Handle::Client_login(str in, int fd)
     std::stringstream s(in);
     str word;
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-
-   
     if (it->is_logged_in())
         return ;
     while(s >> word)
@@ -50,7 +48,6 @@ void Msg_Handle::Client_login(str in, int fd)
             s >> word;
             if (word == _password || word == ":"+_password)
             {
-                it->set_logged();
                 std::cout << "Password correcta" << std::endl;
             }
             else
@@ -74,7 +71,33 @@ void Msg_Handle::Client_login(str in, int fd)
             it->setuser(word);
             it->set_user_bool();
         }
-		else if (word == "JOIN")
+	
+    }
+    if (it->get_nick_bool() && it->get_user_bool())
+    {
+        it->set_logged();
+        _channels[0].addUser(*it);
+        std::cout << it->getclientnick() <<" ->LOGGED IN \n";
+        it->set_admin(true);
+        str welcome_msg = "Welcome to our server!\n";
+        send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
+    }
+
+}
+
+
+void Msg_Handle::handleClientCommand(str in, int fd)
+{
+    std::vector<Client>::iterator it = get_client_by_fd(fd);
+    std::cout << "Client MSG [" <<fd<<"]" << in;
+    std::cout << "## sent by: NICK->" << it->getclientnick() << "USER->" << it->getclientuser() << "##" << std::endl ;
+    std::stringstream s(in);
+    str word;
+    if (!it->is_logged_in())
+        return ;
+    while(s >> word)
+    {
+	    if (word == "JOIN")
 		{
 			s >> word;
 			int check = 0;
@@ -86,7 +109,6 @@ void Msg_Handle::Client_login(str in, int fd)
 			}
 			if (check == (int)_channels.size())
 			{
-				//Adicionar o channel à lista
 				_channels.push_back(Channel(word, "no topic"));
 				_channels.back().addUser(*it);
 			}
@@ -105,43 +127,11 @@ void Msg_Handle::Client_login(str in, int fd)
 				}
 			} 
 		}
-    }
-    if (!it->is_admin() && it->get_nick_bool() && it->get_user_bool() && it->is_logged_in())
-    {
-        // std::string join_msg = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\r\n";
-        // send(fd, join_msg.c_str(), join_msg.size(), 0);
-        /*std::string msg1 = ":" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + "=#nuns:@" + it->getclientnick() + "\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost" + it->getclientnick() + " #nuns\n:End of /NAMES list\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost JOIN :#nuns\n: realname\n:" + it->getclientnick() + "!" + it->getclientuser() + "@localhost " + it->getclientnick() + " " + it->getclientuser() + " :End of /WHO list\r";
-        send(fd, msg1.c_str(), msg1.size(), 0);*/
-        _channels[0].addUser(*it);
-        std::cout << it->getclientnick() <<" ->LOGGED IN \n";
-        it->set_admin(true);
-        str welcome_msg = "Welcome to our server!\n";
-        send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
-    }
-    //std::cout << "Client MSG [" <<fd<<"]" << in << std::endl;
-    //std::cout << "## sent by: NICK->" << it->getclientnick() << "USER->" << it->getclientuser() << "##" << std::endl ;
-
-}
-
-
-void Msg_Handle::handleClientCommand(str in, int fd)
-{
-    std::vector<Client>::iterator it = get_client_by_fd(fd);
-    std::cout << "Client MSG [" <<fd<<"]" << in;
-    std::cout << "## sent by: NICK->" << it->getclientnick() << "USER->" << it->getclientuser() << "##" << std::endl ;
-    std::stringstream s(in);
-    str word;
-    while(s >> word)
-    {
-        if (word == "PASS" || word == "USER" || word == "NICK")
-            continue;
-        else if (word == "JOIN")
+        else if (word == "NICK")
         {
-			s >> word;
-			Channel chann(word, "no topic");
-            //Adicionar o channel à lista
-            _channels.push_back(chann);
-			chann.addUser(*it);
+            s >> word;
+            it->setnick(word);
+            it->set_nick_bool();
         }
     }
 }
@@ -151,10 +141,8 @@ int Msg_Handle::check_input(str in, int fd)
 
     Client_login(in, fd);
     handleClientCommand(in, fd);
-    /*std::vector<Client> clients = _channels.back().getUsers();
-    std::find(_channels.back().getUsers().begin(),_channels.back().getUsers().end(), Client("",fd));*/
-    //!it->is admin é só para não estar a repetir isto vaias vezes,
-    //terá de ser obtido atraves do get users do channel e verificar se o user já está no public
+    std::vector<Client>::iterator it = get_client_by_fd(fd);
+    //std::cout <<  "is logged: " << it->is_logged_in() << std::endl;
     return 0;
 }
 
