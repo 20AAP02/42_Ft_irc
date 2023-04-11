@@ -2,10 +2,6 @@
 #include <Client.hpp>
 #include <Channel.hpp>
 
-#include <list>
-
-std::list<Channel> _gobalChannels; // global variable with all channels
-
 template <typename T>
 void printVector(const std::vector<T> &vec)
 {

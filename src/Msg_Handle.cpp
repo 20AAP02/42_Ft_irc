@@ -1,5 +1,7 @@
 #include <Msg_Handle.hpp>
 
+static std::vector<Channel> _channels;
+
 typedef std::string str;
 Msg_Handle::Msg_Handle()
 {
@@ -72,10 +74,21 @@ void Msg_Handle::Client_login(str in, int fd)
 		else if (word == "JOIN")
 		{
 			s >> word;
-			Channel chann(word, "no topic");
-            //Adicionar o channel à lista
-            _channels.push_back(chann);
-			chann.addUser(*it);
+			int check = 0;
+			for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+			{
+				if (channel->getName() == word)
+					break;
+				check++;
+			}
+			if (check == (int)_channels.size())
+			{
+				//Adicionar o channel à lista
+				_channels.push_back(Channel(word, "no topic"));
+				_channels.back().addUser(*it);
+			}
+			else
+				_channels[check].addUser(*it);
 		}
     }
     if (!it->is_admin() && it->get_nick_bool() && it->get_user_bool() && it->is_logged_in())

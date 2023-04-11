@@ -28,7 +28,7 @@ class Channel
 		void changeTopic(const str &newTopic);
 
 		// Commands for all channel members
-		void sendMessage(const Client &user, const str &message) const;
+		void sendMessage(const Client &user, const str &message, const str &msgType) const;
 		void modeCommand(const Client &user) const;
 		void whoCommand(const Client &user) const;
 

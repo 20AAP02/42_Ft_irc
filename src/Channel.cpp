@@ -98,14 +98,28 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
+void printVector(const std::vector<Client> &vec)
+{
+	std::cout << "Vector: (";
+	for (typename std::vector<Client>::const_iterator it = vec.begin(); it != vec.end(); it++)
+	{
+		std::cout << it->getNickmask() << ", ";
+	}
+	if ((int)vec.size() > 0)
+		std::cout << "\b\b";
+	std::cout << ")\n";
+}
+
 void Channel::addUser(const Client& user)
 {
 	std::string message = ":" + user.getclientnick() + "!~"; 
 	message.append(user.getNickmask() + " JOIN " + this->_channelName + "\n");
-	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 	this->_users.push_back(user);
+	for (int i = 0; i < 9999999; i++) {};
 	if ((int)this->_founders.size() == 0)
 		this->_founders.push_back(user.getNickmask());
+	sendMessage(user, "", "JOIN");
+	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 }
 
 // -- Commands for channel moderators --
@@ -133,10 +147,16 @@ void Channel::changeTopic(const str& newTopic)
 
 // -- Commands for all channel members --
 
-void Channel::sendMessage(const Client &user, const str &message) const
+void Channel::sendMessage(const Client &user, const str &message, const str &msgType) const
 {
-	(void) user;
-	(void) message;
+	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
+
+	std::cout << msg;
+	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
+	{
+		if (member->getNickmask() != user.getNickmask())
+			send(member->getclientsocket(), msg.c_str(), msg.size(), 0);
+	}
 }
 
 void Channel::modeCommand(const Client &user) const
