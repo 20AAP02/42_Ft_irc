@@ -63,20 +63,14 @@ class Channel
 std::ostream &			operator<<( std::ostream & o, Channel const & i );
 
 class channelErrorException : public std::exception {
-	public: virtual const char* what() const throw() {
-		return "Coudn't create channel.";
-	}
+	private:
+		const std::string _errorMessage;
+	public: 
+		channelErrorException(const std::string errorMessage): _errorMessage(errorMessage) {};
+		virtual const char *what() const throw() {
+			return _errorMessage.c_str();
+		}
+		virtual ~channelErrorException() throw() {};
 };
-
-// class channelErrorException : public std::exception {
-// 	private:
-// 		const std::string _errorMessage;
-// 	public: 
-// 		channelErrorException(const std::string errorMessage): _errorMessage(errorMessage) {};
-// 		virtual const char *what() const throw() {
-// 			return ("Channel Error: " + _errorMessage).c_str();
-// 		}
-// 		virtual ~channelErrorException() throw() {};
-// };
 
 #endif /* ********************************************************* CHANNEL_H */
