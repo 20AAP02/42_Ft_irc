@@ -20,6 +20,7 @@ class Msg_Handle
 {
 private:
     std::vector<Client> _clients;
+    std::vector<Channel> _channels;
     str _password;
     int num_clients;
 

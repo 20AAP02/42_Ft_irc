@@ -1,7 +1,5 @@
 #include <Msg_Handle.hpp>
 
-static std::vector<Channel> _channels;
-
 typedef std::string str;
 Msg_Handle::Msg_Handle()
 {
@@ -122,8 +120,9 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 			{
 				if (channel->getName() == word)
 				{
-					s >> word;
-					channel->sendMessage(*it, word, "PRIVMSG");
+                    str msg = s.str();
+                    std::size_t found = msg.find(':') + 1;
+					channel->sendMessage(*it, msg.substr(found, msg.size() - found), "PRIVMSG");
 				}
 			} 
 		}
@@ -141,7 +140,7 @@ int Msg_Handle::check_input(str in, int fd)
 
     Client_login(in, fd);
     handleClientCommand(in, fd);
-    std::vector<Client>::iterator it = get_client_by_fd(fd);
+    //std::vector<Client>::iterator it = get_client_by_fd(fd);
     //std::cout <<  "is logged: " << it->is_logged_in() << std::endl;
     return 0;
 }
