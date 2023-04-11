@@ -93,6 +93,18 @@ void Msg_Handle::Client_login(str in, int fd)
 			else
 				_channels[check].addUser(*it);
 		}
+		else if (word == "PRIVMSG")
+		{
+			s >> word;
+			for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+			{
+				if (channel->getName() == word)
+				{
+					s >> word;
+					channel->sendMessage(*it, word, "PRIVMSG");
+				}
+			} 
+		}
     }
     if (!it->is_admin() && it->get_nick_bool() && it->get_user_bool() && it->is_logged_in())
     {
