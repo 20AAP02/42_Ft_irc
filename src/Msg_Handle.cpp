@@ -131,9 +131,9 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 		else if (command == "PART")
             part_command(word, it, s.str());
         else if (command == "INVITE")
-
+			std::cout << "ainda nao temos esse comando\n";
     }
-};
+}
 
 int Msg_Handle::check_input(str in, int fd)
 {
