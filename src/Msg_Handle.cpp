@@ -57,20 +57,20 @@ int Msg_Handle::Client_login(str in, int fd)
             it->setuser(word);
             it->set_user_bool();
         }
-        else if (command == "CAP")
-        {
+        // else if (command == "CAP")
+        // {
             
-            if (word == "LS")
-            {
-                std::string msg = "CAP * LS\n";
-                send(fd, msg.c_str(), msg.size(), 0);
-            }
-            else if (word == "REQ")
-            {
-                std::string msg = "CAP * ACK\n";
-                send(fd, msg.c_str(), msg.size(), 0);
-            }
-        }
+        //     if (word == "LS")
+        //     {
+        //         std::string msg = "CAP * LS\n";
+        //         send(fd, msg.c_str(), msg.size(), 0);
+        //     }
+        //     else if (word == "REQ")
+        //     {
+        //         std::string msg = "CAP * ACK\n";
+        //         send(fd, msg.c_str(), msg.size(), 0);
+        //     }
+        // }
     }
     if (it->get_nick_bool() && it->get_user_bool() && it->get_pass_bool())
     {
@@ -131,7 +131,9 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 		else if (command == "PART")
             part_command(word, it, s.str());
         else if (command == "INVITE")
-			std::cout << "ainda nao temos esse comando\n";
+			std::cout << "ainda nao temos o comando INVITE\n";
+		else if(command == "QUIT")
+			std::cout << "ainda nao temos o comando QUIT\n"
     }
 }
 

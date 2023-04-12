@@ -12,8 +12,7 @@ void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, s
     {
         if (channel->getName() == channel_to)
         {
-
-            std::size_t found = msg.find(':') + 1;
+            std::size_t found = msg.find(':');
             channel->sendMessage(*cli_it, msg.substr(found, msg.size() - found), "PRIVMSG");
         }
     }
@@ -43,7 +42,7 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
     {
         if (channel->getName() == word)
         {
-            std::size_t found = s.find(':') + 1;
+            std::size_t found = s.find(':');
             channel->leave(*it, s.substr(found, s.size() - found));
         }
     }

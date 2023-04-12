@@ -62,6 +62,7 @@ class Channel
 
 		//Additional fucntions
 		void removeFromVector(const Client &user, std::vector<str> &vector);
+		int userIsMemberOfChannel(const Client &user) const;
 };
 
 std::ostream &			operator<<( std::ostream & o, Channel const & i );

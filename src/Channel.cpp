@@ -112,6 +112,8 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 
 void Channel::addUser(const Client& user)
 {
+	if (this->userIsMemberOfChannel(user))
+		return;
 	std::string message = ":" + user.getclientnick() + "!~"; 
 	message.append(user.getNickmask() + " JOIN " + this->_channelName + "\n");
 	this->_users.push_back(user);
@@ -149,13 +151,17 @@ void Channel::changeTopic(const str& newTopic)
 
 void Channel::sendMessage(const Client &user, const str &message, const str &msgType) const
 {
+	if (!(this->userIsMemberOfChannel(user)))
+		return;
 	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
 
-	std::cout << msg;
 	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
 	{
 		if (member->getNickmask() != user.getNickmask())
+		{
+			std::cout << "Server sent to client, this message: " << msg;
 			send(member->getclientsocket(), msg.c_str(), msg.size(), 0);
+		}
 	}
 }
 
@@ -172,6 +178,8 @@ void Channel::whoCommand(const Client &user) const
 
 void Channel::leave(const Client &user, const str &goodbyMessage)
 {
+	if (!(this->userIsMemberOfChannel(user)))
+		return;
 	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
 	{
 		if (user.getNickmask() == member->getNickmask())
@@ -199,6 +207,14 @@ void Channel::removeFromVector(const Client &user, std::vector<str> &vector)
 			break;
 		}
 	}
+}
+
+int Channel::userIsMemberOfChannel(const Client &user) const
+{
+	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
+		if (member->getNickmask() == user.getNickmask())
+			return 1;
+	return 0;	
 }
 
 /*
