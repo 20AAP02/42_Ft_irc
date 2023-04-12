@@ -9,6 +9,7 @@ Client::Client(str nick, int socket_fd) : _nick(nick), _socket_fd(socket_fd)
     this->_password = false;
     this->_nick_cl = false;
     this->_user_cl = false;
+    this->_password = false;
 };
 
 Client::Client(str nick, str user, int socket_fd) : _nick(nick), _user(user), _socket_fd(socket_fd)
