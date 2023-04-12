@@ -22,15 +22,15 @@ int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
 {
     if (word == _password || word == ":" + _password)
     {
-        std::cout << "Password correcta" << std::endl;
+        std::cout << "SERVER PRINT: " << "Password correcta" << std::endl;
         it-> set_pass_bool();
     }
     else
     {
-        std::cout << "Password Incorrecta" << std::endl;
+        std::cout << "SERVER PRINT: " << "Password Incorrecta" << std::endl;
         std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
         send(fd, exit_msg.c_str(), exit_msg.size(), 0);
-        std::cout << "Server RES: " << exit_msg;
+        std::cout << "SERVER PRINT: " << "Server RES: " << exit_msg;
         return 1;
     }
     return 0;
@@ -70,6 +70,6 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
+		std::cout << "SERVER PRINT: " << e.what() << '\n';
 	}
 }

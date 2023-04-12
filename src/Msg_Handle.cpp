@@ -76,7 +76,7 @@ int Msg_Handle::Client_login(str in, int fd)
     {
         it->set_logged();
         _channels[0].addUser(*it);
-        std::cout << it->getclientnick() << " ->LOGGED IN \n";
+        std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";
         it->set_admin(true);
         str welcome_msg = "Welcome to our server!\n";
         send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
@@ -88,8 +88,9 @@ int Msg_Handle::Client_login(str in, int fd)
 void Msg_Handle::handleClientCommand(str in, int fd)
 {
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-    std::cout << "Client MSG [" << fd << "]" << in;
-    std::cout << "## sent by: NICK->" << it->getclientnick() << "USER->" << it->getclientuser() << "##" << std::endl;
+    // std::cout << "SERVER PRINT: " << "Client MSG [" << fd << "]" << in;
+    std::cout << in;
+    std::cout << "SERVER PRINT: " << "sent by " << it->getNickmask() << std::endl;
     std::stringstream s(in);
     str command;
     str word;
@@ -108,9 +109,9 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 		else if (command == "PART")
             part_command(word, it, s.str());
         else if (command == "INVITE")
-			std::cout << "ainda nao temos o comando INVITE\n";
+			std::cout << "SERVER PRINT: " << "ainda nao temos o comando INVITE\n";
 		else if(command == "QUIT")
-			std::cout << "ainda nao temos o comando QUIT\n";
+			std::cout << "SERVER PRINT: " << "ainda nao temos o comando QUIT\n";
     }
 }
 

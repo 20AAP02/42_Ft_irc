@@ -2,19 +2,6 @@
 #include <Client.hpp>
 #include <Channel.hpp>
 
-template <typename T>
-void printVector(const std::vector<T> &vec)
-{
-	std::cout << "Vector: (";
-	for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); it++)
-	{
-		std::cout << *it << ", ";
-	}
-	if ((int)vec.size() > 0)
-		std::cout << "\b\b";
-	std::cout << ")\n";
-}
-
 int main(int argc, char **argv)
 {
 	if (argc != 3)
