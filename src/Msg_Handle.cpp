@@ -96,16 +96,14 @@ void Msg_Handle::handleClientCommand(str in, int fd)
         return;
     while (s >> word)
     {
-<<<<<<< HEAD
+
         command = word;
         s >> word;
         if (command == "JOIN")
-=======
-	    if (word == "JOIN")
 		{
 			try
 			{
-				s >> word;
+			
 				int check = 0;
 				for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 				{
@@ -140,7 +138,6 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 			}
 		}
         else if (word == "NICK")
->>>>>>> 4cba4307220b9457c5930c6b2f59692362d37695
         {
             int check = 0;
             for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
@@ -157,13 +154,12 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             else
                 _channels[check].addUser(*it);
         }
-<<<<<<< HEAD
         else if (command == "PRIVMSG")
             privmsg_handle(it, s.str(), word);
 
         else if (command == "NICK")
             nick_name_set(it, word);
-=======
+
 		else if (word == "PART")
 		{
 			s >> word;
@@ -177,7 +173,7 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 				}
 			}
 		}
->>>>>>> 4cba4307220b9457c5930c6b2f59692362d37695
+
     }
 };
 
