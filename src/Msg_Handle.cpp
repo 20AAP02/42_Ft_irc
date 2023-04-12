@@ -100,30 +100,7 @@ void Msg_Handle::handleClientCommand(str in, int fd)
         command = word;
         s >> word;
         if (command == "JOIN")
-		{
-			try
-			{
-			
-				int check = 0;
-				for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
-				{
-					if (channel->getName() == word)
-						break;
-					check++;
-				}
-				if (check == (int)_channels.size())
-				{
-					_channels.push_back(Channel(word, "no topic"));
-					_channels.back().addUser(*it);
-				}
-				else
-					_channels[check].addUser(*it);
-			}
-			catch(const std::exception& e)
-			{
-				std::cerr << e.what() << '\n';
-			}
-		}
+			join_command(word, it, s.str());
         else if (command == "PRIVMSG")
             privmsg_handle(it, s.str(), word);
         else if (command == "NICK")
@@ -133,7 +110,7 @@ void Msg_Handle::handleClientCommand(str in, int fd)
         else if (command == "INVITE")
 			std::cout << "ainda nao temos o comando INVITE\n";
 		else if(command == "QUIT")
-			std::cout << "ainda nao temos o comando QUIT\n"
+			std::cout << "ainda nao temos o comando QUIT\n";
     }
 }
 

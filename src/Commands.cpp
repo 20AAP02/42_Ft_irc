@@ -27,7 +27,7 @@ int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
     }
     else
     {
-        std::cout << "Password INcorrecta" << std::endl;
+        std::cout << "Password Incorrecta" << std::endl;
         std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
         send(fd, exit_msg.c_str(), exit_msg.size(), 0);
         std::cout << "Server RES: " << exit_msg;
@@ -46,4 +46,30 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
             channel->leave(*it, s.substr(found, s.size() - found));
         }
     }
+}
+
+void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
+{
+	try
+	{
+		(void) s;
+		int check = 0;
+		for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+		{
+			if (channel->getName() == word)
+				break;
+			check++;
+		}
+		if (check == (int)_channels.size())
+		{
+			_channels.push_back(Channel(word, "no topic"));
+			_channels.back().addUser(*it);
+		}
+		else
+			_channels[check].addUser(*it);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 }

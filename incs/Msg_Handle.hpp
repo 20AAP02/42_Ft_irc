@@ -66,6 +66,7 @@ public:
     void privmsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to);
     int pwd_handle(str word, int fd, std::vector<Client>::iterator it);
     void part_command(str word, std::vector<Client>::iterator it, str s);
+	void join_command(str word, std::vector<Client>::iterator it, str s);
 };
 
 #endif

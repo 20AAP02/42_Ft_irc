@@ -167,12 +167,14 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 
 void Channel::modeCommand(const Client &user) const
 {
-	(void) user;
+	if (!(this->userIsMemberOfChannel(user)))
+		return;
 }
 
 void Channel::whoCommand(const Client &user) const
 {
-	(void) user;
+	if (!(this->userIsMemberOfChannel(user)))
+		return;
 }
 
 
