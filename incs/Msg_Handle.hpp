@@ -67,6 +67,7 @@ public:
     int pwd_handle(str word, int fd, std::vector<Client>::iterator it);
     void part_command(str word, std::vector<Client>::iterator it, str s);
 	void join_command(str word, std::vector<Client>::iterator it, str s);
+	void mode_command(str word, std::vector<Client>::iterator it, str s);
 };
 
 #endif

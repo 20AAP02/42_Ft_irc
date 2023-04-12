@@ -156,13 +156,8 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
 
 	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
-	{
 		if (member->getNickmask() != user.getNickmask())
-		{
-			std::cout << "Server sent to client, this message: " << msg;
 			send(member->getclientsocket(), msg.c_str(), msg.size(), 0);
-		}
-	}
 }
 
 void Channel::modeCommand(const Client &user) const

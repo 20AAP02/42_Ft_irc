@@ -108,6 +108,8 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             nick_name_set(it, word);
 		else if (command == "PART")
             part_command(word, it, s.str());
+		else if (command == "MODE")
+			mode_command(word, it, s.str());
         else if (command == "INVITE")
 			std::cout << "SERVER PRINT: " << "ainda nao temos o comando INVITE\n";
 		else if(command == "QUIT")

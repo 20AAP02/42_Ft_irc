@@ -38,14 +38,21 @@ int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
 
 void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
 {
-    for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
-    {
-        if (channel->getName() == word)
-        {
-            std::size_t found = s.find(':');
-            channel->leave(*it, s.substr(found, s.size() - found));
-        }
-    }
+	std::stringstream file(word);
+	str channelName;
+	while (getline(file, channelName, ','))
+	{
+		if (word.find(":") != word.npos)
+			return;
+		for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+		{
+			if (channel->getName() == channelName)
+			{
+				std::size_t found = s.find(':');
+				channel->leave(*it, s.substr(found, s.size() - found));
+			}
+		}	
+	}
 }
 
 void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
@@ -72,4 +79,11 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 	{
 		std::cout << "SERVER PRINT: " << e.what() << '\n';
 	}
+}
+
+void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
+{
+	(void) word;
+	(void) it;
+	(void) s;
 }
