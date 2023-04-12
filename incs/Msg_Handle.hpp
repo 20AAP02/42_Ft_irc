@@ -30,7 +30,7 @@ public:
     struct pollfd *get_client_poll();
 
     Msg_Handle();
-    void Client_login(str in, int fd);
+    int Client_login(str in, int fd);
     void handleClientCommand(str in, int fd);
     // 0 keep connection alive or 1 to disconnect
     int check_input(str in, int fd);
@@ -58,6 +58,13 @@ public:
     std::vector<Client>::iterator get_client_by_fd(int fd);
     std::string get_password();
     ~Msg_Handle();
+
+    /*MESSAGES
+    Apenas as que desligam o client retornam ints
+    */
+    void nick_name_set(std::vector<Client>::iterator cli_it,str nick);
+    void privmsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to);
+    int pwd_handle(str word, int fd);
 };
 
 #endif

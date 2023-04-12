@@ -32,69 +32,75 @@ TOPIC
 LIST
 */
 
-void Msg_Handle::Client_login(str in, int fd)
+int Msg_Handle::Client_login(str in, int fd)
 {
     std::stringstream s(in);
+    str command;
     str word;
     std::vector<Client>::iterator it = get_client_by_fd(fd);
     if (it->is_logged_in())
-        return ;
-    while(s >> word)
+        return 0;
+    while (s >> word)
     {
-        if (word == "PASS")
-        {
-            s >> word;
-            if (word == _password || word == ":"+_password)
-            {
-                std::cout << "Password correcta" << std::endl;
-            }
-            else
-            {
-                std::cout << "Password INcorrecta" << std::endl;
-                std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
-                send(fd, exit_msg.c_str(), exit_msg.size(), 0);
-                std::cout << "Server RES: " << exit_msg;
-                return ;
+        command = word;
+        s>> word;
+        if (command == "PASS"){
+            if(pwd_handle(word,fd)){
+                return 1;
             }
         }
-        else if (word == "NICK")
+        else if (command == "NICK")
+           nick_name_set(it,word);
+        else if (command == "USER")
         {
-            s >> word;
-            it->setnick(word);
-            it->set_nick_bool();
-        }
-        else if (word == "USER")
-        {
-            s >> word;
+            
             it->setuser(word);
             it->set_user_bool();
         }
-	
+        else if (command== "CAP")
+        {
+            
+            if (word == "LS")
+            {
+                std::string msg = "CAP * LS\n";
+                send(fd, msg.c_str(), msg.size(), 0);
+            }
+            else if (word == "REQ")
+            {
+                std::string msg = "CAP * ACK\n";
+                send(fd, msg.c_str(), msg.size(), 0);
+            }
+        }
     }
     if (it->get_nick_bool() && it->get_user_bool())
     {
         it->set_logged();
         _channels[0].addUser(*it);
-        std::cout << it->getclientnick() <<" ->LOGGED IN \n";
+        std::cout << it->getclientnick() << " ->LOGGED IN \n";
         it->set_admin(true);
         str welcome_msg = "Welcome to our server!\n";
         send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
     }
-
+    return 0;
 }
-
 
 void Msg_Handle::handleClientCommand(str in, int fd)
 {
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-    std::cout << "Client MSG [" <<fd<<"]" << in;
-    std::cout << "## sent by: NICK->" << it->getclientnick() << "USER->" << it->getclientuser() << "##" << std::endl ;
+    std::cout << "Client MSG [" << fd << "]" << in;
+    std::cout << "## sent by: NICK->" << it->getclientnick() << "USER->" << it->getclientuser() << "##" << std::endl;
     std::stringstream s(in);
+    str command;
     str word;
     if (!it->is_logged_in())
-        return ;
-    while(s >> word)
+        return;
+    while (s >> word)
     {
+<<<<<<< HEAD
+        command = word;
+        s >> word;
+        if (command == "JOIN")
+=======
 	    if (word == "JOIN")
 		{
 			try
@@ -134,11 +140,30 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 			}
 		}
         else if (word == "NICK")
+>>>>>>> 4cba4307220b9457c5930c6b2f59692362d37695
         {
-            s >> word;
-            it->setnick(word);
-            it->set_nick_bool();
+            int check = 0;
+            for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+            {
+                if (channel->getName() == word)
+                    break;
+                check++;
+            }
+            if (check == (int)_channels.size())
+            {
+                _channels.push_back(Channel(word, "no topic"));
+                _channels.back().addUser(*it);
+            }
+            else
+                _channels[check].addUser(*it);
         }
+<<<<<<< HEAD
+        else if (command == "PRIVMSG")
+            privmsg_handle(it, s.str(), word);
+
+        else if (command == "NICK")
+            nick_name_set(it, word);
+=======
 		else if (word == "PART")
 		{
 			s >> word;
@@ -152,17 +177,56 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 				}
 			}
 		}
+>>>>>>> 4cba4307220b9457c5930c6b2f59692362d37695
     }
-}
+};
 
 int Msg_Handle::check_input(str in, int fd)
 {
 
-    Client_login(in, fd);
+    // Handle client disconnect
+    if (Client_login(in, fd))
+        return 1;
     handleClientCommand(in, fd);
-    //std::vector<Client>::iterator it = get_client_by_fd(fd);
-    //std::cout <<  "is logged: " << it->is_logged_in() << std::endl;
+    // std::vector<Client>::iterator it = get_client_by_fd(fd);
+    // std::cout <<  "is logged: " << it->is_logged_in() << std::endl;
     return 0;
+};
+
+void Msg_Handle::nick_name_set(std::vector<Client>::iterator cli_it, str nick)
+{
+    cli_it->setnick(nick);
+    cli_it->set_nick_bool();
+};
+void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, str channel_to)
+{
+    for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+    {
+        if (channel->getName() == channel_to)
+        {
+
+            std::size_t found = msg.find(':') + 1;
+            channel->sendMessage(*cli_it, msg.substr(found, msg.size() - found), "PRIVMSG");
+        }
+    }
+}
+
+int Msg_Handle::pwd_handle(str word, int fd)
+{
+
+            if (word == _password || word == ":" + _password)
+            {
+                std::cout << "Password correcta" << std::endl;
+            }
+            else
+            {
+                std::cout << "Password INcorrecta" << std::endl;
+                std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
+                send(fd, exit_msg.c_str(), exit_msg.size(), 0);
+                std::cout << "Server RES: " << exit_msg;
+                return 1;
+            }
+            return 0;
 }
 
 void Msg_Handle::add_cli_num()
