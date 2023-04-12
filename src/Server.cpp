@@ -144,16 +144,16 @@ void Server::handleClientCommunication()
                     char buffer[BUFFER_SIZE];
                     std::memset(buffer, 0, sizeof(buffer));
                     int num_bytes = recv(msg_handler.get_pollfd_clients_fd(i), buffer, sizeof(buffer), 0);
-                    /*if (!num_bytes)
+                    if (!num_bytes)
                         handleClientDisconnection(i);
                     else
                     {
                         if(msg_handler.check_input(buffer, msg_handler.get_pollfd_clients_fd(i)))
                             handleClientDisconnection(i);
-                    }*/
-                    if (num_bytes)
-                        if(msg_handler.check_input(buffer, msg_handler.get_pollfd_clients_fd(i)))
-                            handleClientDisconnection(i);
+                    }
+                    // if (num_bytes)
+                    //     if(msg_handler.check_input(buffer, msg_handler.get_pollfd_clients_fd(i)))
+                    //         handleClientDisconnection(i);
                 }
             }
         }
