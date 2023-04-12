@@ -97,21 +97,28 @@ void Msg_Handle::handleClientCommand(str in, int fd)
     {
 	    if (word == "JOIN")
 		{
-			s >> word;
-			int check = 0;
-			for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+			try
 			{
-				if (channel->getName() == word)
-					break;
-				check++;
+				s >> word;
+				int check = 0;
+				for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+				{
+					if (channel->getName() == word)
+						break;
+					check++;
+				}
+				if (check == (int)_channels.size())
+				{
+					_channels.push_back(Channel(word, "no topic"));
+					_channels.back().addUser(*it);
+				}
+				else
+					_channels[check].addUser(*it);
 			}
-			if (check == (int)_channels.size())
+			catch(const std::exception& e)
 			{
-				_channels.push_back(Channel(word, "no topic"));
-				_channels.back().addUser(*it);
+				std::cerr << e.what() << '\n';
 			}
-			else
-				_channels[check].addUser(*it);
 		}
 		else if (word == "PRIVMSG")
 		{
