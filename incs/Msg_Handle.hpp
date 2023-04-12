@@ -56,6 +56,7 @@ public:
 
     void delete_last_client(void);
     std::vector<Client>::iterator get_client_by_fd(int fd);
+    std::vector<Client>::iterator get_client_by_name(const str& name);
     std::string get_password();
     ~Msg_Handle();
 
@@ -68,6 +69,7 @@ public:
     void part_command(str word, std::vector<Client>::iterator it, str s);
 	void join_command(str word, std::vector<Client>::iterator it, str s);
 	void mode_command(str word, std::vector<Client>::iterator it, str s);
+    void invite_command(std::vector<Client>::iterator it, str s);
 };
 
 #endif

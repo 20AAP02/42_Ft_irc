@@ -29,6 +29,7 @@ class Channel
 
 		// Commands for all channel members
 		void sendMessage(const Client &user, const str &message, const str &msgType) const;
+		void sendMessageToUser(const Client& user, const Client& receiver, const str& message, const str& msgType) const ;
 		void modeCommand(const Client &user) const;
 		void whoCommand(const Client &user) const;
 		void leave(const Client &user, const str &goodbyMessage);

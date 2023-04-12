@@ -87,3 +87,15 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 	(void) it;
 	(void) s;
 }
+
+void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
+{
+	std::size_t name_pos = s.find("INVITE ") + 7;
+    std::size_t channel_pos = s.find("#");
+    if (name_pos == std::string::npos || channel_pos == std::string::npos || !it->is_admin())
+    	return;
+    str receiver = s.substr(name_pos, channel_pos - name_pos - 1);
+    str channel = s.substr(channel_pos, s.length() - channel_pos);
+	channel.erase(channel.size() -1);
+	_channels[0].sendMessageToUser(*it, *get_client_by_name(receiver), channel, "INVITE");
+}

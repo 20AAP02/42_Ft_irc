@@ -160,6 +160,14 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 			send(member->getclientsocket(), msg.c_str(), msg.size(), 0);
 }
 
+void Channel::sendMessageToUser(const Client& user, const Client& receiver, const str& message, const str& msgType) const 
+{
+    str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
+    if (receiver.getNickmask() != user.getNickmask())
+        send(receiver.getclientsocket(), msg.c_str(), msg.size(), 0);
+}
+
+
 void Channel::modeCommand(const Client &user) const
 {
 	if (!(this->userIsMemberOfChannel(user)))

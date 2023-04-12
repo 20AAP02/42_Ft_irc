@@ -90,7 +90,7 @@ void Msg_Handle::handleClientCommand(str in, int fd)
     std::vector<Client>::iterator it = get_client_by_fd(fd);
     // std::cout << "SERVER PRINT: " << "Client MSG [" << fd << "]" << in;
     std::cout << in;
-    std::cout << "SERVER PRINT: " << "sent by " << it->getNickmask() << std::endl;
+    std::cout << "SERVER PRINT: " << "sent by " << it->getNickmask() << "["<< it->getclientsocket()<< "]"<< std::endl;
     std::stringstream s(in);
     str command;
     str word;
@@ -111,9 +111,11 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 		else if (command == "MODE")
 			mode_command(word, it, s.str());
         else if (command == "INVITE")
-			std::cout << "SERVER PRINT: " << "ainda nao temos o comando INVITE\n";
+            invite_command(it, in);
 		else if(command == "QUIT")
 			std::cout << "SERVER PRINT: " << "ainda nao temos o comando QUIT\n";
+        else if(command == "CONA")
+           _channels[0].sendMessage(*it,"cona mole","INVITE");
     }
 }
 
@@ -240,6 +242,19 @@ std::vector<Client>::iterator Msg_Handle::get_client_by_fd(int fd)
         }
     }
 
+    return _clients.end();
+}
+
+std::vector<Client>::iterator Msg_Handle::get_client_by_name(const str& name)
+{
+    std::vector<Client>::iterator it = _clients.begin();
+    for (; it != _clients.end(); ++it)
+    {
+        if (it->getclientnick() == name)
+        {
+            return it;
+        }
+    }
     return _clients.end();
 }
 
