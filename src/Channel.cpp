@@ -98,17 +98,17 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void printVector(const std::vector<Client> &vec)
-{
-	std::cout << "Vector: (";
-	for (typename std::vector<Client>::const_iterator it = vec.begin(); it != vec.end(); it++)
-	{
-		std::cout << it->getNickmask() << ", ";
-	}
-	if ((int)vec.size() > 0)
-		std::cout << "\b\b";
-	std::cout << ")\n";
-}
+// void printVector(const std::vector<Client> &vec)
+// {
+// 	std::cout << "Vector: (";
+// 	for (typename std::vector<Client>::const_iterator it = vec.begin(); it != vec.end(); it++)
+// 	{
+// 		std::cout << it->getNickmask() << ", ";
+// 	}
+// 	if ((int)vec.size() > 0)
+// 		std::cout << "\b\b";
+// 	std::cout << ")\n";
+// }
 
 void Channel::addUser(const Client& user)
 {
@@ -170,6 +170,36 @@ void Channel::whoCommand(const Client &user) const
 }
 
 
+void Channel::leave(const Client &user, const str &goodbyMessage)
+{
+	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
+	{
+		if (user.getNickmask() == member->getNickmask())
+		{
+			this->sendMessage(user, goodbyMessage, "PART");
+			this->_users.erase(member);
+			this->removeFromVector(user, this->_founders);
+			this->removeFromVector(user, this->_halfops);
+			this->removeFromVector(user, this->_protectedUsers);
+			break;
+		}
+	}
+}
+
+
+// --- Private Member Funtions ---
+
+void Channel::removeFromVector(const Client &user, std::vector<str> &vector)
+{
+	for (std::vector<str>::iterator member = vector.begin(); member != vector.end(); member++)
+	{
+		if (*member == user.getNickmask())
+		{
+			vector.erase(member);
+			break;
+		}
+	}
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

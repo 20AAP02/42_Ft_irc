@@ -31,6 +31,7 @@ class Channel
 		void sendMessage(const Client &user, const str &message, const str &msgType) const;
 		void modeCommand(const Client &user) const;
 		void whoCommand(const Client &user) const;
+		void leave(const Client &user, const str &goodbyMessage);
 
 		// Operators
 		Channel &		operator=( Channel const & rhs );
@@ -58,6 +59,9 @@ class Channel
 
 		// Channel Modes Map
 		std::map<str, std::vector<str> > _channelModes;
+
+		//Additional fucntions
+		void removeFromVector(const Client &user, std::vector<str> &vector);
 };
 
 std::ostream &			operator<<( std::ostream & o, Channel const & i );

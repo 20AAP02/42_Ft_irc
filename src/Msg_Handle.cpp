@@ -131,7 +131,7 @@ void Msg_Handle::handleClientCommand(str in, int fd)
                     std::size_t found = msg.find(':') + 1;
 					channel->sendMessage(*it, msg.substr(found, msg.size() - found), "PRIVMSG");
 				}
-			} 
+			}
 		}
         else if (word == "NICK")
         {
@@ -139,6 +139,19 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             it->setnick(word);
             it->set_nick_bool();
         }
+		else if (word == "PART")
+		{
+			s >> word;
+			for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+			{
+				if (channel->getName() == word)
+				{
+                    str msg = s.str();
+                    std::size_t found = msg.find(':') + 1;
+					channel->leave(*it, msg.substr(found, msg.size() - found));
+				}
+			}
+		}
     }
 }
 
