@@ -45,7 +45,7 @@ int Msg_Handle::Client_login(str in, int fd)
         command = word;
         s>> word;
         if (command == "PASS"){
-            if(pwd_handle(word,fd)){
+            if(pwd_handle(word,fd, it)){
                 return 1;
             }
         }
@@ -72,7 +72,7 @@ int Msg_Handle::Client_login(str in, int fd)
             }
         }
     }
-    if (it->get_nick_bool() && it->get_user_bool())
+    if (it->get_nick_bool() && it->get_user_bool() && it->get_pass_bool())
     {
         it->set_logged();
         _channels[0].addUser(*it);
@@ -207,22 +207,22 @@ void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, s
     }
 }
 
-int Msg_Handle::pwd_handle(str word, int fd)
+int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
 {
-
-            if (word == _password || word == ":" + _password)
-            {
-                std::cout << "Password correcta" << std::endl;
-            }
-            else
-            {
-                std::cout << "Password INcorrecta" << std::endl;
-                std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
-                send(fd, exit_msg.c_str(), exit_msg.size(), 0);
-                std::cout << "Server RES: " << exit_msg;
-                return 1;
-            }
-            return 0;
+    if (word == _password || word == ":" + _password)
+    {
+        std::cout << "Password correcta" << std::endl;
+        it-> set_pass_bool();
+    }
+    else
+    {
+        std::cout << "Password INcorrecta" << std::endl;
+        std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
+        send(fd, exit_msg.c_str(), exit_msg.size(), 0);
+        std::cout << "Server RES: " << exit_msg;
+        return 1;
+    }
+    return 0;
 }
 
 void Msg_Handle::add_cli_num()
