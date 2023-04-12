@@ -162,7 +162,7 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 
 void Channel::sendMessageToUser(const Client& user, const Client& receiver, const str& message, const str& msgType) const 
 {
-    str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
+    str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + receiver.getclientnick() + " " +  message + "\n";
     if (receiver.getNickmask() != user.getNickmask())
         send(receiver.getclientsocket(), msg.c_str(), msg.size(), 0);
 }
