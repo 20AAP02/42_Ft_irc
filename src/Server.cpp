@@ -151,9 +151,6 @@ void Server::handleClientCommunication()
                         if(msg_handler.check_input(buffer, msg_handler.get_pollfd_clients_fd(i)))
                             handleClientDisconnection(i);
                     }
-                    // if (num_bytes)
-                    //     if(msg_handler.check_input(buffer, msg_handler.get_pollfd_clients_fd(i)))
-                    //         handleClientDisconnection(i);
                 }
             }
         }
