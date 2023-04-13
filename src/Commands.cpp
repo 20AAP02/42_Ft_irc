@@ -52,34 +52,47 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
 				std::size_t found = s.find(':');
 				channel->leave(*it, s.substr(found, s.size() - found));
 			}
-		}	
+		}
+	}
+	for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+	{
+		if (channel->getUsers().size() == 0)
+		{
+			_channels.erase(channel);
+			break;
+		}
 	}
 }
 
 void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 {
-	try
+	std::stringstream file(word);
+	str channelName;
+	while (getline(file, channelName, ','))
 	{
-		(void) s;
 		int check = 0;
 		for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 		{
-			if (channel->getName() == word)
+			if (channel->getName() == channelName)
 				break;
 			check++;
 		}
-		if (check == (int)_channels.size())
+		try
 		{
-			_channels.push_back(Channel(word, "no topic"));
-			_channels.back().addUser(*it);
+			if (check == (int)_channels.size())
+			{
+				_channels.push_back(Channel(channelName, "no topic"));
+				_channels.back().addUser(*it);
+			}
+			else
+				_channels[check].addUser(*it);
 		}
-		else
-			_channels[check].addUser(*it);
+		catch(const std::exception& e)
+		{
+			std::cout << "SERVER PRINT: " << e.what() << '\n';
+		}
 	}
-	catch(const std::exception& e)
-	{
-		std::cout << "SERVER PRINT: " << e.what() << '\n';
-	}
+	(void) s;
 }
 
 void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
