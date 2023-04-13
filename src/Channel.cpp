@@ -98,18 +98,6 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-// void printVector(const std::vector<Client> &vec)
-// {
-// 	std::cout << "Vector: (";
-// 	for (typename std::vector<Client>::const_iterator it = vec.begin(); it != vec.end(); it++)
-// 	{
-// 		std::cout << it->getNickmask() << ", ";
-// 	}
-// 	if ((int)vec.size() > 0)
-// 		std::cout << "\b\b";
-// 	std::cout << ")\n";
-// }
-
 void Channel::addUser(const Client& user)
 {
 	if (this->userIsMemberOfChannel(user))
@@ -142,10 +130,6 @@ void Channel::removeUser(const Client& user)
 	(void)user;
 }
 
-void Channel::changeTopic(const str& newTopic)
-{
-	(void)newTopic;
-}
 
 // -- Commands for all channel members --
 
@@ -162,9 +146,48 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 
 void Channel::sendMessageToUser(const Client& user, const Client& receiver, const str& message, const str& msgType) const 
 {
-    str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + receiver.getclientnick() + " " +  message + "\n";
-    if (receiver.getNickmask() != user.getNickmask())
-        send(receiver.getclientsocket(), msg.c_str(), msg.size(), 0);
+    str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " +  message + "\n";
+    send(receiver.getclientsocket(), msg.c_str(), msg.size(), 0);
+}
+
+void Channel::changeTopic(const Client &user, const str& newTopic)
+{
+	this->_channelTopic = newTopic;
+	this->sendMessage(user, this->getName() + " :" + this->getTopic(), "TOPIC");
+	this->sendMessageToUser(user, user, this->getName() + " :" + this->getTopic(), "TOPIC");
+
+}
+
+void Channel::topicCommand(const Client &user, const str command)
+{
+	std::cout << "SERVER PRINT: " << "in channel topic: command -> " << command << std::endl;
+	if (!(this->userIsMemberOfChannel(user)))
+		return;
+	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " TOPIC " + this->getName();
+	std::cout << "SERVER PRINT: " << "in channel topic: msg -> " << msg << std::endl;
+	// Send user current topic
+	if (command.find_first_not_of(" \t\n\f\r\v") == command.npos)
+	{
+		std::cout << "SERVER PRINT: " << "show topic" << std::endl;
+		msg += " :";
+		// No topic
+		if (this->getTopic().find_first_not_of(" \t\n\f\r\v") == this->getTopic().npos)
+			msg += "No topic is set\n";
+		else
+			msg += this->getTopic() + "\n";
+		send(user.getclientsocket(), msg.c_str(), msg.size(), 0);
+	}
+	else if (command.find_first_not_of(" \t\n\f\r\v:") == command.npos)
+	{
+		std::cout << "SERVER PRINT: " << "clean topic" << std::endl;
+		this->changeTopic(user, "");
+	}
+	else
+	{
+		std::cout << "SERVER PRINT: " << "change topic" << std::endl;
+		str topic = command.substr(command.find(":") + 1);
+		this->changeTopic(user, topic);
+	}
 }
 
 

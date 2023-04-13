@@ -61,7 +61,8 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
 			if (channel->getName() == channelName)
 			{
 				std::size_t found = s.find(':');
-				channel->leave(*it, s.substr(found, s.size() - found));
+				if (found != s.npos)
+					channel->leave(*it, s.substr(found, s.size() - found));
 			}
 		}
 	}
@@ -104,6 +105,23 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 		}
 	}
 	(void) s;
+}
+
+void Msg_Handle::topic_command(str word, std::vector<Client>::iterator it, str s)
+{
+	std::cout << "SERVER PRINT: " << "entered topic_command() function: word -> " << word << " | s -> " << s << std::endl;
+	for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+	{
+		if (channel->getName() == word)
+		{
+			std::size_t found = s.find(':');
+			if (found != s.npos)
+				channel->topicCommand(*it, s.substr(found, s.size() - found));
+			else
+				channel->topicCommand(*it, "");
+			break;
+		}
+	}
 }
 
 void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)

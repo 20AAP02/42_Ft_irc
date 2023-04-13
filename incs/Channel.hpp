@@ -25,7 +25,6 @@ class Channel
 		void changeChannelMode(const str &mode);
 		void inviteUser(const Client &user);
         void removeUser(const Client &user);
-		void changeTopic(const str &newTopic);
 
 		// Commands for all channel members
 		void sendMessage(const Client &user, const str &message, const str &msgType) const;
@@ -33,6 +32,8 @@ class Channel
 		void modeCommand(const Client &user) const;
 		void whoCommand(const Client &user) const;
 		void leave(const Client &user, const str &goodbyMessage);
+		void changeTopic(const Client &user, const str &newTopic);
+		void topicCommand(const Client &user, const str command);
 
 		// Operators
 		Channel &		operator=( Channel const & rhs );
