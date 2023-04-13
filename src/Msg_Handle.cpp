@@ -88,8 +88,22 @@ int Msg_Handle::Client_login(str in, int fd)
 void Msg_Handle::handleOperatorCommand(str in, int fd)
 {
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-    std::cout << in;
-    std::cout << "SERVER PRINT: " << "sent by " << it->getNickmask() << "["<< it->getclientsocket()<< "]"<< std::endl;
+    if (!it->is_admin())
+        return;
+    str command, word;
+    std::stringstream s(in);
+    while (s >> word)
+    {
+        command = word;
+        s >> word;
+        if (command == "INVITE")
+            invite_command(it, in);
+        else if (command == "KICK")
+            kick_command(it,in);
+        else if(command == "OPER")
+            ;
+    }
+
 }
 
 void Msg_Handle::handleClientCommand(str in, int fd)
@@ -116,8 +130,6 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             part_command(word, it, s.str());
 		else if (command == "MODE")
 			mode_command(word, it, s.str());
-        else if (command == "INVITE")
-            invite_command(it, in);
 		else if(command == "QUIT")
 			std::cout << "SERVER PRINT: " << "ainda nao temos o comando QUIT\n";
     }

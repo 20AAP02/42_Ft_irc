@@ -124,3 +124,9 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 	channel.erase(channel.size() -1);
 	_channels[0].sendMessageToUser(*it, *get_client_by_name(receiver), channel, "INVITE");
 }
+
+void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s)
+{
+	(void)it;
+	(void)s;
+}
