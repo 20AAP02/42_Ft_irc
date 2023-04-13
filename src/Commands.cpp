@@ -13,7 +13,8 @@ void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, s
         if (channel->getName() == channel_to)
         {
             std::size_t found = msg.find(':');
-            channel->sendMessage(*cli_it, msg.substr(found, msg.size() - found), "PRIVMSG");
+			if (found != std::string::npos)
+            	channel->sendMessage(*cli_it, msg.substr(found, msg.size() - found), "PRIVMSG");
         }
     }
 }

@@ -28,7 +28,7 @@ public:
 private:
     int port_;
     int server_socket_;
-    struct pollfd server_pollfd;
+    //struct pollfd server_pollfd;
     void getPortAndPassword(const str& port);
     void createServerSocket();
     void bindServerSocket();
