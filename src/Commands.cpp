@@ -117,7 +117,7 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 {
 	std::size_t name_pos = s.find("INVITE ") + 7;
     std::size_t channel_pos = s.find("#");
-    if (name_pos == std::string::npos || channel_pos == std::string::npos || !it->is_admin())
+    if (name_pos == str::npos || channel_pos == str::npos || !it->is_admin())
     	return;
     str receiver = s.substr(name_pos, channel_pos - name_pos - 1);
     str channel = s.substr(channel_pos, s.length() - channel_pos);
@@ -127,6 +127,21 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 
 void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s)
 {
-	(void)it;
-	(void)s;
+	str reason, channelName, userName;
+    size_t pos1 = s.find(' ');
+    size_t pos2 = s.find(' ', pos1 + 1);
+    size_t pos3 = s.find(':');
+	if (pos3 == str::npos)
+		reason = "no reason";
+	else
+  		reason = s.substr(pos3 + 1, reason.length()-1);
+    channelName = s.substr(pos1 + 2, pos2 - pos1 - 1);
+    userName = s.substr(pos2 + 1, pos3 - pos2 - 2);
+
+	for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+	{
+		if (channel->getName() == channelName)
+			channel->leave(*it, "kicked");
+	}
+	_channels[0].sendMessageToUser(*it, *get_client_by_name(userName), reason, "KICK #" + channelName);
 }

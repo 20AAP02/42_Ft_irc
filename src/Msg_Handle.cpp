@@ -100,8 +100,8 @@ void Msg_Handle::handleOperatorCommand(str in, int fd)
             invite_command(it, in);
         else if (command == "KICK")
             kick_command(it,in);
-        else if(command == "OPER")
-            ;
+        // else if(command == "OPER")
+        //     ;
     }
 
 }
