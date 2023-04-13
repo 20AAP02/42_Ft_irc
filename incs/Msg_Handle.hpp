@@ -32,6 +32,7 @@ public:
     Msg_Handle();
     int Client_login(str in, int fd);
     void handleClientCommand(str in, int fd);
+    void handleOperatorCommand(str in, int fd);
     // 0 keep connection alive or 1 to disconnect
     int check_input(str in, int fd);
     void set_password(str pass);
@@ -65,6 +66,7 @@ public:
     */
     void nick_name_set(std::vector<Client>::iterator cli_it,str nick);
     void privmsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to);
+    void Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to);
     int pwd_handle(str word, int fd, std::vector<Client>::iterator it);
     void part_command(str word, std::vector<Client>::iterator it, str s);
 	void join_command(str word, std::vector<Client>::iterator it, str s);

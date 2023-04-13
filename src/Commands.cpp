@@ -6,8 +6,19 @@ void Msg_Handle::nick_name_set(std::vector<Client>::iterator cli_it, str nick)
     cli_it->set_nick_bool();
 };
 
+void Msg_Handle::Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to)
+{
+	size_t found = msg.find(":");
+	if (found != std::string::npos)
+		_channels[0].sendMessageToUser(*cli_it, *get_client_by_name(channel_to), msg.substr(found, msg.size() - found), "PRIVMSG");
+	
+}
+
 void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, str channel_to)
 {
+
+	if (channel_to.c_str()[0] != '#')
+		Privatemsg_handle(cli_it,msg, channel_to);
     for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
     {
         if (channel->getName() == channel_to)
