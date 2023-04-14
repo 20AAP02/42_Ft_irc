@@ -111,7 +111,7 @@ void Server::handleClientDisconnection(int i)
     msg_handler.set_pollfd_clients_events(0, i);
     msg_handler.delete_client(i);
     msg_handler.del_cli_num();
-    std::cout << "SERVER PRINT(handleClientDisconnection): " << "Client disconnected" << std::endl;
+    std::cout << "SERVER PRINT: " << "Client disconnected" << std::endl;
 }
 
 void Server::signal_handler(int sig)

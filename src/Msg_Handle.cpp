@@ -39,10 +39,7 @@ int Msg_Handle::Client_login(str in, int fd)
     str word;
     std::vector<Client>::iterator it = get_client_by_fd(fd);
     if (it->is_logged_in())
-    {
-        std::cout<<"Ja estou logado(client Login)\n";
         return 0;
-    }
     while (s >> word)
     {
         command = word;
@@ -79,7 +76,7 @@ int Msg_Handle::Client_login(str in, int fd)
     {
         it->set_logged();
         _channels[0].addUser(*it);
-        std::cout << "SERVER PRINT(Client_login): " << it->getclientnick() << " ->LOGGED IN \n";
+        std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";
         it->set_admin(true);
         str welcome_msg = "Welcome to our server!\n";
         send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
@@ -91,10 +88,8 @@ int Msg_Handle::Client_login(str in, int fd)
 void Msg_Handle::handleOperatorCommand(str in, int fd)
 {
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-    if (!it->is_logged_in()){
-         std::cout<<"Nao estou logado(handleOperatorCommand)\n";
+    if (!it->is_admin())
         return;
-    }
     str command, word;
     std::stringstream s(in);
     while (s >> word)
@@ -115,7 +110,7 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 {
     std::vector<Client>::iterator it = get_client_by_fd(fd);
     std::cout << in;
-    std::cout << "SERVER PRINT(handleClientCommand): " << "sent by " << it->getNickmask() << "["<< it->getclientsocket()<< "]"<< std::endl;
+    std::cout << "SERVER PRINT: " << "sent by " << it->getNickmask() << "["<< it->getclientsocket()<< "]"<< std::endl;
     std::stringstream s(in);
     str command;
     str word;
