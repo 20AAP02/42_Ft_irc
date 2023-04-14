@@ -34,15 +34,15 @@ int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
 {
     if (word == _password || word == ":" + _password)
     {
-        std::cout << "SERVER PRINT: " << "Password correcta" << std::endl;
+        std::cout << "SERVER PRINT(pwd_handle): " << "Password correcta" << std::endl;
         it-> set_pass_bool();
     }
     else
     {
-        std::cout << "SERVER PRINT: " << "Password Incorrecta" << std::endl;
+        std::cout << "SERVER PRINT(pwd_handle): " << "Password Incorrecta" << std::endl;
         std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
         send(fd, exit_msg.c_str(), exit_msg.size(), 0);
-        std::cout << "SERVER PRINT: " << "Server RES: " << exit_msg;
+        std::cout << "SERVER PRINT(pwd_handle): " << "Server RES: " << exit_msg;
         return 1;
     }
     return 0;
@@ -100,7 +100,7 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 		}
 		catch(const std::exception& e)
 		{
-			std::cout << "SERVER PRINT: " << e.what() << '\n';
+			std::cout << "SERVER PRINT(excepcao join_command): " << e.what() << '\n';
 		}
 	}
 	(void) s;
@@ -127,6 +127,7 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 
 void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s)
 {
+	//
 	str reason, channelName, userName;
     size_t pos1 = s.find(' ');
     size_t pos2 = s.find(' ', pos1 + 1);
@@ -140,8 +141,12 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s)
 
 	for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 	{
-		if (channel->getName() == channelName)
+		if (channel->getName() == channelName){
 			channel->leave(*it, "kicked");
+			channel->sendMessageToUser(*it, *get_client_by_name(userName), reason, "KICK #" + channelName);
+			for(std::vector<Client>::iterator send_to_cli = _clients.begin(); send_to_cli != _clients.end(); send_to_cli++){
+				channel->sendMessage(*it, "KICK #"+get_client_by_name(userName)->getclientuser(), reason);
+			}	
+		}
 	}
-	_channels[0].sendMessageToUser(*it, *get_client_by_name(userName), reason, "KICK #" + channelName);
 }
