@@ -117,7 +117,7 @@ void Channel::addUser(const Client& user)
 	std::string message = ":" + user.getclientnick() + "!~"; 
 	message.append(user.getNickmask() + " JOIN " + this->_channelName + "\n");
 	this->_users.push_back(user);
-	for (int i = 0; i < 9999999; i++) {};
+	// for (int i = 0; i < 9999999; i++) {};
 	if ((int)this->_founders.size() == 0)
 		this->_founders.push_back(user.getNickmask());
 	sendMessage(user, "", "JOIN");
@@ -140,6 +140,8 @@ void Channel::inviteUser(const Client& user)
 void Channel::removeUser(const Client& user)
 {
 	(void)user;
+	
+
 }
 
 void Channel::changeTopic(const str& newTopic)

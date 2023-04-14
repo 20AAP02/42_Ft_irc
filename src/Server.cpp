@@ -107,6 +107,7 @@ void Server::handleNewConnection()
 void Server::handleClientDisconnection(int i)
 {
     close(msg_handler.get_pollfd_clients_fd(i));
+    msg_handler.delete_client_to_disconnect(i);
     msg_handler.set_pollfd_clients_fd(-1, i);
     msg_handler.set_pollfd_clients_events(0, i);
     msg_handler.delete_client(i);

@@ -54,7 +54,7 @@ public:
     void del_cli_num();
     void add_cli_num();
     int get_cli_num();
-
+    void delete_client_to_disconnect(int fd);
     void delete_last_client(void);
     std::vector<Client>::iterator get_client_by_fd(int fd);
     std::vector<Client>::iterator get_client_by_name(const str& name);

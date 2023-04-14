@@ -42,36 +42,39 @@ int Msg_Handle::Client_login(str in, int fd)
         return 0;
     while (s >> word)
     {
-        command = word;
-        s>> word;
-        if (command == "PASS"){
+        std::cout<<"COMAND "<< command<<" Word "<<word<<"\n";
+        if (word == "PASS"){
+            s >> word;
             if(pwd_handle(word,fd, it)){
                 return 1;
             }
         }
-        else if (command == "NICK")
-           nick_name_set(it,word);
-        else if (command == "USER")
+        else if (word == "NICK"){
+             s >> word;
+          nick_name_set(it,word);
+        }
+        else if (word == "USER")
         {
-            
+             s >> word;
             it->setuser(word);
             it->set_user_bool();
         }
-        // else if (command == "CAP")
-        // {
+        /*else if (word == "CAP")
+        {
             
-        //     if (word == "LS")
-        //     {
-        //         std::string msg = "CAP * LS\n";
-        //         send(fd, msg.c_str(), msg.size(), 0);
-        //     }
-        //     else if (word == "REQ")
-        //     {
-        //         std::string msg = "CAP * ACK\n";
-        //         send(fd, msg.c_str(), msg.size(), 0);
-        //     }
-        // }
+            if (word == "LS")
+            {
+                std::string msg = "CAP * END\n";
+                send(fd, msg.c_str(), msg.size(), 0);
+            }
+            else if (word == "REQ")
+            {
+                std::string msg = "CAP * END\n";
+                send(fd, msg.c_str(), msg.size(), 0);
+            }
+        }*/
     }
+    std::cout<< "Bools de Validação nick_"<<it->get_nick_bool()<<" get user"<<it->get_user_bool()<<" Get pass"<<it->get_pass_bool()<<"\n";
     if (it->get_nick_bool() && it->get_user_bool() && it->get_pass_bool())
     {
         it->set_logged();
@@ -114,8 +117,10 @@ void Msg_Handle::handleClientCommand(str in, int fd)
     std::stringstream s(in);
     str command;
     str word;
-    if (!it->is_logged_in())
+    if (!it->is_logged_in()){
+        std::cout<<"NAO estou logado amigo(handleClientCommand)\n";
         return;
+    }
     while (s >> word)
     {
         command = word;
@@ -227,7 +232,7 @@ str Msg_Handle::get_password()
 }
 int Msg_Handle::num_of_clients()
 {
-    return this->_clients.size();
+    return this->num_clients;
 }
 
 void Msg_Handle::delete_client(int fd)
@@ -246,6 +251,14 @@ std::vector<Client>::iterator Msg_Handle::get_client_by_fd(int fd)
     }
     return _clients.end();
 }
+
+ void Msg_Handle::delete_client_to_disconnect(int fd){
+   std::vector<Channel>::iterator it = _channels.begin();
+    for (; it != _channels.end(); ++it)
+    {
+        it->removeUser(*get_client_by_fd(fd));
+    }
+ }
 
 std::vector<Client>::iterator Msg_Handle::get_client_by_name(const str& name)
 {
