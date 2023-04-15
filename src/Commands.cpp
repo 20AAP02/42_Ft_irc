@@ -128,6 +128,55 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 	_channels[0].sendMessageToUser(*it, *get_client_by_name(receiver), channel, "INVITE");
 }
 
+
+void Msg_Handle::who_command(str in,int fd){
+	std::stringstream s(in);
+	str word;
+	bool with_args = false;
+	//WHO withouth arguments
+	s >> word;
+	if(s >> word)
+		with_args = true;
+	if(!with_args || word == "0" || word =="*"){
+		std::vector<Client>::const_iterator client_it = _clients.begin();
+		for(; client_it != _clients.end(); client_it++){
+			//Para não se printar a ele próprio
+			if(client_it->getclientsocket() == fd)
+				continue;
+			str msg = ":127.0.0.1 352" + get_client_by_fd(fd)->getclientnick()  + client_it->getclientnick() +":3 "+client_it->getclientnick()+"\n";
+			send(fd, msg.c_str(), msg.size(), 0);
+		}
+	}
+	else{
+			std::cout <<word<<"AWUI -- \n";
+		try{
+		if(word[0] == '#'){
+			std::cout <<"- ENTREI aqui\n";
+			str channel = word.substr(1,word.length() -1);
+			std::cout << channel<<"- Chann\n";
+		}
+		else{
+			str msg = ":127.0.0.1 352" + get_client_by_fd(fd)->getclientnick() + " * " + get_client_by_name(word)->getclientnick() +"\n";
+			send(fd, msg.c_str(), msg.size(), 0);
+		}
+		}
+		catch(std::exception& e){	
+			std::cout << "ERROR on WHO"<<e.what()<<"\n";		
+		}
+		
+	}
+	str msg = ":127.0.0.1 315" + get_client_by_fd(fd)->getclientnick() + word + ":End of /WHO list.\n";
+	send(fd, msg.c_str(), msg.size(), 0);
+	
+}
+
+void Msg_Handle::list_command(str in,int fd){
+	std::stringstream s(in);
+	str word;
+	str msg = ":127.0.0.1 323" + get_client_by_fd(fd)->getclientnick() + word + ":End of /LIST\n";
+	send(fd, msg.c_str(), msg.size(), 0);
+}
+
 void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s,int fd)
 {
 	str reason, channelName, userName;

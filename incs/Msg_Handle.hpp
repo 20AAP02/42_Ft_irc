@@ -73,6 +73,8 @@ public:
 	void mode_command(str word, std::vector<Client>::iterator it, str s);
     void invite_command(std::vector<Client>::iterator it, str s);
     void kick_command(std::vector<Client>::iterator it, str s, int fd);
+    void who_command(str in,int fd);
+    void list_command(str in,int fd);
 };
 
 #endif
