@@ -130,32 +130,36 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 
 void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s,int fd)
 {
-	str reason, channelName, userName;
-    size_t pos1 = s.find(' ');
-    size_t pos2 = s.find(' ', pos1 + 1);
-    size_t pos3 = s.find(':');
-	
-	try{
-		if (pos3 == str::npos)
-			reason = "no reason";
-		else{
-  			reason = s.substr(pos3 + 1, reason.length()-1);
+	str reason, channelName, userName, word;
+	std::stringstream in(s);
+	bool isReason = false;
+	while(in >> word)
+	{
+		if (word == "KICK")
+		{
+			in >> channelName;
+			in >> userName;
+			if (in >> reason)
+				isReason = true;
 		}
-    	channelName = s.substr(pos1 + 2, pos2 - pos1 - 1);
-    	userName = s.substr(pos2 + 1, pos3 - pos2 - 2);
-
+	}
+	try{
+		if (isReason)
+			reason = s.substr(s.find(":"), s.length() - 2);
+		else
+			reason = ":No reason";
+		std::cout << "REASON: " << reason << "BOOL " << isReason << std::endl;
 		for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 		{
 			if (channel->getName() == channelName)
-				channel->leave(*it, "kicked");
+			{
+				channel->leave(*get_client_by_name(userName), "kicked");
+			}
 		}
-		_channels[0].sendMessageToUser(*it, *get_client_by_name(userName), reason, "KICK #" + channelName);
+		_channels[0].sendMessageToUser(*it, *get_client_by_name(userName), reason, "KICK " + channelName);
 	}catch(...){
-		/*CASO de ERRo*/
 		std::cout<<"Erro no Formato do Kick"<<std::endl;
-		//461     ERR_NEEDMOREPARAMS
 		std::string err_msg = ":127.0.0.1 461 user :Bad Format Command\n";
         send(fd, err_msg.c_str(), err_msg.size(), 0);
-
 	}
 }
