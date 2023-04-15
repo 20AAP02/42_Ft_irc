@@ -17,7 +17,7 @@ void Msg_Handle::Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg
 void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, str channel_to)
 {
 
-	if (channel_to.c_str()[0] != '#'){
+	if (channel_to.c_str()[0] != '#')
 		Privatemsg_handle(cli_it,msg, channel_to);
     for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
     {
@@ -28,10 +28,8 @@ void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, s
             	channel->sendMessage(*cli_it, msg.substr(found, msg.size() - found), "PRIVMSG");
         }
     }
-	}
-	else{
-		
-	}
+	
+	
 
 }
 
