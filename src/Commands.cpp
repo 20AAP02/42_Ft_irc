@@ -28,6 +28,9 @@ void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, s
             	channel->sendMessage(*cli_it, msg.substr(found, msg.size() - found), "PRIVMSG");
         }
     }
+	
+	
+
 }
 
 int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
@@ -125,23 +128,34 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 	_channels[0].sendMessageToUser(*it, *get_client_by_name(receiver), channel, "INVITE");
 }
 
-void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s)
+void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s,int fd)
 {
 	str reason, channelName, userName;
     size_t pos1 = s.find(' ');
     size_t pos2 = s.find(' ', pos1 + 1);
     size_t pos3 = s.find(':');
-	if (pos3 == str::npos)
-		reason = "no reason";
-	else
-  		reason = s.substr(pos3 + 1, reason.length()-1);
-    channelName = s.substr(pos1 + 2, pos2 - pos1 - 1);
-    userName = s.substr(pos2 + 1, pos3 - pos2 - 2);
+	
+	try{
+		if (pos3 == str::npos)
+			reason = "no reason";
+		else{
+  			reason = s.substr(pos3 + 1, reason.length()-1);
+		}
+    	channelName = s.substr(pos1 + 2, pos2 - pos1 - 1);
+    	userName = s.substr(pos2 + 1, pos3 - pos2 - 2);
 
-	for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
-	{
-		if (channel->getName() == channelName)
-			channel->leave(*it, "kicked");
+		for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+		{
+			if (channel->getName() == channelName)
+				channel->leave(*it, "kicked");
+		}
+		_channels[0].sendMessageToUser(*it, *get_client_by_name(userName), reason, "KICK #" + channelName);
+	}catch(...){
+		/*CASO de ERRo*/
+		std::cout<<"Erro no Formato do Kick"<<std::endl;
+		//461     ERR_NEEDMOREPARAMS
+		std::string err_msg = ":127.0.0.1 461 user :Bad Format Command\n";
+        send(fd, err_msg.c_str(), err_msg.size(), 0);
+
 	}
-	_channels[0].sendMessageToUser(*it, *get_client_by_name(userName), reason, "KICK #" + channelName);
 }

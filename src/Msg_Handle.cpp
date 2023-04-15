@@ -59,20 +59,22 @@ int Msg_Handle::Client_login(str in, int fd)
             it->setuser(word);
             it->set_user_bool();
         }
-        /*else if (word == "CAP")
+        else if (word == "CAP")
         {
-            
+             s >> word;
             if (word == "LS")
-            {
-                std::string msg = "CAP * END\n";
+            {   
+                 
+                std::string msg = "CAP * LS :multi-prefix sasl\n";
                 send(fd, msg.c_str(), msg.size(), 0);
             }
             else if (word == "REQ")
             {
-                std::string msg = "CAP * END\n";
+                 s >> word;
+                std::string msg = "CAP * ACK multi-prefix\n";
                 send(fd, msg.c_str(), msg.size(), 0);
             }
-        }*/
+        }
     }
     std::cout<< "Bools de Validação nick_"<<it->get_nick_bool()<<" get user"<<it->get_user_bool()<<" Get pass"<<it->get_pass_bool()<<"\n";
     if (it->get_nick_bool() && it->get_user_bool() && it->get_pass_bool())
@@ -102,7 +104,7 @@ void Msg_Handle::handleOperatorCommand(str in, int fd)
         if (command == "INVITE")
             invite_command(it, in);
         else if (command == "KICK")
-            kick_command(it,in);
+            kick_command(it,in,fd);
         // else if(command == "OPER")
         //     ;
     }
@@ -137,6 +139,8 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 			mode_command(word, it, s.str());
 		else if(command == "QUIT")
 			std::cout << "SERVER PRINT: " << "ainda nao temos o comando QUIT\n";
+        /*else if(command == "WHO")
+            who_command();*/
     }
 }
 
@@ -146,6 +150,12 @@ int Msg_Handle::check_input(str in, int fd)
         return 1;
     handleClientCommand(in, fd);
     handleOperatorCommand(in,fd);
+    
+    /*
+    421     ERR_UNKNOWNCOMMAND
+    "<command> :Unknown command"
+    */
+
     return 0;
 };
 
