@@ -45,6 +45,9 @@ void Server::createServerSocket()
     server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket_ < 0)
         ft_error("Failed to create server socket");
+    int optval = 1;
+    if (setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
+        ft_error("Failed to set SO_REUSEADDR on server socket");
 }
 
 void Server::bindServerSocket()
