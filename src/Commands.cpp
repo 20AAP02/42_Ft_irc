@@ -191,14 +191,6 @@ void Msg_Handle::who_command(str in, int fd)
 	send(fd, msg.c_str(), msg.size(), 0);
 }
 
-void Msg_Handle::list_command(str in, int fd)
-{
-	std::stringstream s(in);
-	str word;
-	str msg = ":127.0.0.1 323" + get_client_by_fd(fd)->getclientnick() + word + ":End of /LIST\n";
-	send(fd, msg.c_str(), msg.size(), 0);
-}
-
 void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 {
 	str reason, channelName, userName, word;
