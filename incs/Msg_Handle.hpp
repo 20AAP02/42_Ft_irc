@@ -76,6 +76,8 @@ public:
     void invite_command(std::vector<Client>::iterator it, str s);
     void kick_command(std::vector<Client>::iterator it, str s, int fd);
     void list_command(int fd);
+    void iterate_over_clients(std::vector<Client> vect,int caller_fd);
+    void who_command(str in,int fd);
 };
 
 #endif

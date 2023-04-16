@@ -2,28 +2,27 @@
 
 void Msg_Handle::nick_name_set(std::vector<Client>::iterator cli_it, str nick)
 {
-    cli_it->setnick(nick);
-    cli_it->set_nick_bool();
+	cli_it->setnick(nick);
+	cli_it->set_nick_bool();
 };
 
-void Msg_Handle::Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to)
+void Msg_Handle::Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg, str channel_to)
 {
 	size_t found = msg.find(":");
 	if (found != std::string::npos)
 		_channels[0].sendMessageToUser(*cli_it, *get_client_by_name(channel_to), msg.substr(found, msg.size() - found), "PRIVMSG");
-	
 }
 
 void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, str channel_to)
 {
 
 	if (channel_to.c_str()[0] != '#')
-		Privatemsg_handle(cli_it,msg, channel_to);
-    for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
-    {
-        if (channel->getName() == channel_to)
-        {
-            std::size_t found = msg.find(':');
+		Privatemsg_handle(cli_it, msg, channel_to);
+	for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+	{
+		if (channel->getName() == channel_to)
+		{
+			std::size_t found = msg.find(':');
 			if (found != std::string::npos)
             	channel->sendMessage(*cli_it, msg.substr(found, msg.size() - found), "PRIVMSG");
         }
@@ -32,20 +31,23 @@ void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, s
 
 int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
 {
-    if (word == _password || word == ":" + _password)
-    {
-        std::cout << "SERVER PRINT: " << "Password correcta" << std::endl;
-        it-> set_pass_bool();
-    }
-    else
-    {
-        std::cout << "SERVER PRINT: " << "Password Incorrecta" << std::endl;
-        std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
-        send(fd, exit_msg.c_str(), exit_msg.size(), 0);
-        std::cout << "SERVER PRINT: " << "Server RES: " << exit_msg;
-        return 1;
-    }
-    return 0;
+	if (word == _password || word == ":" + _password)
+	{
+		std::cout << "SERVER PRINT: "
+				  << "Password correcta" << std::endl;
+		it->set_pass_bool();
+	}
+	else
+	{
+		std::cout << "SERVER PRINT: "
+				  << "Password Incorrecta" << std::endl;
+		std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
+		send(fd, exit_msg.c_str(), exit_msg.size(), 0);
+		std::cout << "SERVER PRINT: "
+				  << "Server RES: " << exit_msg;
+		return 1;
+	}
+	return 0;
 }
 
 void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
@@ -98,39 +100,111 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 			else
 				_channels[check].addUser(*it);
 		}
-		catch(const std::exception& e)
+		catch (const std::exception &e)
 		{
 			std::cout << "SERVER PRINT: " << e.what() << '\n';
 		}
 	}
-	(void) s;
+	(void)s;
 }
 
 void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 {
-	(void) word;
-	(void) it;
-	(void) s;
+	(void)word;
+	(void)it;
+	(void)s;
 }
 
 void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 {
 	std::size_t name_pos = s.find("INVITE ") + 7;
-    std::size_t channel_pos = s.find("#");
-    if (name_pos == str::npos || channel_pos == str::npos || !it->is_admin())
-    	return;
-    str receiver = s.substr(name_pos, channel_pos - name_pos - 1);
-    str channel = s.substr(channel_pos, s.length() - channel_pos);
-	channel.erase(channel.size() -1);
+	std::size_t channel_pos = s.find("#");
+	if (name_pos == str::npos || channel_pos == str::npos || !it->is_admin())
+		return;
+	str receiver = s.substr(name_pos, channel_pos - name_pos - 1);
+	str channel = s.substr(channel_pos, s.length() - channel_pos);
+	channel.erase(channel.size() - 1);
 	_channels[0].sendMessageToUser(*it, *get_client_by_name(receiver), channel, "INVITE");
 }
 
-void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s,int fd)
+void Msg_Handle::iterate_over_clients(std::vector<Client> vect, int caller_fd)
+{
+	std::vector<Client>::const_iterator client_it = vect.begin();
+	for (; client_it != vect.end(); client_it++)
+	{
+		if (client_it->getclientsocket() == caller_fd)
+			continue;
+		str msg = ":127.0.0.1 352" + get_client_by_fd(caller_fd)->getclientnick()  + client_it->getclientnick() +":3 "+client_it->getclientnick()+"\n";
+		//str msg = ":127.0.0.1 352 " + get_client_by_fd(caller_fd)->getclientnick() + " 127.0.0.1 " + client_it->getclientnick() + " :3 " + client_it->getclientnick() + "\n";
+		send(caller_fd, msg.c_str(), msg.size(), 0);
+	}
+}
+
+void Msg_Handle::who_command(str in, int fd)
+{
+	std::stringstream s(in);
+	str word;
+	bool with_args = false;
+	// WHO withouth arguments
+	s >> word;
+	if (s >> word)
+		with_args = true;
+	if (!with_args || word == "0" || word == "*")
+		iterate_over_clients(_clients, fd);
+	else
+	{
+		try
+		{
+			if (word[0] == '#')
+			{
+				str _channel = word.substr(1, word.length() - 1);
+				for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+				{
+					if (channel->getName() == word)
+					{
+						std::vector<Client> temp = channel->getUsers();
+						iterate_over_clients(temp, fd);
+					}
+				}
+			}
+
+			else
+			{
+				if (get_client_by_name(word) != _clients.end())
+				{
+					std::cout << "Details About " << word << " asked by " << get_client_by_fd(fd)->getclientnick() << "\n";
+					//str msg = ":127.0.0.1 352" + get_client_by_fd(fd)->getclientnick() + " * " + get_client_by_name(word)->getclientnick() +"\n";
+					str msg = ":127.0.0.1 352 " + get_client_by_fd(fd)->getclientnick() + " 127.0.0.1 " + get_client_by_name(word)->getclientnick() + "\n";
+					send(fd, msg.c_str(), msg.size(), 0);
+				}
+				else
+				{
+					std::cout << "Comando /WHO " + word + " return 0 results\n";
+				}
+			}
+		}
+		catch (std::exception &e){
+			std::cout << "ERROR on WHO" << e.what() << "\n";}
+	}
+	str msg = ":127.0.0.1 315" + get_client_by_fd(fd)->getclientnick() + word + ":End of /WHO list.\n";
+	//str msg = ":127.0.0.1 315 " + get_client_by_fd(fd)->getclientuser() +" :End of /WHO list.\n";
+	send(fd, msg.c_str(), msg.size(), 0);
+}
+
+void Msg_Handle::list_command(str in, int fd)
+{
+	std::stringstream s(in);
+	str word;
+	str msg = ":127.0.0.1 323" + get_client_by_fd(fd)->getclientnick() + word + ":End of /LIST\n";
+	send(fd, msg.c_str(), msg.size(), 0);
+}
+
+void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 {
 	str reason, channelName, userName, word;
 	std::stringstream in(s);
 	bool isReason = false;
-	while(in >> word)
+	while (in >> word)
 	{
 		if (word == "KICK")
 		{
@@ -140,7 +214,8 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s,int fd)
 				isReason = true;
 		}
 	}
-	try{
+	try
+	{
 		if (isReason)
 			reason = s.substr(s.find(":"), s.length() - 2);
 		else
@@ -154,10 +229,12 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s,int fd)
 			}
 		}
 		_channels[0].sendMessageToUser(*it, *get_client_by_name(userName), reason, "KICK " + channelName);
-	}catch(...){
-		std::cout<<"Erro no Formato do Kick"<<std::endl;
+	}
+	catch (...)
+	{
+		std::cout << "Erro no Formato do Kick" << std::endl;
 		std::string err_msg = ":127.0.0.1 461 user :Bad Format Command\n";
-        send(fd, err_msg.c_str(), err_msg.size(), 0);
+		send(fd, err_msg.c_str(), err_msg.size(), 0);
 	}
 }
 
