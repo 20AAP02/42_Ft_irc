@@ -134,8 +134,7 @@ void Msg_Handle::iterate_over_clients(std::vector<Client> vect, int caller_fd)
 	{
 		if (client_it->getclientsocket() == caller_fd)
 			continue;
-		str msg = ":127.0.0.1 352" + get_client_by_fd(caller_fd)->getclientnick()  + client_it->getclientnick() +":3 "+client_it->getclientnick()+"\n";
-		//str msg = ":127.0.0.1 352 " + get_client_by_fd(caller_fd)->getclientnick() + " 127.0.0.1 " + client_it->getclientnick() + " :3 " + client_it->getclientnick() + "\n";
+		str msg = ":localhost 352 " + get_client_by_fd(caller_fd)->getclientnick() + " * " + client_it->getclientuser() + " localhost *.localhost "+ client_it->getclientnick()+ " Hx :0 "+ "AFAZERrealname"+"\n";
 		send(caller_fd, msg.c_str(), msg.size(), 0);
 	}
 }
@@ -173,8 +172,7 @@ void Msg_Handle::who_command(str in, int fd)
 				if (get_client_by_name(word) != _clients.end())
 				{
 					std::cout << "Details About " << word << " asked by " << get_client_by_fd(fd)->getclientnick() << "\n";
-					//str msg = ":127.0.0.1 352" + get_client_by_fd(fd)->getclientnick() + " * " + get_client_by_name(word)->getclientnick() +"\n";
-					str msg = ":127.0.0.1 352 " + get_client_by_fd(fd)->getclientnick() + " 127.0.0.1 " + get_client_by_name(word)->getclientnick() + "\n";
+					str msg = ":localhost 352 " + get_client_by_fd(fd)->getclientnick() + " * " + get_client_by_name(word)->getclientuser() + " localhost *.localhost "+ get_client_by_name(word)->getclientnick()+ " Hx :0 "+ "AFAZERrealname"+"\n";
 					send(fd, msg.c_str(), msg.size(), 0);
 				}
 				else
@@ -186,8 +184,7 @@ void Msg_Handle::who_command(str in, int fd)
 		catch (std::exception &e){
 			std::cout << "ERROR on WHO" << e.what() << "\n";}
 	}
-	str msg = ":127.0.0.1 315" + get_client_by_fd(fd)->getclientnick() + word + ":End of /WHO list.\n";
-	//str msg = ":127.0.0.1 315 " + get_client_by_fd(fd)->getclientuser() +" :End of /WHO list.\n";
+	str msg = ":localhost 315 " + get_client_by_fd(fd)->getclientnick()+ ' ' + get_client_by_fd(fd)->getclientnick()+ " :End of /WHO list.\n";
 	send(fd, msg.c_str(), msg.size(), 0);
 }
 
