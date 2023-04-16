@@ -141,8 +141,10 @@ void Msg_Handle::handleClientCommand(str in, int fd)
 			list_command(s.str(), fd);    
 		else if(command == "QUIT")
 			std::cout << "SERVER PRINT: " << "ainda nao temos o comando QUIT\n";
-        /*else if(command == "WHO")
-            who_command();*/
+        else if(command == "WHO")
+            who_command(s.str(),fd);
+        else if(command == "LIST")
+            list_command(s.str(),fd);
     }
 }
 
