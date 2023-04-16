@@ -137,6 +137,8 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             part_command(word, it, s.str());
 		else if (command == "MODE")
 			mode_command(word, it, s.str());
+        else if (command == "LIST")
+			list_command(s.str(), fd);    
 		else if(command == "QUIT")
 			std::cout << "SERVER PRINT: " << "ainda nao temos o comando QUIT\n";
         /*else if(command == "WHO")
@@ -245,6 +247,11 @@ int Msg_Handle::num_of_clients()
     return this->num_clients;
 }
 
+std::vector<Channel> Msg_Handle::get_channels()
+{
+    return this->_channels;
+}
+
 void Msg_Handle::delete_client(int fd)
 {
     if (get_client_by_fd(fd) != _clients.end())
@@ -279,6 +286,17 @@ std::vector<Client>::iterator Msg_Handle::get_client_by_name(const str& name)
             return it;
     }
     return _clients.end();
+}
+
+std::vector<Channel>::iterator Msg_Handle::get_channel_by_name(const str& name)
+{
+    std::vector<Channel>::iterator it = _channels.begin();
+    for (; it != _channels.end(); ++it)
+    {
+        if (it->getName() == name)
+            return it;
+    }
+    return _channels.end();
 }
 
 Msg_Handle::~Msg_Handle(){};

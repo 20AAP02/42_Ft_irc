@@ -28,9 +28,6 @@ void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, s
             	channel->sendMessage(*cli_it, msg.substr(found, msg.size() - found), "PRIVMSG");
         }
     }
-	
-	
-
 }
 
 int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
@@ -162,4 +159,15 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s,int fd)
 		std::string err_msg = ":127.0.0.1 461 user :Bad Format Command\n";
         send(fd, err_msg.c_str(), err_msg.size(), 0);
 	}
+}
+
+void Msg_Handle::list_command(int fd) 
+{
+    str word, msg;
+    std::vector<Channel> channels = get_channels();
+
+    for (size_t i = 0; i < channels.size(); i++)
+        msg += ":localhost 322 " + get_client_by_fd(fd)->getclientnick() + " " + channels[i].getName() + " 3 :" + channels[i].getTopic() + "\n";
+    msg += ":localhost 323 " + get_client_by_fd(fd)->getclientnick() + " :End of /LIST\n";
+    send(fd, msg.c_str(), msg.size(), 0);
 }
