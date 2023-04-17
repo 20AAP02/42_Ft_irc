@@ -93,6 +93,7 @@ int Msg_Handle::Client_login(str in, int fd)
         _channels[0].addUser(*it);
         std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";
         it->set_admin(true);
+        it->ping_client();
         str welcome_msg = "Welcome to our server!\n";
         send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
     }
@@ -137,7 +138,9 @@ void Msg_Handle::handleClientCommand(str in, int fd)
     {
         command = word;
         s >> word;
-        if (command == "JOIN")
+        if (it->is_waiting_for_pong)
+            handle_pong(in, it);
+        else if (command == "JOIN")
 			join_command(word, it, s.str());
         else if (command == "PRIVMSG")
             privmsg_handle(it, s.str(), word);
@@ -281,13 +284,13 @@ std::vector<Client>::iterator Msg_Handle::get_client_by_fd(int fd)
     return _clients.end();
 }
 
- void Msg_Handle::delete_client_to_disconnect(int fd){
+void Msg_Handle::delete_client_to_disconnect(int fd){
    std::vector<Channel>::iterator it = _channels.begin();
     for (; it != _channels.end(); ++it)
     {
         it->leave(*get_client_by_fd(fd), "Leaving server");
     }
- }
+}
 
 std::vector<Client>::iterator Msg_Handle::get_client_by_name(const str& name)
 {
@@ -310,5 +313,20 @@ std::vector<Channel>::iterator Msg_Handle::get_channel_by_name(const str& name)
     }
     return _channels.end();
 }
+
+void  Msg_Handle::checkPingTimeout()
+{
+    long current_time = time(NULL);
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if (it->is_waiting_for_pong && current_time - it->get_time_ping() > TIMEOUT)
+        {
+            std::cout << "Closing connection with " << it->getNickmask() << " due to PING timeout" << std::endl;
+            delete_client_to_disconnect(it->getclientsocket());
+        }
+    }
+}
+
+
 
 Msg_Handle::~Msg_Handle(){};

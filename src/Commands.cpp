@@ -255,3 +255,9 @@ void Msg_Handle::list_command(int fd)
     msg += ":localhost 323 " + get_client_by_fd(fd)->getclientnick() + " :End of /LIST\n";
     send(fd, msg.c_str(), msg.size(), 0);
 }
+
+void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
+{
+	if (in == "PONG :localhost\r\n")
+		it->is_waiting_for_pong = false;
+}

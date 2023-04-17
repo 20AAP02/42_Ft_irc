@@ -2,6 +2,10 @@
 #define CLIENT_HPP
 
 #include <string>
+#include <cstdlib>
+#include <unistd.h>
+#include <iostream>
+#include <sys/socket.h>
 
 typedef std::string str;
 
@@ -12,6 +16,7 @@ private:
     str _nick;
     str _user;
     str _realname;
+    long _time_ping;
     bool _is_admin;
     int _socket_fd;
     bool _is_logged_in;
@@ -22,6 +27,7 @@ private:
     // Channels with access list std::list<Channel>
 
 public:
+    bool is_waiting_for_pong;
     Client(str nick, int socket_fd);
     Client(str nick, str user, int socket_fd);
     ~Client();
@@ -31,6 +37,7 @@ public:
     void set_pollfd_events(int in);
 
     struct pollfd get_client_poll();*/
+    void  ping_client();
 
     const str &getclientnick() const;
     const str &getclientuser() const;
@@ -51,6 +58,7 @@ public:
     bool get_pass_bool();
     bool get_nick_bool();
     bool get_user_bool();
+    long get_time_ping();
     str getRealName();
     str getNickmask() const;
 
