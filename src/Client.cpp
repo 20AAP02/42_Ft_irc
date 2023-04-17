@@ -10,6 +10,7 @@ Client::Client(str nick, int socket_fd) : _nick(nick), _socket_fd(socket_fd)
     this->_nick_cl = false;
     this->_user_cl = false;
     this->_password = false;
+    this->is_waiting_for_pong = false;
 };
 
 Client::Client(str nick, str user, int socket_fd) : _nick(nick), _user(user), _socket_fd(socket_fd)
@@ -39,6 +40,15 @@ struct pollfd Client::get_client_poll(){
     return client_pollfd;
 }
 */
+
+void Client::ping_client()
+{
+    str msg = "PING :localhost\r\n";
+	send(this->getclientsocket(), msg.c_str(), msg.size(), 0);
+    this->_time_ping = time(NULL);
+    this->is_waiting_for_pong = true;
+}
+
 const str &Client::getclientuser() const
 {
     return this->_user;
@@ -68,6 +78,10 @@ bool Client::get_user_bool() {
     return this->_user_cl;
 }
 
+long Client::get_time_ping()
+{
+    return this->_time_ping;
+}
 
 int Client::getclientsocket() const
 {

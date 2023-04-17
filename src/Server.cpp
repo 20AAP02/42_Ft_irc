@@ -133,6 +133,7 @@ void Server::handleClientCommunication()
     std::cout << GREEN "Server Started" BLANK << std::endl;
     while (run)
     {
+        msg_handler.checkPingTimeout();
         if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, -1) < 0 && run)
             ft_error("Error in poll()");
         for (int i = 0; i <= msg_handler.get_cli_num(); i++)

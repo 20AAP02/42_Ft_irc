@@ -15,6 +15,7 @@
 
 
 typedef std::string str;
+#define TIMEOUT 10
 
 class Msg_Handle
 {
@@ -30,6 +31,7 @@ public:
     struct pollfd *get_client_poll();
 
     Msg_Handle();
+    void checkPingTimeout();
     int Client_login(str in, int fd);
     void handlerealname(str in, std::vector<Client>::iterator it);
     void handleClientCommand(str in, int fd);
@@ -79,6 +81,7 @@ public:
     void list_command(int fd);
     void iterate_over_clients(std::vector<Client> vect,int caller_fd);
     void who_command(str in,int fd);
+    void handle_pong(str in,std::vector<Client>::iterator it);
 };
 
 #endif
