@@ -1,5 +1,5 @@
 CC			=	c++
-FLAGS		=	-g -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
+FLAGS		=	-g -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 RMV			=	rm -rf
 NAME		=	ircserv
 INPUT		?=
@@ -33,7 +33,10 @@ e: cls re cls
 	@./$(NAME) $(INPUT)
 
 v: cls re cls
-	@valgrind ./$(NAME) $(INPUT)
+	@valgrind -s --leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
+
+debug: cls re cls
+	@gdb ./$(NAME) $(INPUT)
 
 # COLORS / TEXT MODES
 

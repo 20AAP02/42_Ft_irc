@@ -39,8 +39,8 @@ public:
     struct pollfd get_client_poll();*/
     void  ping_client();
 
-    const str &getclientnick() const;
-    const str &getclientuser() const;
+    const str getclientnick() const;
+    const str getclientuser() const;
     const str &getmessage() const;
 
     void setnick(str new_nick);

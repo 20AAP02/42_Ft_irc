@@ -20,7 +20,7 @@ Client::Client(str nick, str user, int socket_fd) : _nick(nick), _user(user), _s
 
 Client::~Client(){};
 
-const str &Client::getclientnick() const
+const str Client::getclientnick() const
 {
     return this->_nick;
 };
@@ -49,9 +49,9 @@ void Client::ping_client()
     this->is_waiting_for_pong = true;
 }
 
-const str &Client::getclientuser() const
+const str Client::getclientuser() const
 {
-    return this->_user;
+	return this->_user;
 };
 
 const str &Client::getmessage() const

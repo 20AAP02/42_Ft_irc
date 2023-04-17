@@ -51,5 +51,12 @@
         "optional": "cpp",
         "fstream": "cpp",
         "ranges": "cpp"
-    }
+	},
+	"makefile.launchConfigurations": [
+		{
+			"cwd": "/home/antonio/Desktop/42_Ft_irc",
+			"binaryPath": "/home/antonio/Desktop/42_Ft_irc/ircserv",
+			"binaryArgs": []
+		}
+	]
 }
