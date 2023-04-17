@@ -22,7 +22,8 @@ Client::~Client(){};
 
 const str Client::getclientnick() const
 {
-    return this->_nick;
+	// std::cout << "SERVER PRINT: nick -> (" << this->_nick << ")\n";
+	return this->_nick;
 };
 
 /*void Client::set_pollfd_fd(int in){

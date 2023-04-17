@@ -1,5 +1,5 @@
 CC			=	c++
-FLAGS		=	-g -Wall -Wextra -Werror -std=c++98 -fsanitize=address
+FLAGS		=	-g -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
 RMV			=	rm -rf
 NAME		=	ircserv
 INPUT		?=
