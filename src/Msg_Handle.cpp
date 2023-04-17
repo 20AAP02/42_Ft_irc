@@ -32,6 +32,15 @@ TOPIC
 LIST
 */
 
+void Msg_Handle::handlerealname(str in, std::vector<Client>::iterator it)
+{
+    size_t poscol = in.find(':') + 1;
+    size_t posnl = in.find("\n", poscol);
+    str word = in.substr(poscol,  posnl - poscol - 1);
+    it->setrealname(word);
+    std::cout << "Realname: [" << it->getRealName() << "]\n";
+}
+
 int Msg_Handle::Client_login(str in, int fd)
 {
     std::stringstream s(in);
@@ -55,9 +64,10 @@ int Msg_Handle::Client_login(str in, int fd)
         }
         else if (word == "USER")
         {
-             s >> word;
+            s >> word;
             it->setuser(word);
             it->set_user_bool();
+            handlerealname(in, it);
         }
         else if (word == "CAP")
         {

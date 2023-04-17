@@ -31,6 +31,7 @@ public:
 
     Msg_Handle();
     int Client_login(str in, int fd);
+    void handlerealname(str in, std::vector<Client>::iterator it);
     void handleClientCommand(str in, int fd);
     void handleOperatorCommand(str in, int fd);
     // 0 keep connection alive or 1 to disconnect

@@ -102,7 +102,10 @@ void Client::set_user_bool()
     this->_user_cl = true;
 }
 
-
+str Client::getRealName()
+{
+    return (this->_realname);
+}
 
 void Client::setnick(str new_nick)
 {
@@ -112,6 +115,11 @@ void Client::setnick(str new_nick)
 void Client::setuser(str new_user)
 {
     this->_user = new_user;
+}
+
+void Client::setrealname(str realname)
+{
+    this->_realname = realname;
 }
 
 str Client::getNickmask() const {

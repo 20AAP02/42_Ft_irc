@@ -11,6 +11,7 @@ private:
     str _message;
     str _nick;
     str _user;
+    str _realname;
     bool _is_admin;
     int _socket_fd;
     bool _is_logged_in;
@@ -37,6 +38,7 @@ public:
 
     void setnick(str new_nick);
     void setuser(str new_user);
+    void setrealname(str realname);
     bool is_admin() const;
     bool is_logged_in() const;
     int getclientsocket() const;
@@ -49,6 +51,7 @@ public:
     bool get_pass_bool();
     bool get_nick_bool();
     bool get_user_bool();
+    str getRealName();
     str getNickmask() const;
 
     // Add Channel to list
