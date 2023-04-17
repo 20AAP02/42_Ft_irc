@@ -2,6 +2,7 @@
 # define CHANNEL_HPP
 
 # include <iostream>
+# include <cmath>
 # include <string>
 # include <vector>
 # include <map>
@@ -20,20 +21,21 @@ class Channel
 		~Channel();
 		
 		void addUser(const Client &user);
-
-		// Commands for channel moderators
-		void changeChannelMode(const str &mode);
-		void inviteUser(const Client &user);
-        void removeUser(const Client &user);
-
-		// Commands for all channel members
 		void sendMessage(const Client &user, const str &message, const str &msgType) const;
 		void sendMessageToUser(const Client& user, const Client& receiver, const str& message, const str& msgType) const ;
-		void modeCommand(const Client &user) const;
-		void whoCommand(const Client &user) const;
 		void leave(const Client &user, const str &goodbyMessage);
-		void changeTopic(const Client &user, const str &newTopic);
 		void topicCommand(const Client &user, const str command);
+
+		// Checkers
+		std::size_t getNumberOfUsers() const;
+		const str getPrefix(const str &nickMask);
+		bool isBanned(const str &nickMask);
+		int channelSizeLimit();
+		bool wasInvited(const str &nickMask);
+		const str getKey();
+		bool canSpeak(const str &nickMask);
+		bool isChannelSecret();
+		bool canChangeTopic(const str &nickMask);
 
 		// Operators
 		Channel &		operator=( Channel const & rhs );
@@ -62,9 +64,12 @@ class Channel
 		// Channel Modes Map
 		std::map<str, std::vector<str> > _channelModes;
 
-		//Additional fucntions
+		// Additional fucntions
 		void removeFromVector(const Client &user, std::vector<str> &vector);
 		int userIsMemberOfChannel(const Client &user) const;
+        void removeUser(const Client &user);
+		void changeChannelMode(const str &mode);
+		void changeTopic(const Client &user, const str &newTopic);
 };
 
 std::ostream &			operator<<( std::ostream & o, Channel const & i );

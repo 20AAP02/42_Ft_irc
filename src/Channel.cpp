@@ -102,38 +102,14 @@ void Channel::addUser(const Client& user)
 {
 	if (this->userIsMemberOfChannel(user))
 		return;
-	std::string message = ":" + user.getclientnick() + "!~"; 
+	std::string message = ":" + user.getclientnick() + "!~";
 	message.append(user.getNickmask() + " JOIN " + this->_channelName + "\n");
 	this->_users.push_back(user);
-	// for (int i = 0; i < 9999999; i++) {};
 	if ((int)this->_founders.size() == 0)
 		this->_founders.push_back(user.getNickmask());
 	sendMessage(user, "", "JOIN");
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 }
-
-// -- Commands for channel moderators --
-
-
-void Channel::changeChannelMode(const str& mode)
-{
-	(void)mode;
-}
-
-void Channel::inviteUser(const Client& user)
-{
-	(void)user;
-}
-
-void Channel::removeUser(const Client& user)
-{
-	(void)user;
-	
-
-}
-
-
-// -- Commands for all channel members --
 
 void Channel::sendMessage(const Client &user, const str &message, const str &msgType) const
 {
@@ -148,16 +124,8 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 
 void Channel::sendMessageToUser(const Client& user, const Client& receiver, const str& message, const str& msgType) const 
 {
-    str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " +  message + "\n";
+    str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " +  message + "\n";
     send(receiver.getclientsocket(), msg.c_str(), msg.size(), 0);
-}
-
-void Channel::changeTopic(const Client &user, const str& newTopic)
-{
-	this->_channelTopic = newTopic;
-	this->sendMessage(user, this->getName() + " :" + this->getTopic(), "TOPIC");
-	this->sendMessageToUser(user, user, this->getName() + " :" + this->getTopic(), "TOPIC");
-
 }
 
 void Channel::topicCommand(const Client &user, const str command)
@@ -171,10 +139,10 @@ void Channel::topicCommand(const Client &user, const str command)
 	if (command.find_first_not_of(" \t\n\f\r\v") == command.npos)
 	{
 		std::cout << "SERVER PRINT: " << "show topic" << std::endl;
-		msg += " :";
+		msg += " ";
 		// No topic
 		if (this->getTopic().find_first_not_of(" \t\n\f\r\v") == this->getTopic().npos)
-			msg += "No topic is set\n";
+			msg += "No topic is set (" + this->getTopic() + ")\n";
 		else
 			msg += this->getTopic() + "\n";
 		send(user.getclientsocket(), msg.c_str(), msg.size(), 0);
@@ -182,7 +150,7 @@ void Channel::topicCommand(const Client &user, const str command)
 	else if (command.find_first_not_of(" \t\n\f\r\v:") == command.npos)
 	{
 		std::cout << "SERVER PRINT: " << "clean topic" << std::endl;
-		this->changeTopic(user, "");
+		this->changeTopic(user, "No topic is set");
 	}
 	else
 	{
@@ -192,20 +160,6 @@ void Channel::topicCommand(const Client &user, const str command)
 	}
 }
 
-
-void Channel::modeCommand(const Client &user) const
-{
-	if (!(this->userIsMemberOfChannel(user)))
-		return;
-}
-
-void Channel::whoCommand(const Client &user) const
-{
-	if (!(this->userIsMemberOfChannel(user)))
-		return;
-}
-
-
 void Channel::leave(const Client &user, const str &goodbyMessage)
 {
 	if (!(this->userIsMemberOfChannel(user)))
@@ -214,18 +168,125 @@ void Channel::leave(const Client &user, const str &goodbyMessage)
 	{
 		if (user.getNickmask() == member->getNickmask())
 		{
+			this->removeUser(user);
 			this->sendMessage(user, goodbyMessage, "PART");
-			this->_users.erase(member);
-			this->removeFromVector(user, this->_founders);
-			this->removeFromVector(user, this->_halfops);
-			this->removeFromVector(user, this->_protectedUsers);
 			break;
 		}
 	}
 }
 
 
-// --- Private Member Funtions ---
+// ----------- Checker Member Functions ----------
+
+std::size_t Channel::getNumberOfUsers() const
+{
+	return this->_users.size();
+}
+
+const str Channel::getPrefix(const str &nickMask)
+{
+	str prefixes;
+	// Founder
+	for (std::vector<str>::const_iterator user = this->_founders.begin(); user != this->_founders.end(); user++)
+		if (nickMask == *user)
+			prefixes.push_back('~');
+	// Halfop
+	for (std::vector<str>::const_iterator user = this->_halfops.begin(); user != this->_halfops.end(); user++)
+		if (nickMask == *user)
+			prefixes.push_back('%');
+	// Protected
+	for (std::vector<str>::const_iterator user = this->_protectedUsers.begin(); user != this->_protectedUsers.end(); user++)
+		if (nickMask == *user)
+			prefixes.push_back('&');
+	// Voice
+	if (this->_channelModes["+m"][0] == "1")
+	{
+		for (std::vector<str>::iterator mem = this->_channelModes["+m"].begin(); mem != this->_channelModes["+m"].end(); mem++)
+		{
+			if (*mem == nickMask)
+			{
+				prefixes.push_back('+');
+				break;
+			}
+		}
+	}
+	else
+		prefixes.push_back('+');
+	return prefixes;
+}
+
+bool Channel::isBanned(const str &nickMask)
+{
+	if (this->_channelModes["+b"][0] == "0")
+		return false;
+	for (std::vector<str>::const_iterator mem = this->_channelModes["+b"].begin(); mem != this->_channelModes["+b"].end(); mem++)
+	{
+		if (*mem == nickMask)
+		{
+			if (this->_channelModes["+e"][0] == "0")
+				return true;
+			for (std::vector<str>::const_iterator exept = this->_channelModes["+e"].begin(); exept != this->_channelModes["+e"].end(); exept++)
+				if (*exept == nickMask)
+					return false;
+			return true;
+		}
+	}
+	return false;
+}
+
+int Channel::channelSizeLimit()
+{
+	if (this->_channelModes["+l"][0] == "0")
+		return 0;
+	return atoi(this->_channelModes["+l"][1].c_str());
+}
+
+bool Channel::wasInvited(const str &nickMask)
+{
+	for (std::vector<str>::const_iterator mem = this->_channelModes["+i"].begin(); mem != this->_channelModes["+i"].end(); mem++)
+		if (*mem == nickMask)
+			return true;
+	return false;
+}
+
+const str Channel::getKey()
+{
+	if (this->_channelModes["+k"][0] == "0")
+		return "";
+	return this->_channelModes["+k"][1];
+}
+
+bool Channel::canSpeak(const str &nickMask)
+{
+	if (this->_channelModes["+n"][0] == "0")
+		return true;
+	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
+		if (member->getNickmask() == nickMask)
+			return true;
+	if (this->getPrefix(nickMask).find("+") != std::string::npos)
+		return true;
+	return false;
+}
+
+bool Channel::isChannelSecret()
+{
+	if (this->_channelModes["+s"][0] == "1")
+		return true;
+	return false;
+}
+
+bool Channel::canChangeTopic(const str &nickMask)
+{
+	if (this->_channelModes["+t"][0] == "0")
+		return true;
+	const str prefixes = this->getPrefix(nickMask);
+	if (prefixes.find_first_of("~%") != prefixes.npos)
+		return true;
+	return false;
+}
+
+
+// ----------- Private Member Funtions -----------
 
 void Channel::removeFromVector(const Client &user, std::vector<str> &vector)
 {
@@ -246,6 +307,34 @@ int Channel::userIsMemberOfChannel(const Client &user) const
 			return 1;
 	return 0;	
 }
+
+void Channel::removeUser(const Client& user)
+{
+	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
+	{
+		if (user.getNickmask() == member->getNickmask())
+		{
+			this->_users.erase(member);
+			this->removeFromVector(user, this->_founders);
+			this->removeFromVector(user, this->_halfops);
+			this->removeFromVector(user, this->_protectedUsers);
+			break;
+		}
+	}
+}
+
+void Channel::changeTopic(const Client &user, const str& newTopic)
+{
+	this->_channelTopic = newTopic;
+	this->sendMessage(user, this->getTopic(), "TOPIC");
+	this->sendMessageToUser(user, user, this->getTopic(), "TOPIC");
+}
+
+void Channel::changeChannelMode(const str& mode)
+{
+	(void)mode;
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

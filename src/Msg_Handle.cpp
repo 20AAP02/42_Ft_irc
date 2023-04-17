@@ -285,7 +285,7 @@ std::vector<Client>::iterator Msg_Handle::get_client_by_fd(int fd)
    std::vector<Channel>::iterator it = _channels.begin();
     for (; it != _channels.end(); ++it)
     {
-        it->removeUser(*get_client_by_fd(fd));
+        it->leave(*get_client_by_fd(fd), "Leaving server");
     }
  }
 
