@@ -21,7 +21,7 @@ class Channel
 		~Channel();
 		
 		void addUser(const Client &user);
-		void sendMessage(const Client &user, const str &message, const str &msgType) const;
+		void sendMessage(const Client &user, const str &message, const str &msgType);
 		void sendMessageToUser(const Client& user, const Client& receiver, const str& message, const str& msgType) const ;
 		void leave(const Client &user, const str &goodbyMessage);
 		void topicCommand(const Client &user, const str command);

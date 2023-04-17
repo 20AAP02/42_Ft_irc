@@ -100,7 +100,9 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 
 void Channel::addUser(const Client& user)
 {
-	if (this->userIsMemberOfChannel(user))
+	if (this->userIsMemberOfChannel(user) && !this->isBanned(user.getNickmask()))
+		return;
+	if (this->channelSizeLimit() != 0 && this->channelSizeLimit() > (int)this->getNumberOfUsers())
 		return;
 	std::string message = ":" + user.getclientnick() + "!~";
 	message.append(user.getNickmask() + " JOIN " + this->_channelName + "\n");
@@ -111,11 +113,14 @@ void Channel::addUser(const Client& user)
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 }
 
-void Channel::sendMessage(const Client &user, const str &message, const str &msgType) const
+void Channel::sendMessage(const Client &user, const str &message, const str &msgType)
 {
 	if (!(this->userIsMemberOfChannel(user)))
 		return;
-	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
+	str msg = ":" + user.getclientnick() + "!";
+	if (this->getPrefix(user.getNickmask()).find_first_not_of("+") != std::string::npos)
+		msg += this->getPrefix(user.getNickmask())[0];
+	msg += user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
 
 	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
 		if (member->getNickmask() != user.getNickmask())
@@ -168,8 +173,8 @@ void Channel::leave(const Client &user, const str &goodbyMessage)
 	{
 		if (user.getNickmask() == member->getNickmask())
 		{
-			this->removeUser(user);
 			this->sendMessage(user, goodbyMessage, "PART");
+			this->removeUser(user);
 			break;
 		}
 	}
