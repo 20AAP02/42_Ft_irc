@@ -32,6 +32,15 @@ TOPIC
 LIST
 */
 
+void Msg_Handle::handlerealname(str in, std::vector<Client>::iterator it)
+{
+    size_t poscol = in.find(':') + 1;
+    size_t posnl = in.find("\n", poscol);
+    str word = in.substr(poscol,  posnl - poscol - 1);
+    it->setrealname(word);
+    std::cout << "Realname: [" << it->getRealName() << "]\n";
+}
+
 int Msg_Handle::Client_login(str in, int fd)
 {
     std::stringstream s(in);
@@ -42,36 +51,42 @@ int Msg_Handle::Client_login(str in, int fd)
         return 0;
     while (s >> word)
     {
-        command = word;
-        s>> word;
-        if (command == "PASS"){
+        std::cout<<"COMAND "<< command<<" Word "<<word<<"\n";
+        if (word == "PASS"){
+            s >> word;
             if(pwd_handle(word,fd, it)){
                 return 1;
             }
         }
-        else if (command == "NICK")
-           nick_name_set(it,word);
-        else if (command == "USER")
+        else if (word == "NICK"){
+             s >> word;
+          nick_name_set(it,word);
+        }
+        else if (word == "USER")
         {
-            
+            s >> word;
             it->setuser(word);
             it->set_user_bool();
+            handlerealname(in, it);
         }
-        // else if (command == "CAP")
-        // {
-            
-        //     if (word == "LS")
-        //     {
-        //         std::string msg = "CAP * LS\n";
-        //         send(fd, msg.c_str(), msg.size(), 0);
-        //     }
-        //     else if (word == "REQ")
-        //     {
-        //         std::string msg = "CAP * ACK\n";
-        //         send(fd, msg.c_str(), msg.size(), 0);
-        //     }
-        // }
+        else if (word == "CAP")
+        {
+             s >> word;
+            if (word == "LS")
+            {   
+                 
+                std::string msg = "CAP * LS :multi-prefix sasl\n";
+                send(fd, msg.c_str(), msg.size(), 0);
+            }
+            else if (word == "REQ")
+            {
+                 s >> word;
+                std::string msg = "CAP * ACK multi-prefix\n";
+                send(fd, msg.c_str(), msg.size(), 0);
+            }
+        }
     }
+    std::cout<< "Bools de Validação nick_"<<it->get_nick_bool()<<" get user"<<it->get_user_bool()<<" Get pass"<<it->get_pass_bool()<<"\n";
     if (it->get_nick_bool() && it->get_user_bool() && it->get_pass_bool())
     {
         it->set_logged();
@@ -88,8 +103,22 @@ int Msg_Handle::Client_login(str in, int fd)
 void Msg_Handle::handleOperatorCommand(str in, int fd)
 {
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-    std::cout << in;
-    std::cout << "SERVER PRINT: " << "sent by " << it->getNickmask() << "["<< it->getclientsocket()<< "]"<< std::endl;
+    if (!it->is_admin())
+        return;
+    str command, word;
+    std::stringstream s(in);
+    while (s >> word)
+    {
+        command = word;
+        s >> word;
+        if (command == "INVITE")
+            invite_command(it, in);
+        else if (command == "KICK")
+            kick_command(it,in,fd);
+        // else if(command == "OPER")
+        //     ;
+    }
+
 }
 
 void Msg_Handle::handleClientCommand(str in, int fd)
@@ -100,8 +129,10 @@ void Msg_Handle::handleClientCommand(str in, int fd)
     std::stringstream s(in);
     str command;
     str word;
-    if (!it->is_logged_in())
+    if (!it->is_logged_in()){
+        std::cout<<"NAO estou logado amigo(handleClientCommand)\n";
         return;
+    }
     while (s >> word)
     {
         command = word;
@@ -116,12 +147,14 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             part_command(word, it, s.str());
 		else if (command == "MODE")
 			mode_command(word, it, s.str());
-        else if (command == "INVITE")
-            invite_command(it, in);
 		else if (command == "TOPIC")
 			topic_command(word, it, s.str());
 		else if(command == "QUIT")
 			std::cout << "SERVER PRINT: " << "ainda nao temos o comando QUIT\n";
+        else if(command == "WHO")
+            who_command(s.str(),fd);
+        else if(command == "LIST")
+            list_command(fd);
     }
 }
 
@@ -131,6 +164,12 @@ int Msg_Handle::check_input(str in, int fd)
         return 1;
     handleClientCommand(in, fd);
     handleOperatorCommand(in,fd);
+    
+    /*
+    421     ERR_UNKNOWNCOMMAND
+    "<command> :Unknown command"
+    */
+
     return 0;
 };
 
@@ -217,7 +256,12 @@ str Msg_Handle::get_password()
 }
 int Msg_Handle::num_of_clients()
 {
-    return this->_clients.size();
+    return this->num_clients;
+}
+
+std::vector<Channel> Msg_Handle::get_channels()
+{
+    return this->_channels;
 }
 
 void Msg_Handle::delete_client(int fd)
@@ -237,6 +281,14 @@ std::vector<Client>::iterator Msg_Handle::get_client_by_fd(int fd)
     return _clients.end();
 }
 
+ void Msg_Handle::delete_client_to_disconnect(int fd){
+   std::vector<Channel>::iterator it = _channels.begin();
+    for (; it != _channels.end(); ++it)
+    {
+        it->removeUser(*get_client_by_fd(fd));
+    }
+ }
+
 std::vector<Client>::iterator Msg_Handle::get_client_by_name(const str& name)
 {
     std::vector<Client>::iterator it = _clients.begin();
@@ -246,6 +298,17 @@ std::vector<Client>::iterator Msg_Handle::get_client_by_name(const str& name)
             return it;
     }
     return _clients.end();
+}
+
+std::vector<Channel>::iterator Msg_Handle::get_channel_by_name(const str& name)
+{
+    std::vector<Channel>::iterator it = _channels.begin();
+    for (; it != _channels.end(); ++it)
+    {
+        if (it->getName() == name)
+            return it;
+    }
+    return _channels.end();
 }
 
 Msg_Handle::~Msg_Handle(){};

@@ -31,6 +31,7 @@ public:
 
     Msg_Handle();
     int Client_login(str in, int fd);
+    void handlerealname(str in, std::vector<Client>::iterator it);
     void handleClientCommand(str in, int fd);
     void handleOperatorCommand(str in, int fd);
     // 0 keep connection alive or 1 to disconnect
@@ -54,11 +55,13 @@ public:
     void del_cli_num();
     void add_cli_num();
     int get_cli_num();
-
+    void delete_client_to_disconnect(int fd);
     void delete_last_client(void);
     std::vector<Client>::iterator get_client_by_fd(int fd);
     std::vector<Client>::iterator get_client_by_name(const str& name);
+    std::vector<Channel>::iterator get_channel_by_name(const str& name);
     std::string get_password();
+    std::vector<Channel> get_channels();
     ~Msg_Handle();
 
     /*MESSAGES
@@ -73,6 +76,10 @@ public:
 	void mode_command(str word, std::vector<Client>::iterator it, str s);
 	void topic_command(str word, std::vector<Client>::iterator it, str s);
     void invite_command(std::vector<Client>::iterator it, str s);
+    void kick_command(std::vector<Client>::iterator it, str s, int fd);
+    void list_command(int fd);
+    void iterate_over_clients(std::vector<Client> vect,int caller_fd);
+    void who_command(str in,int fd);
 };
 
 #endif

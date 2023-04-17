@@ -45,6 +45,9 @@ void Server::createServerSocket()
     server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket_ < 0)
         ft_error("Failed to create server socket");
+    int optval = 1;
+    if (setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
+        ft_error("Failed to set SO_REUSEADDR on server socket");
 }
 
 void Server::bindServerSocket()
@@ -107,6 +110,7 @@ void Server::handleNewConnection()
 void Server::handleClientDisconnection(int i)
 {
     close(msg_handler.get_pollfd_clients_fd(i));
+    msg_handler.delete_client_to_disconnect(i);
     msg_handler.set_pollfd_clients_fd(-1, i);
     msg_handler.set_pollfd_clients_events(0, i);
     msg_handler.delete_client(i);
