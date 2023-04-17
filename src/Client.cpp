@@ -125,9 +125,9 @@ void Client::setrealname(str realname)
 str Client::getNickmask() const {
     str nickmask;
 
-    nickmask.append(this->getclientnick());
+	nickmask.append(this->getclientnick());
     nickmask.append("!");
-    nickmask.append(this->getclientuser());
+	nickmask.append(this->getclientuser());
     nickmask.append("@");
     nickmask.append("localhost");
     return nickmask;

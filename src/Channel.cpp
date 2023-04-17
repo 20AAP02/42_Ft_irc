@@ -167,8 +167,6 @@ void Channel::topicCommand(const Client &user, const str command)
 
 void Channel::leave(const Client &user, const str &goodbyMessage)
 {
-	if (!(this->userIsMemberOfChannel(user)))
-		return;
 	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
 	{
 		if (user.getNickmask() == member->getNickmask())
@@ -330,6 +328,8 @@ void Channel::removeUser(const Client& user)
 
 void Channel::changeTopic(const Client &user, const str& newTopic)
 {
+	if (!(this->canChangeTopic(user.getNickmask())))
+		return;
 	this->_channelTopic = newTopic;
 	this->sendMessage(user, this->getTopic(), "TOPIC");
 	this->sendMessageToUser(user, user, this->getTopic(), "TOPIC");
