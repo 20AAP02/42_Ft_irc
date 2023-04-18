@@ -53,7 +53,7 @@ public:
     void delete_client(int fd);
     int get_client_socket_last();
     int num_of_clients();
-
+    void remove_pollfd_client(int fd);
     void del_cli_num();
     void add_cli_num();
     int get_cli_num();

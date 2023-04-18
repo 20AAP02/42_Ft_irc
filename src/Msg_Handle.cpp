@@ -337,7 +337,19 @@ bool  Msg_Handle::checkPingTimeout(int fd)
     return false;
 }
 
-
+void Msg_Handle::remove_pollfd_client(int fd)
+{
+    for (int i = 0; i <= MAX_CLIENTS; i++)
+    {
+        if (client_pollfd[i].fd == fd)
+        {
+            client_pollfd[i].fd = -1;
+            client_pollfd[i].events = 0;
+            client_pollfd[i].revents = 0;
+            break;
+        }
+    }
+}
 
 
 Msg_Handle::~Msg_Handle(){};
