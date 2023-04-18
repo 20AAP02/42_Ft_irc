@@ -133,17 +133,14 @@ void Server::handleClientCommunication()
     std::cout << GREEN "Server Started" BLANK << std::endl;
     while (run)
     {
-        msg_handler.checkPingTimeout();
-        if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, -1) < 0 && run)
+        if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, TIMEOUT) < 0 && run)
             ft_error("Error in poll()");
         for (int i = 0; i <= msg_handler.get_cli_num(); i++)
         {
             if (msg_handler.get_pollfd_clients_revents(i) == POLLIN)
             {
                 if (i == 0)
-                {
                     handleNewConnection();
-                }
                 else
                 {
                     char buffer[BUFFER_SIZE];
@@ -158,6 +155,8 @@ void Server::handleClientCommunication()
                     }
                 }
             }
+            if (i && msg_handler.checkPingTimeout(msg_handler.get_pollfd_clients_fd(i)))
+                handleClientDisconnection(msg_handler.get_pollfd_clients_fd(i));
         }
     }
     close(server_socket_);

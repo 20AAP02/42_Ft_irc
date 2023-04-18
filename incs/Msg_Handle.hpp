@@ -31,7 +31,7 @@ public:
     struct pollfd *get_client_poll();
 
     Msg_Handle();
-    void checkPingTimeout();
+    bool  checkPingTimeout(int fd);
     int Client_login(str in, int fd);
     void handlerealname(str in, std::vector<Client>::iterator it);
     void handleClientCommand(str in, int fd);

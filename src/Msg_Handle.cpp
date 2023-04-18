@@ -315,18 +315,19 @@ std::vector<Channel>::iterator Msg_Handle::get_channel_by_name(const str& name)
     return _channels.end();
 }
 
-void  Msg_Handle::checkPingTimeout()
+bool  Msg_Handle::checkPingTimeout(int fd)
 {
     long current_time = time(NULL);
-    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    std::vector<Client>::iterator it = get_client_by_fd(fd);
+    if (it != _clients.end() && it->is_waiting_for_pong && current_time - it->get_time_ping() > TIMEOUT)
     {
-        if (it->is_waiting_for_pong && current_time - it->get_time_ping() > TIMEOUT)
-        {
-            std::cout << "Closing connection with " << it->getNickmask() << " due to PING timeout" << std::endl;
-            delete_client_to_disconnect(it->getclientsocket());
-        }
+        std::cout << "Closing connection with " << it->getNickmask() << " due to PING timeout" << std::endl;
+        delete_client_to_disconnect(it->getclientsocket());
+        return true;
     }
+    return false;
 }
+
 
 
 
