@@ -278,16 +278,12 @@ void Msg_Handle::delete_client(int fd)
     std::vector<Client>::iterator it = _clients.begin();
     for (; it != _clients.end(); it++)
     {
-        std::cout << "ENTREU AQUI\n";
-
         if (it->getclientsocket() == fd)
         {
             _clients.erase(it);
             break;
         }
     }
-    std::cout << "SAII AQUI\n";
-    // if (get_client_by_fd(fd) != _clients.end())
 }
 
 std::vector<Client>::iterator Msg_Handle::get_client_by_fd(int fd)
@@ -305,17 +301,19 @@ void Msg_Handle::delete_client_from_channels(int fd)
 {
 
     std::vector<Channel>::iterator it = _channels.begin();
-    for (; it != _channels.end(); ++it)
+    for (; it != _channels.end(); it++)
     {
-        it->delete_users_by_name(get_client_by_fd(fd)->getclientnick());
+//        it->print_all_user_DEBUG();
+        it->delete_users_by_fd(fd);
+//        it->print_all_user_DEBUG();
     }
-    //  it->leave(*get_client_by_fd(fd), "Leaving server");
 }
+
 
 std::vector<Client>::iterator Msg_Handle::get_client_by_name(const str &name)
 {
     std::vector<Client>::iterator it = _clients.begin();
-    for (; it != _clients.end(); ++it)
+    for (; it != _clients.end(); it++)
     {
         if (it->getclientnick() == name)
             return it;

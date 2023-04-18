@@ -10,9 +10,38 @@ void Channel::delete_users_by_name(str nick)
 	for (; it != _users.end(); it++)
 	{
 		if (it->getclientnick() == nick)
+		{
 			_users.erase(it);
+			break;
+		}	
 	}
 };
+
+
+void Channel::delete_users_by_fd(int fd)
+{
+	std::vector<Client>::iterator it = _users.begin();
+	for (; it != _users.end(); it++)
+	{
+		std::cout << "DEBIUG " << it->getclientsocket() << "  fd: " << fd << std::endl;
+		if (it->getclientsocket() == fd)
+		{
+			std::cout << "ENTREI!!\n" ;
+			_users.erase(it);
+			break;
+		}
+	}
+};
+
+void Channel::delete_client_from_operators(int fd)
+{
+	(void)fd;
+    std::vector<str>::iterator it = _channelOperators.begin();
+    for (; it != _channelOperators.end(); it++)
+    {
+		
+    }
+}
 
 Channel::Channel(const str &name, const str &topic)
 {
