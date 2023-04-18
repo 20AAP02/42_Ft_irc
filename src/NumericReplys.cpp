@@ -41,8 +41,11 @@ void NumericReplys::rpl_welcome(const Client &client)
 // RPL_NOTOPIC (331)
 void NumericReplys::rpl_notopic(const Client &client, const str channelName)
 {
-    (void) client;
-    (void) channelName;
+    std::string msg = ":localhost 001 ";
+    msg += client.getclientnick() + " ";
+    msg += channelName + " :No topic is set";
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
 }
 
 // RPL_TOPIC (332)
