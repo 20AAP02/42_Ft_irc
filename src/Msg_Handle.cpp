@@ -40,7 +40,6 @@ void Msg_Handle::handlerealname(str in, std::vector<Client>::iterator it)
     size_t posnl = in.find("\n", poscol);
     str word = in.substr(poscol, posnl - poscol - 1);
     it->setrealname(word);
-    std::cout << "Realname: [" << it->getRealName() << "]\n";
 }
 
 int Msg_Handle::Client_login(str in, int fd)
@@ -53,7 +52,6 @@ int Msg_Handle::Client_login(str in, int fd)
         return 0;
     while (s >> word)
     {
-        std::cout << "COMAND " << command << " Word " << word << "\n";
         if (word == "PASS")
         {
             s >> word;
@@ -91,7 +89,7 @@ int Msg_Handle::Client_login(str in, int fd)
             }
         }
     }
-    std::cout << "Bools de Validação nick_" << it->get_nick_bool() << " get user" << it->get_user_bool() << " Get pass" << it->get_pass_bool() << "\n";
+    //std::cout << "Bools de Validação nick_" << it->get_nick_bool() << " get user" << it->get_user_bool() << " Get pass" << it->get_pass_bool() << "\n";
     if (it->get_nick_bool() && it->get_user_bool() && it->get_pass_bool())
     {
         it->set_logged();
@@ -128,17 +126,13 @@ void Msg_Handle::handleOperatorCommand(str in, int fd)
 void Msg_Handle::handleClientCommand(str in, int fd)
 {
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-    std::cout << in;
-    std::cout << "SERVER PRINT: "
-              << "sent by " << it->getNickmask() << "[" << it->getclientsocket() << "]" << std::endl;
+    std::cout << RED "[MESSAGE]: " BLANK  << YELLOW <<  in <<  BLANK;
+    std::cout << "  ->Sent by " << it->getNickmask() << "[" << it->getclientsocket() << "]" << std::endl;
     std::stringstream s(in);
     str command;
     str word;
     if (!it->is_logged_in())
-    {
-        std::cout << "NAO estou logado amigo(handleClientCommand)\n";
         return;
-    }
     while (s >> word)
     {
         command = word;
@@ -157,9 +151,9 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             mode_command(word, it, s.str());
         else if (command == "TOPIC")
             topic_command(word, it, s.str());
-        else if (command == "QUIT")
-            std::cout << "SERVER PRINT: "
-                      << "ainda nao temos o comando QUIT\n";
+        // else if (command == "QUIT")
+        //     std::cout << "MESSAGE PRINT: "
+        //               << "ainda nao temos o comando QUIT\n";
         else if (command == "WHO")
             who_command(s.str(), fd);
         else if (command == "LIST")

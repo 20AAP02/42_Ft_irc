@@ -23,10 +23,8 @@ void Channel::delete_users_by_fd(int fd)
 	std::vector<Client>::iterator it = _users.begin();
 	for (; it != _users.end(); it++)
 	{
-		std::cout << "DEBIUG " << it->getclientsocket() << "  fd: " << fd << std::endl;
 		if (it->getclientsocket() == fd)
 		{
-			std::cout << "ENTREI!!\n" ;
 			_users.erase(it);
 			break;
 		}
