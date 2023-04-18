@@ -7,6 +7,8 @@ Msg_Handle::Msg_Handle()
     std::string public_topic = "Public Topic";
     _channels.push_back(Channel(public_channel, public_topic));
     num_clients = 0;
+    for (int i = 1; i < MAX_CLIENTS + 1; i++)
+        this->set_pollfd_clients_fd(-1, i);
 };
 
 /*Reposta ao CAP LS302
@@ -246,6 +248,7 @@ void Msg_Handle::delete_last_client()
 void Msg_Handle::add_client(int fd)
 {
     _clients.push_back(Client("", fd));
+    add_cli_num();
 }
 
 void Msg_Handle::set_password(str pass)
@@ -269,8 +272,13 @@ std::vector<Channel> Msg_Handle::get_channels()
 
 void Msg_Handle::delete_client(int fd)
 {
-    if (get_client_by_fd(fd) != _clients.end())
-        _clients.erase(get_client_by_fd(fd));
+    std::vector<Client>::iterator it = _clients.begin();
+    for (; it != _clients.end(); ++it)
+    {
+        if (it->getclientsocket() == fd)
+            _clients.erase(it);
+    }
+    //if (get_client_by_fd(fd) != _clients.end())
 }
 
 std::vector<Client>::iterator Msg_Handle::get_client_by_fd(int fd)
@@ -289,7 +297,7 @@ void Msg_Handle::delete_client_to_disconnect(int fd){
     for (; it != _channels.end(); ++it)
     {
         (void) fd;
-		// it->leave(*get_client_by_fd(fd), "Leaving server");
+		//it->leave(*get_client_by_fd(fd), "Leaving server");
     }
 }
 
@@ -322,7 +330,8 @@ bool  Msg_Handle::checkPingTimeout(int fd)
     if (it != _clients.end() && it->is_waiting_for_pong && current_time - it->get_time_ping() > TIMEOUT)
     {
         std::cout << "Closing connection with " << it->getNickmask() << " due to PING timeout" << std::endl;
-        delete_client_to_disconnect(it->getclientsocket());
+        //delete_client_to_disconnect(it->getclientsocket());
+        it->is_waiting_for_pong = false;
         return true;
     }
     return false;

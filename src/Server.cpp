@@ -109,11 +109,12 @@ void Server::handleNewConnection()
 
 void Server::handleClientDisconnection(int i)
 {
-    msg_handler.delete_client_to_disconnect(i);
+    std::cout << "FD TO CLOSE:"<< msg_handler.get_pollfd_clients_fd(i) << std::endl;
     close(msg_handler.get_pollfd_clients_fd(i));
+    msg_handler.delete_client_to_disconnect(i);
     msg_handler.set_pollfd_clients_fd(-1, i);
     msg_handler.set_pollfd_clients_events(0, i);
-    msg_handler.delete_client(i);
+    msg_handler.delete_client(msg_handler.get_pollfd_clients_fd(i));
     msg_handler.del_cli_num();
     std::cout << "SERVER PRINT: " << "Client disconnected" << std::endl;
 }
@@ -122,7 +123,7 @@ void Server::signal_handler(int sig)
 {
     (void)sig;
     run = 0;
-    for (int i = 1; i <= msg_handler.get_cli_num(); i++)
+    for (int i = 1; i <= MAX_CLIENTS + 1; i++)
         close(msg_handler.get_pollfd_clients_fd(i));
 }
 
@@ -133,10 +134,12 @@ void Server::handleClientCommunication()
     std::cout << GREEN "Server Started" BLANK << std::endl;
     while (run)
     {
-        if (poll(msg_handler.client_pollfd, msg_handler.get_cli_num() + 1, TIMEOUT) < 0 && run)
+        if (poll(msg_handler.client_pollfd, MAX_CLIENTS + 1, TIMEOUT) < 0 && run)
             ft_error("Error in poll()");
-        for (int i = 0; i <= msg_handler.get_cli_num(); i++)
+        for (int i = 0; i <= MAX_CLIENTS; i++)
         {
+            if (msg_handler.get_pollfd_clients_fd(i) == -1)
+                continue;
             if (msg_handler.get_pollfd_clients_revents(i) == POLLIN)
             {
                 if (i == 0)
@@ -156,7 +159,7 @@ void Server::handleClientCommunication()
                 }
             }
             if (i && msg_handler.checkPingTimeout(msg_handler.get_pollfd_clients_fd(i)))
-                handleClientDisconnection(msg_handler.get_pollfd_clients_fd(i));
+                handleClientDisconnection(i);
         }
     }
     close(server_socket_);
