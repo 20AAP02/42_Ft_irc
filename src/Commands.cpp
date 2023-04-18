@@ -247,7 +247,7 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 
 void Msg_Handle::list_command(int fd) 
 {
-    str word, msg;
+    str msg;
     std::vector<Channel> channels = get_channels();
 
     for (size_t i = 0; i < channels.size(); i++)
