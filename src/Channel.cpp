@@ -90,7 +90,7 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 
 void Channel::addUser(const Client& user)
 {
-	if (this->userIsMemberOfChannel(user) && !this->isBanned(user.getNickmask()))
+	if (this->userIsMemberOfChannel(user.getNickmask()) && !this->isBanned(user.getNickmask()))
 		return;
 	if (this->channelSizeLimit() != 0 && this->channelSizeLimit() > (int)this->getNumberOfUsers())
 		return;
@@ -105,7 +105,7 @@ void Channel::addUser(const Client& user)
 
 void Channel::sendMessage(const Client &user, const str &message, const str &msgType)
 {
-	if (!(this->userIsMemberOfChannel(user)))
+	if (!(this->canSpeak(user.getNickmask())))
 		return;
 	str msg = ":" + user.getclientnick() + "!";
 	if (this->isChannelOperator(user.getNickmask()))
@@ -125,7 +125,7 @@ void Channel::sendMessageToUser(const Client& user, const Client& receiver, cons
 void Channel::topicCommand(const Client &user, const str command)
 {
 	std::cout << "SERVER PRINT: " << "in channel topic: command -> " << command << std::endl;
-	if (!(this->userIsMemberOfChannel(user)))
+	if (!(this->userIsMemberOfChannel(user.getNickmask())))
 		return;
 	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " TOPIC " + this->getName();
 	std::cout << "SERVER PRINT: " << "in channel topic: msg -> " << msg << std::endl;
@@ -219,6 +219,13 @@ const str Channel::getKey()
 
 bool Channel::canSpeak(const str &nickMask)
 {
+	if (this->_channelModes["+m"][0] == "1")
+	{
+		for (std::vector<str>::iterator member = this->_channelModes["+m"].begin(); member != this->_channelModes["+m"].end(); member++)
+			if (*member == nickMask)
+				return true;
+		return false;
+	}
 	if (this->_channelModes["+n"][0] == "0")
 		return true;
 	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
@@ -242,6 +249,100 @@ bool Channel::canChangeTopic(const str &nickMask)
 }
 
 
+// ----------- Seters -----------
+
+void Channel::addChannelOp(const str &op, const str &newUser)
+{
+	if (!(this->userIsMemberOfChannel(newUser)) || !(this->isChannelOperator(op)))
+		return;
+	this->_channelOperators.push_back(newUser);
+}
+
+
+// ----------- Activate/Deactivate Modes -----------
+
+void Channel::banFlag(const str &nickMask)
+{
+	if (this->isChannelOperator(nickMask))
+		this->_channelModes["+b"][0][0] = (this->_channelModes["+b"][0] == "0") + 48;
+}
+
+void Channel::banExeptionFlag(const str &nickMask)
+{
+	if (this->isChannelOperator(nickMask))
+		this->_channelModes["+e"][0][0] = (this->_channelModes["+e"][0] == "0") + 48;
+}
+
+void Channel::sizeLimitFlag(const str &nickMask, int optionalLimit)
+{
+	if (this->isChannelOperator(nickMask))
+	{
+		this->_channelModes["+l"][0][0] = (this->_channelModes["+l"][0] == "0") + 48;
+		if (optionalLimit > 0)
+		{
+			std::ostringstream limit;
+			limit << optionalLimit;
+			if (this->_channelModes["+l"].size() == 1)
+				this->_channelModes["+l"].push_back(limit.str());
+			else
+				this->_channelModes["+l"][1] = limit.str();
+		}
+	}
+}
+
+void Channel::inviteFlag(const str &nickMask)
+{
+	if (this->isChannelOperator(nickMask))
+		this->_channelModes["+i"][0][0] = (this->_channelModes["+i"][0] == "0") + 48;
+}
+
+void Channel::inviteExeptionFlag(const str &nickMask)
+{
+	if (this->isChannelOperator(nickMask))
+		this->_channelModes["+I"][0][0] = (this->_channelModes["+I"][0] == "0") + 48;
+}
+
+void Channel::keyFlag(const str &nickMask, const str &key)
+{
+	if (this->isChannelOperator(nickMask))
+	{
+		if (this->_channelModes["+k"][0] == "1" && this->_channelModes["+k"][1] == key)
+			this->_channelModes["+k"][0][0] = '0';
+		else if (this->_channelModes["+k"][0] == "1")
+			return;
+		else
+		{
+			this->_channelModes["+k"][0][0] = '1';
+			this->_channelModes["+k"][1] = key;
+		}
+	}
+}
+
+void Channel::moderaterFlag(const str &nickMask)
+{
+	if (this->isChannelOperator(nickMask))
+		this->_channelModes["+m"][0][0] = (this->_channelModes["+m"][0] == "0") + 48;
+}
+
+void Channel::secretFlag(const str &nickMask)
+{
+	if (this->isChannelOperator(nickMask))
+		this->_channelModes["+s"][0][0] = (this->_channelModes["+s"][0] == "0") + 48;
+}
+
+void Channel::protectedTopicFlag(const str &nickMask)
+{
+	if (this->isChannelOperator(nickMask))
+		this->_channelModes["+t"][0][0] = (this->_channelModes["+t"][0] == "0") + 48;
+}
+
+void Channel::exeternalMsgFlag(const str &nickMask)
+{
+	if (this->isChannelOperator(nickMask))
+		this->_channelModes["+n"][0][0] = (this->_channelModes["+n"][0] == "0") + 48;
+}
+
+
 // ----------- Private Member Funtions -----------
 
 void Channel::removeFromVector(const Client &user, std::vector<str> &vector)
@@ -256,10 +357,10 @@ void Channel::removeFromVector(const Client &user, std::vector<str> &vector)
 	}
 }
 
-int Channel::userIsMemberOfChannel(const Client &user) const
+int Channel::userIsMemberOfChannel(const str &nickMask) const
 {
 	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
-		if (member->getNickmask() == user.getNickmask())
+		if (member->getNickmask() == nickMask)
 			return 1;
 	return 0;	
 }

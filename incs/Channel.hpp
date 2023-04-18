@@ -8,6 +8,7 @@
 # include <map>
 # include <Client.hpp>
 # include <sys/socket.h> // send()
+# include <sstream> // std::ostringstream
 
 typedef std::string	str;
 
@@ -27,6 +28,7 @@ class Channel
 		void topicCommand(const Client &user, const str command);
 
 		// Checkers
+		int userIsMemberOfChannel(const str &nickMask) const;
 		std::size_t getNumberOfUsers() const;
 		bool isChannelOperator(const str &nickMask);
 		bool isBanned(const str &nickMask);
@@ -36,6 +38,21 @@ class Channel
 		bool canSpeak(const str &nickMask);
 		bool isChannelSecret();
 		bool canChangeTopic(const str &nickMask);
+
+		// Seters
+		void addChannelOp(const str &op, const str &newUser);
+
+		// Activate/Deactivate Modes
+		void banFlag(const str &nickMask);
+		void banExeptionFlag(const str &nickMask);
+		void sizeLimitFlag(const str &nickMask, int optionalLimit);
+		void inviteFlag(const str &nickMask);
+		void inviteExeptionFlag(const str &nickMask);
+		void keyFlag(const str &nickMask, const str &key);
+		void moderaterFlag(const str &nickMask);
+		void secretFlag(const str &nickMask);
+		void protectedTopicFlag(const str &nickMask);
+		void exeternalMsgFlag(const str &nickMask);
 
 		// Operators
 		Channel &		operator=( Channel const & rhs );
@@ -62,7 +79,6 @@ class Channel
 
 		// Additional fucntions
 		void removeFromVector(const Client &user, std::vector<str> &vector);
-		int userIsMemberOfChannel(const Client &user) const;
         void removeUser(const Client &user);
 		void changeChannelMode(const str &mode);
 		void changeTopic(const Client &user, const str &newTopic);
