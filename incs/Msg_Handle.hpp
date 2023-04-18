@@ -12,6 +12,7 @@
 #include <sstream>
 
 #include <Channel.hpp>
+#include <NumericReplys.hpp>
 
 
 typedef std::string str;

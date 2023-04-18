@@ -1,0 +1,2 @@
+NICK antonio01
+USER 20AAP02 * * :Antonio Pinto

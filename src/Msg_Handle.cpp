@@ -94,8 +94,9 @@ int Msg_Handle::Client_login(str in, int fd)
         std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";
         it->set_admin(true);
         it->ping_client();
-        str welcome_msg = "Welcome to our server!\n";
-        send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
+        // str welcome_msg = "Welcome to our server!\n";
+        // send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
+        NumericReplys().rpl_welcome(*it);
     }
     return 0;
 }
