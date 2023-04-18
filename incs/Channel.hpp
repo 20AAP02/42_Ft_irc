@@ -65,6 +65,9 @@ class Channel
 		const std::vector<str> &getChannelOperators() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
 
+		void delete_users_by_name(str nick);
+
+
 	private:
 		str _channelName;
 		str _channelTopic;

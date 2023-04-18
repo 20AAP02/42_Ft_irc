@@ -303,18 +303,12 @@ std::vector<Client>::iterator Msg_Handle::get_client_by_fd(int fd)
 
 void Msg_Handle::delete_client_from_channels(int fd)
 {
-    (void)fd;
-    // std::vector<Channel>::iterator it = _channels.begin();
-    // for (; it != _channels.end(); ++it)
-    // {
-    //     //(void)fd;
-    //     std::vector<Client>::iterator it_Client = it->getUsers().begin();
-    //     for (; it_Client != it->getUsers().end(); ++it_Client)
-    //     {
-    //         if (it_Client == get_client_by_fd(fd))
-    //             it->getUsers().erase(it_Client);
-    //     }
-    // }
+
+    std::vector<Channel>::iterator it = _channels.begin();
+    for (; it != _channels.end(); ++it)
+    {
+        it->delete_users_by_name(get_client_by_fd(fd)->getclientnick());
+    }
     //  it->leave(*get_client_by_fd(fd), "Leaving server");
 }
 
@@ -367,7 +361,6 @@ void Msg_Handle::remove_pollfd_client(int fd)
         }
     }
 }
-
 
 Msg_Handle::~Msg_Handle(){};
 
