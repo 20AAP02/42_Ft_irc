@@ -31,12 +31,8 @@ Channel::Channel( const Channel & src ): _channelName(src.getName()), _channelTo
 {
 	for (std::vector<Client>::const_iterator client = src.getUsers().begin(); client != src.getUsers().end(); client++)
 		this->_users.push_back(*client);
-	for (std::vector<str>::const_iterator founder = src.getFounders().begin(); founder != src.getFounders().end(); founder++)
-		this->_founders.push_back(*founder);
-	for (std::vector<str>::const_iterator halfop = src.getHalfops().begin(); halfop != src.getHalfops().end(); halfop++)
-		this->_halfops.push_back(*halfop);
-	for (std::vector<str>::const_iterator protectedUser = src.getProtectedUsers().begin(); protectedUser != src.getProtectedUsers().end(); protectedUser++)
-		this->_protectedUsers.push_back(*protectedUser);
+	for (std::vector<str>::const_iterator op = src.getChannelOperators().begin(); op != src.getChannelOperators().end(); op++)
+		this->_channelOperators.push_back(*op);
 	for (std::map<str, std::vector<str> >::const_iterator mode = src.getChannelModes().begin(); mode != src.getChannelModes().end(); mode++)
 	{
 		for (int i = 0; i < (int)mode->second.size(); i++)
@@ -65,15 +61,9 @@ Channel &				Channel::operator=( Channel const & rhs )
 		this->_channelName = rhs.getName();
 		this->_channelTopic = rhs.getTopic();
 		this->_channelType = rhs.getType();
-		this->_founders.clear();
-		for (std::vector<str>::const_iterator founder = rhs.getFounders().begin(); founder != rhs.getFounders().end(); founder++)
-			this->_founders.push_back(*founder);
-		this->_halfops.clear();
-		for (std::vector<str>::const_iterator halfop = rhs.getHalfops().begin(); halfop != rhs.getHalfops().end(); halfop++)
-			this->_halfops.push_back(*halfop);
-		this->_protectedUsers.clear();
-		for (std::vector<str>::const_iterator protectedUser = rhs.getProtectedUsers().begin(); protectedUser != rhs.getProtectedUsers().end(); protectedUser++)
-			this->_protectedUsers.push_back(*protectedUser);
+		this->_channelOperators.clear();
+		for (std::vector<str>::const_iterator op = rhs.getChannelOperators().begin(); op != rhs.getChannelOperators().end(); op++)
+			this->_channelOperators.push_back(*op);
 		this->_users.clear();
 		for (std::vector<Client>::const_iterator client = rhs.getUsers().begin(); client != rhs.getUsers().end(); client++)
 			this->_users.push_back(*client);
@@ -104,11 +94,11 @@ void Channel::addUser(const Client& user)
 		return;
 	if (this->channelSizeLimit() != 0 && this->channelSizeLimit() > (int)this->getNumberOfUsers())
 		return;
-	std::string message = ":" + user.getclientnick() + "!~";
+	std::string message = ":" + user.getclientnick() + "!";
 	message.append(user.getNickmask() + " JOIN " + this->_channelName + "\n");
 	this->_users.push_back(user);
-	if ((int)this->_founders.size() == 0)
-		this->_founders.push_back(user.getNickmask());
+	if ((int)this->_channelOperators.size() == 0)
+		this->_channelOperators.push_back(user.getNickmask());
 	sendMessage(user, "", "JOIN");
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 }
@@ -118,10 +108,9 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 	if (!(this->userIsMemberOfChannel(user)))
 		return;
 	str msg = ":" + user.getclientnick() + "!";
-	if (this->getPrefix(user.getNickmask()).find_first_not_of("+") != std::string::npos)
-		msg += this->getPrefix(user.getNickmask())[0];
+	if (this->isChannelOperator(user.getNickmask()))
+		msg += "@";
 	msg += user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
-
 	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
 		if (member->getNickmask() != user.getNickmask())
 			send(member->getclientsocket(), msg.c_str(), msg.size(), 0);
@@ -179,36 +168,12 @@ std::size_t Channel::getNumberOfUsers() const
 	return this->_users.size();
 }
 
-const str Channel::getPrefix(const str &nickMask)
+bool Channel::isChannelOperator(const str &nickMask)
 {
-	str prefixes;
-	// Founder
-	for (std::vector<str>::const_iterator user = this->_founders.begin(); user != this->_founders.end(); user++)
+	for (std::vector<str>::const_iterator user = this->_channelOperators.begin(); user != this->_channelOperators.end(); user++)
 		if (nickMask == *user)
-			prefixes.push_back('~');
-	// Halfop
-	for (std::vector<str>::const_iterator user = this->_halfops.begin(); user != this->_halfops.end(); user++)
-		if (nickMask == *user)
-			prefixes.push_back('%');
-	// Protected
-	for (std::vector<str>::const_iterator user = this->_protectedUsers.begin(); user != this->_protectedUsers.end(); user++)
-		if (nickMask == *user)
-			prefixes.push_back('&');
-	// Voice
-	if (this->_channelModes["+m"][0] == "1")
-	{
-		for (std::vector<str>::iterator mem = this->_channelModes["+m"].begin(); mem != this->_channelModes["+m"].end(); mem++)
-		{
-			if (*mem == nickMask)
-			{
-				prefixes.push_back('+');
-				break;
-			}
-		}
-	}
-	else
-		prefixes.push_back('+');
-	return prefixes;
+			return true;
+	return false;
 }
 
 bool Channel::isBanned(const str &nickMask)
@@ -259,8 +224,6 @@ bool Channel::canSpeak(const str &nickMask)
 	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
 		if (member->getNickmask() == nickMask)
 			return true;
-	if (this->getPrefix(nickMask).find("+") != std::string::npos)
-		return true;
 	return false;
 }
 
@@ -275,10 +238,7 @@ bool Channel::canChangeTopic(const str &nickMask)
 {
 	if (this->_channelModes["+t"][0] == "0")
 		return true;
-	const str prefixes = this->getPrefix(nickMask);
-	if (prefixes.find_first_of("~%") != prefixes.npos)
-		return true;
-	return false;
+	return this->isChannelOperator(nickMask);
 }
 
 
@@ -311,9 +271,7 @@ void Channel::removeUser(const Client& user)
 		if (user.getNickmask() == member->getNickmask())
 		{
 			this->_users.erase(member);
-			this->removeFromVector(user, this->_founders);
-			this->removeFromVector(user, this->_halfops);
-			this->removeFromVector(user, this->_protectedUsers);
+			this->removeFromVector(user, this->_channelOperators);
 			break;
 		}
 	}
@@ -358,19 +316,9 @@ const str &Channel::getType() const
 	return this->_channelType;
 }
 
-const std::vector<str> &Channel::getFounders() const
+const std::vector<str> &Channel::getChannelOperators() const
 {
-	return this->_founders;
-}
-
-const std::vector<str> &Channel::getHalfops() const
-{
-	return this->_halfops;
-}
-
-const std::vector<str> &Channel::getProtectedUsers() const
-{
-	return this->_protectedUsers;
+	return this->_channelOperators;
 }
 
 const std::map<str, std::vector<str> > &Channel::getChannelModes() const

@@ -28,7 +28,7 @@ class Channel
 
 		// Checkers
 		std::size_t getNumberOfUsers() const;
-		const str getPrefix(const str &nickMask);
+		bool isChannelOperator(const str &nickMask);
 		bool isBanned(const str &nickMask);
 		int channelSizeLimit();
 		bool wasInvited(const str &nickMask);
@@ -45,9 +45,7 @@ class Channel
         const str &getName() const;
         const str &getTopic() const;
 		const str &getType() const;
-		const std::vector<str> &getFounders() const;
-		const std::vector<str> &getHalfops() const;
-		const std::vector<str> &getProtectedUsers() const;
+		const std::vector<str> &getChannelOperators() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
 
 	private:
@@ -57,9 +55,7 @@ class Channel
         std::vector<Client> _users;
 
 		// Channel Operators
-		std::vector<str> _founders;
-		std::vector<str> _halfops;
-		std::vector<str> _protectedUsers;
+		std::vector<str> _channelOperators;
 
 		// Channel Modes Map
 		std::map<str, std::vector<str> > _channelModes;
