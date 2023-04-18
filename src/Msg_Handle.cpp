@@ -288,14 +288,8 @@ void Msg_Handle::delete_client_to_disconnect(int fd){
    std::vector<Channel>::iterator it = _channels.begin();
     for (; it != _channels.end(); ++it)
     {
-		try
-		{
-        	it->leave(*get_client_by_fd(fd), "Leaving server");
-		}
-		catch(const std::exception& e)
-		{
-			std::cerr << "SERVER PRINT: exeption what() -> " << e.what() << '\n';
-		}
+        (void) fd;
+		// it->leave(*get_client_by_fd(fd), "Leaving server");
     }
 }
 

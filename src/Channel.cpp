@@ -167,15 +167,8 @@ void Channel::topicCommand(const Client &user, const str command)
 
 void Channel::leave(const Client &user, const str &goodbyMessage)
 {
-	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
-	{
-		if (user.getNickmask() == member->getNickmask())
-		{
-			this->sendMessage(user, goodbyMessage, "PART");
-			this->removeUser(user);
-			break;
-		}
-	}
+	this->sendMessage(user, goodbyMessage, "PART");
+	this->removeUser(user);
 }
 
 
