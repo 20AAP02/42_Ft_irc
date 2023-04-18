@@ -82,6 +82,9 @@ void Server::addNewClientToPoll()
 
     fcntl(client_socket, F_SETFL, O_NONBLOCK);
     msg_handler.add_cli_num();
+    
+    //DEBUG
+    msg_handler.print_all_client_vector_or_index(-1);
 }
 
 void Server::handleNewConnection()
@@ -111,12 +114,18 @@ void Server::handleClientDisconnection(int i)
 {
     std::cout << "FD TO CLOSE:"<< msg_handler.get_pollfd_clients_fd(i) << std::endl;
     close(msg_handler.get_pollfd_clients_fd(i));
-    msg_handler.delete_client_to_disconnect(i);
-    msg_handler.set_pollfd_clients_fd(-1, i);
-    msg_handler.set_pollfd_clients_events(0, i);
     msg_handler.delete_client(msg_handler.get_pollfd_clients_fd(i));
+    msg_handler.delete_client_from_channels(i);
+    
+    //msg_handler.set_pollfd_clients_fd(-1, i);
+    //msg_handler.set_pollfd_clients_events(0, i);
+    
     msg_handler.del_cli_num();
+
+
     std::cout << "SERVER PRINT: " << "Client disconnected" << std::endl;
+      //DEBUG
+    msg_handler.print_all_client_vector_or_index(-1);
 }
 
 void Server::signal_handler(int sig)

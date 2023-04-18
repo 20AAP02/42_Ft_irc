@@ -57,7 +57,7 @@ public:
     void del_cli_num();
     void add_cli_num();
     int get_cli_num();
-    void delete_client_to_disconnect(int fd);
+    void delete_client_from_channels(int fd);
     void delete_last_client(void);
     std::vector<Client>::iterator get_client_by_fd(int fd);
     std::vector<Client>::iterator get_client_by_name(const str& name);
@@ -83,6 +83,10 @@ public:
     void iterate_over_clients(std::vector<Client> vect,int caller_fd);
     void who_command(str in,int fd);
     void handle_pong(str in,std::vector<Client>::iterator it);
+
+
+    /*DEBUG Functions*/
+    void print_all_client_vector_or_index(int opt);
 };
 
 #endif
