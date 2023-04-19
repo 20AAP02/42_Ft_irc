@@ -32,7 +32,7 @@ public:
     struct pollfd *get_client_poll();
 
     Msg_Handle();
-    void checkPingTimeout();
+    bool  checkPingTimeout(int fd);
     int Client_login(str in, int fd);
     void handlerealname(str in, std::vector<Client>::iterator it);
     void handleClientCommand(str in, int fd);
@@ -54,11 +54,11 @@ public:
     void delete_client(int fd);
     int get_client_socket_last();
     int num_of_clients();
-
+    void remove_pollfd_client(int fd);
     void del_cli_num();
     void add_cli_num();
     int get_cli_num();
-    void delete_client_to_disconnect(int fd);
+    void delete_client_from_channels(int fd);
     void delete_last_client(void);
     std::vector<Client>::iterator get_client_by_fd(int fd);
     std::vector<Client>::iterator get_client_by_name(const str& name);
@@ -81,9 +81,14 @@ public:
     void invite_command(std::vector<Client>::iterator it, str s);
     void kick_command(std::vector<Client>::iterator it, str s, int fd);
     void list_command(int fd);
+    void names_command(str in,std::vector<Client>::iterator it);
     void iterate_over_clients(std::vector<Client> vect,int caller_fd);
     void who_command(str in,int fd);
     void handle_pong(str in,std::vector<Client>::iterator it);
+
+
+    /*DEBUG Functions*/
+    void print_all_client_vector_or_index(int opt);
 };
 
 #endif

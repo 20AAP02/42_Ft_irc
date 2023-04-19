@@ -4,6 +4,55 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
+void Channel::delete_users_by_name(str nick)
+{
+	std::vector<Client>::iterator it = _users.begin();
+	for (; it != _users.end(); it++)
+	{
+		if (it->getclientnick() == nick)
+		{
+			_users.erase(it);
+			break;
+		}	
+	}
+};
+
+
+void Channel::delete_users_by_fd(int fd)
+{
+	std::vector<Client>::iterator it = _users.begin();
+	for (; it != _users.end(); it++)
+	{
+		if (it->getclientsocket() == fd)
+		{
+			_users.erase(it);
+			break;
+		}
+	}
+};
+
+void Channel::delete_client_from_operators(int fd)
+{
+	(void)fd;
+    std::vector<str>::iterator it = _channelOperators.begin();
+    for (; it != _channelOperators.end(); it++)
+    {
+		
+    }
+}
+
+str Channel::get_all_user_nicks()
+{
+	std::stringstream ss;
+	for (std::vector<Client>::const_iterator it = _users.begin(); it != _users.end(); ++it) {
+		if (it->is_admin())
+			ss << "@"<<it->getclientnick() << " ";
+		else
+			ss << it->getclientnick() << " ";
+	}
+	return ss.str();
+}
+
 Channel::Channel(const str &name, const str &topic)
 {
 	str notPermittedChars = " \f\n\r\t\v,";
@@ -27,7 +76,7 @@ Channel::Channel(const str &name, const str &topic)
 	this->_channelModes.insert(std::pair<str, std::vector<str> >("+n", std::vector<str>(1, "1")));
 }
 
-Channel::Channel( const Channel & src ): _channelName(src.getName()), _channelTopic(src.getTopic()), _channelType(src.getType())
+Channel::Channel(const Channel &src) : _channelName(src.getName()), _channelTopic(src.getTopic()), _channelType(src.getType())
 {
 	for (std::vector<Client>::const_iterator client = src.getUsers().begin(); client != src.getUsers().end(); client++)
 		this->_users.push_back(*client);
@@ -40,7 +89,6 @@ Channel::Channel( const Channel & src ): _channelName(src.getName()), _channelTo
 	}
 }
 
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -49,14 +97,13 @@ Channel::~Channel()
 {
 }
 
-
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Channel &				Channel::operator=( Channel const & rhs )
+Channel &Channel::operator=(Channel const &rhs)
 {
-	if ( this != &rhs )
+	if (this != &rhs)
 	{
 		this->_channelName = rhs.getName();
 		this->_channelTopic = rhs.getTopic();
@@ -77,18 +124,17 @@ Channel &				Channel::operator=( Channel const & rhs )
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Channel const & i )
+std::ostream &operator<<(std::ostream &o, Channel const &i)
 {
 	o << "Channel: " << i.getName() << " (" << i.getTopic() << ")";
 	return o;
 }
 
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Channel::addUser(const Client& user)
+void Channel::addUser(const Client &user)
 {
 	if (this->userIsMemberOfChannel(user.getNickmask()) && !this->isBanned(user.getNickmask()))
 		return;
@@ -116,23 +162,26 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 			send(member->getclientsocket(), msg.c_str(), msg.size(), 0);
 }
 
-void Channel::sendMessageToUser(const Client& user, const Client& receiver, const str& message, const str& msgType) const 
+void Channel::sendMessageToUser(const Client &user, const Client &receiver, const str &message, const str &msgType) const
 {
-    str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " +  message + "\n";
-    send(receiver.getclientsocket(), msg.c_str(), msg.size(), 0);
+	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
+	send(receiver.getclientsocket(), msg.c_str(), msg.size(), 0);
 }
 
 void Channel::topicCommand(const Client &user, const str command)
 {
-	std::cout << "SERVER PRINT: " << "in channel topic: command -> " << command << std::endl;
+	std::cout << "SERVER PRINT: "
+			  << "in channel topic: command -> " << command << std::endl;
 	if (!(this->userIsMemberOfChannel(user.getNickmask())))
 		return;
 	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " TOPIC " + this->getName();
-	std::cout << "SERVER PRINT: " << "in channel topic: msg -> " << msg << std::endl;
+	std::cout << "SERVER PRINT: "
+			  << "in channel topic: msg -> " << msg << std::endl;
 	// Send user current topic
 	if (command.find_first_not_of(" \t\n\f\r\v") == command.npos)
 	{
-		std::cout << "SERVER PRINT: " << "show topic" << std::endl;
+		std::cout << "SERVER PRINT: "
+				  << "show topic" << std::endl;
 		msg += " ";
 		// No topic
 		if (this->getTopic().find_first_not_of(" \t\n\f\r\v") == this->getTopic().npos)
@@ -143,12 +192,14 @@ void Channel::topicCommand(const Client &user, const str command)
 	}
 	else if (command.find_first_not_of(" \t\n\f\r\v:") == command.npos)
 	{
-		std::cout << "SERVER PRINT: " << "clean topic" << std::endl;
+		std::cout << "SERVER PRINT: "
+				  << "clean topic" << std::endl;
 		this->changeTopic(user, "No topic is set");
 	}
 	else
 	{
-		std::cout << "SERVER PRINT: " << "change topic" << std::endl;
+		std::cout << "SERVER PRINT: "
+				  << "change topic" << std::endl;
 		str topic = command.substr(command.find(":") + 1);
 		this->changeTopic(user, topic);
 	}
@@ -159,7 +210,6 @@ void Channel::leave(const Client &user, const str &goodbyMessage)
 	this->sendMessage(user, goodbyMessage, "PART");
 	this->removeUser(user);
 }
-
 
 // ----------- Checker Member Functions ----------
 
@@ -248,7 +298,6 @@ bool Channel::canChangeTopic(const str &nickMask)
 	return this->isChannelOperator(nickMask);
 }
 
-
 // ----------- Seters -----------
 
 void Channel::addChannelOp(const str &op, const str &newUser)
@@ -257,7 +306,6 @@ void Channel::addChannelOp(const str &op, const str &newUser)
 		return;
 	this->_channelOperators.push_back(newUser);
 }
-
 
 // ----------- Activate/Deactivate Modes -----------
 
@@ -342,7 +390,6 @@ void Channel::exeternalMsgFlag(const str &nickMask)
 		this->_channelModes["+n"][0][0] = (this->_channelModes["+n"][0] == "0") + 48;
 }
 
-
 // ----------- Private Member Funtions -----------
 
 void Channel::removeFromVector(const Client &user, std::vector<str> &vector)
@@ -362,10 +409,10 @@ int Channel::userIsMemberOfChannel(const str &nickMask) const
 	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
 		if (member->getNickmask() == nickMask)
 			return 1;
-	return 0;	
+	return 0;
 }
 
-void Channel::removeUser(const Client& user)
+void Channel::removeUser(const Client &user)
 {
 	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
 	{
@@ -378,7 +425,7 @@ void Channel::removeUser(const Client& user)
 	}
 }
 
-void Channel::changeTopic(const Client &user, const str& newTopic)
+void Channel::changeTopic(const Client &user, const str &newTopic)
 {
 	if (!(this->canChangeTopic(user.getNickmask())))
 		return;
@@ -387,11 +434,10 @@ void Channel::changeTopic(const Client &user, const str& newTopic)
 	this->sendMessageToUser(user, user, this->getTopic(), "TOPIC");
 }
 
-void Channel::changeChannelMode(const str& mode)
+void Channel::changeChannelMode(const str &mode)
 {
 	(void)mode;
 }
-
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

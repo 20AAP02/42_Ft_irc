@@ -41,6 +41,7 @@ int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
 	{
 		std::cout << "SERVER PRINT: "
 				  << "Password Incorrecta" << std::endl;
+		std::cout << "PASS:" << _password << "TRY:" << word << std::endl;
 		std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
 		send(fd, exit_msg.c_str(), exit_msg.size(), 0);
 		std::cout << "SERVER PRINT: "
@@ -244,14 +245,35 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 		send(fd, err_msg.c_str(), err_msg.size(), 0);
 	}
 }
+str itoa(int num)
+{
+    std::string str;
+    bool is_negative = false;
+    if (num < 0) {
+        is_negative = true;
+        num = -num;
+    }
+    while (num > 0) {
+        char digit = static_cast<char>('0' + num % 10);
+        str.insert(0, 1, digit);
+        num /= 10;
+    }
+    if (is_negative) {
+        str.insert(0, 1, '-');
+    }
+    if (str.empty()) {
+        str = "0";
+    }
+    return str;
+}
 
 void Msg_Handle::list_command(int fd) 
 {
-    str word, msg;
+    str msg;
     std::vector<Channel> channels = get_channels();
 
     for (size_t i = 0; i < channels.size(); i++)
-        msg += ":localhost 322 " + get_client_by_fd(fd)->getclientnick() + " " + channels[i].getName() + " 3 :" + channels[i].getTopic() + "\n";
+        msg += ":localhost 322 " + get_client_by_fd(fd)->getclientnick() + " " + channels[i].getName() + " " + itoa(channels[i].getNumberOfUsers()) + " :" + channels[i].getTopic() + "\n";
     msg += ":localhost 323 " + get_client_by_fd(fd)->getclientnick() + " :End of /LIST\n";
     send(fd, msg.c_str(), msg.size(), 0);
 }
@@ -260,4 +282,11 @@ void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
 {
 	if (in == "PONG :localhost\r\n")
 		it->is_waiting_for_pong = false;
+}
+
+void Msg_Handle::names_command(str in,std::vector<Client>::iterator it)
+{
+	Channel UserChan = *get_channel_by_name(in);
+	str msg = ":localhost 353 " + it->getclientnick() + " = " + in + " :" + UserChan.get_all_user_nicks() + "\n:localhost 366 " + it->getclientnick() + " " + in + " :End of /NAMES list.\n";
+	send(it->getclientsocket(), msg.c_str(), msg.size(), 0);
 }

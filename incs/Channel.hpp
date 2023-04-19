@@ -9,7 +9,13 @@
 # include <Client.hpp>
 # include <sys/socket.h> // send()
 # include <sstream> // std::ostringstream
-
+# define BLANK "\033[0m"
+# define RED "\033[38;5;1m"
+# define PURPLE "\033[38;5;13m"
+# define YELLOW "\033[33m"
+# define BLUE "\033[38;5;14m"
+# define GREEN "\033[38;5;47m"
+# define ORANGE "\033[38;5;208m"
 typedef std::string	str;
 
 class Channel
@@ -41,6 +47,7 @@ class Channel
 
 		// Seters
 		void addChannelOp(const str &op, const str &newUser);
+    	void delete_client_from_operators(int fd);
 
 		// Activate/Deactivate Modes
 		void banFlag(const str &nickMask);
@@ -64,6 +71,20 @@ class Channel
 		const str &getType() const;
 		const std::vector<str> &getChannelOperators() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
+
+		void delete_users_by_name(str nick);
+		void delete_users_by_fd(int fd);
+		str get_all_user_nicks();
+		void print_all_user_DEBUG(){
+		int opt = 0;
+		std::vector<Client>::iterator it = _users.begin();
+		for (; it != _users.end(); it++)
+		{
+			std::cout << "####CLIENTS LIST####\n" ;
+			std::cout << YELLOW << "[DEBUG](print_all_USER_vector_or_index)" << BLANK << "Index " << opt << " NIck: " << it->getclientnick() << " USER: " << it->getclientuser() << " Realname : " << it->getRealName() << " FD : " << it->getclientsocket() << "\n";
+			opt++;
+   			}
+		};
 
 	private:
 		str _channelName;
@@ -96,5 +117,8 @@ class channelErrorException : public std::exception {
 		}
 		virtual ~channelErrorException() throw() {};
 };
+
+
+
 
 #endif /* ********************************************************* CHANNEL_H */
