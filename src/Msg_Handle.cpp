@@ -245,7 +245,6 @@ void Msg_Handle::delete_last_client()
 void Msg_Handle::add_client(int fd)
 {
     _clients.push_back(Client("", fd));
-    add_cli_num();
 }
 
 void Msg_Handle::set_password(str pass)

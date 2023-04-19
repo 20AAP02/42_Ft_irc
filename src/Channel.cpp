@@ -139,7 +139,6 @@ void Channel::addUser(const Client &user)
 
 void Channel::sendMessage(const Client &user, const str &message, const str &msgType)
 {
-	std::cout << "Vou enviar para o "<<user.getclientnick()<<" A minha Socket é: "<<user.getclientsocket()<<"\n";
 	if (!(this->canSpeak(user.getNickmask())))
 		return;
 	str msg = ":" + user.getclientnick() + "!";
