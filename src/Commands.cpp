@@ -70,7 +70,10 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
 					channel->leave(*it, s.substr(found, s.size() - found));
 					std::cout << "About to print name command\n";
 					for (std::vector<Client>::const_iterator member = channel->getUsers().begin(); member != channel->getUsers().end(); member++)
+					{
 						Msg_Handle().names_command(channel->getName(), *member);
+						std::cout << "Name command shoud be printed by now\n";
+					}
 					std::cout << "Name command shoud be printed by now\n";
 				}
 			}
@@ -114,12 +117,14 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 			}
 			std::cout << "About to print name command\n";
 			for (std::vector<Client>::const_iterator member = _channels[check].getUsers().begin(); member != _channels[check].getUsers().end(); member++)
+			{
 				Msg_Handle().names_command(_channels[check].getName(), *member);
-			std::cout << "Name command shoud be printed by now\n";
+				std::cout << "Name command shoud be printed by now\n";
+			}
 		}
 		catch (const std::exception &e)
 		{
-			std::cout << "SERVER PRINT: " << e.what() << '\n';
+			std::cout << "SERVER PRINT: join throwed exeption -> " << e.what() << '\n';
 		}
 	}
 	(void)s;
