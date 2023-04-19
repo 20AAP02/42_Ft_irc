@@ -147,6 +147,11 @@ void Channel::addUser(const Client &user)
 		this->_channelOperators.push_back(user.getNickmask());
 	this->sendMessage(user, "", "JOIN");
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
+	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
+	{
+		message = ":localhost 353 " + member->getclientnick() + " = " + this->_channelName + " :" + this->get_all_user_nicks() + "\n:localhost 366 " + member->getclientnick() + " " + this->_channelName + " :End of /NAMES list.\n";
+		send(member->getclientsocket(), message.c_str(), message.size(), 0);
+	}
 }
 
 void Channel::sendMessage(const Client &user, const str &message, const str &msgType)
@@ -201,6 +206,12 @@ void Channel::topicCommand(const Client &user, const str command)
 
 void Channel::leave(const Client &user, const str &goodbyMessage)
 {
+	std::string message;
+	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
+	{
+		message = ":localhost 353 " + member->getclientnick() + " = " + this->_channelName + " :" + this->get_all_user_nicks() + "\n:localhost 366 " + member->getclientnick() + " " + this->_channelName + " :End of /NAMES list.\n";
+		send(member->getclientsocket(), message.c_str(), message.size(), 0);
+	}
 	this->sendMessage(user, goodbyMessage, "PART");
 	this->removeUser(user);
 }

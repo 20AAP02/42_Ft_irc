@@ -65,17 +65,7 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
 			{
 				std::size_t found = s.find(':');
 				if (found != s.npos)
-				{
-					std::cout << "About to leave\n";
 					channel->leave(*it, s.substr(found, s.size() - found));
-					std::cout << "About to print name command\n";
-					for (std::vector<Client>::const_iterator member = channel->getUsers().begin(); member != channel->getUsers().end(); member++)
-					{
-						Msg_Handle().names_command(channel->getName(), *member);
-						std::cout << "Name command shoud be printed by now\n";
-					}
-					std::cout << "Name command shoud be printed by now\n";
-				}
 			}
 		}
 	}
@@ -106,21 +96,11 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 		{
 			if (check == (int)_channels.size())
 			{
-				std::cout << "About to join\n";
 				_channels.push_back(Channel(channelName, "no topic"));
 				_channels.back().addUser(*it);
 			}
 			else
-			{
-				std::cout << "About to join\n";
 				_channels[check].addUser(*it);
-			}
-			std::cout << "About to print name command\n";
-			for (std::vector<Client>::const_iterator member = _channels[check].getUsers().begin(); member != _channels[check].getUsers().end(); member++)
-			{
-				Msg_Handle().names_command(_channels[check].getName(), *member);
-				std::cout << "Name command shoud be printed by now\n";
-			}
 		}
 		catch (const std::exception &e)
 		{
@@ -308,6 +288,5 @@ void Msg_Handle::names_command(str in, const Client &it)
 {
 	Channel UserChan = *get_channel_by_name(in);
 	str msg = ":localhost 353 " + it.getclientnick() + " = " + in + " :" + UserChan.get_all_user_nicks() + "\n:localhost 366 " + it.getclientnick() + " " + in + " :End of /NAMES list.\n";
-	std::cout << msg;
 	send(it.getclientsocket(), msg.c_str(), msg.size(), 0);
 }
