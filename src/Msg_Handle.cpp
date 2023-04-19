@@ -1,6 +1,6 @@
 #include <Msg_Handle.hpp>
 
-typedef std::string str;
+
 Msg_Handle::Msg_Handle()
 {
     std::string public_channel = "#public";
@@ -11,32 +11,11 @@ Msg_Handle::Msg_Handle()
         this->set_pollfd_clients_fd(-1, i);
 };
 
-/*Reposta ao CAP LS302
-CAP * LS :
-*/
-/*
-CAP LS 302
-PASS 123
-NICK nickname
-USER username 0 * :realname
-JOIN #canal
-PRIVMSG :conversada
-PART é o /leave
-QUIT :Leaving
-*/
-
-/*
-MODE #channel
-WHO #channel
-KICK
-INVITE
-TOPIC
-LIST
-*/
-
 void Msg_Handle::handlerealname(str in, std::vector<Client>::iterator it)
 {
     size_t poscol = in.find(':') + 1;
+    if (poscol == str::npos)
+        return;
     size_t posnl = in.find("\n", poscol);
     str word = in.substr(poscol, posnl - poscol - 1);
     it->setrealname(word);
@@ -97,8 +76,6 @@ int Msg_Handle::Client_login(str in, int fd)
         std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";
         it->set_admin(true);
         it->ping_client();
-        // str welcome_msg = "Welcome to our server!\n";
-        // send(fd, welcome_msg.c_str(), welcome_msg.size(), 0);
         NumericReplys().rpl_welcome(*it);
     }
     return 0;
@@ -126,7 +103,7 @@ void Msg_Handle::handleOperatorCommand(str in, int fd)
     }
 }
 
-void Msg_Handle::handleClientCommand(str in, int fd)
+int Msg_Handle::handleClientCommand(str in, int fd)
 {
     std::vector<Client>::iterator it = get_client_by_fd(fd);
     std::cout << RED "[MESSAGE]: " BLANK  << YELLOW <<  in <<  BLANK;
@@ -135,7 +112,7 @@ void Msg_Handle::handleClientCommand(str in, int fd)
     str command;
     str word;
     if (!it->is_logged_in())
-        return;
+        return 0;
     while (s >> word)
     {
         command = word;
@@ -154,9 +131,6 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             mode_command(word, it, s.str());
         else if (command == "TOPIC")
             topic_command(word, it, s.str());
-        // else if (command == "QUIT")
-        //     std::cout << "MESSAGE PRINT: "
-        //               << "ainda nao temos o comando QUIT\n";
         else if (command == "WHO")
             who_command(s.str(), fd);
         else if (command == "LIST")
@@ -165,21 +139,21 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             names_command(word, *it);
         else if(command == "WHOIS")
             whois_command(word, it);
+        else if (command == "QUIT")
+            return 1;
     }
+    return 0;
 }
 
 int Msg_Handle::check_input(str in, int fd)
 {
-    if (Client_login(in, fd))
+    if (Client_login(in, fd) || handleClientCommand(in, fd))
         return 1;
-    handleClientCommand(in, fd);
     handleOperatorCommand(in, fd);
-
     /*
     421     ERR_UNKNOWNCOMMAND
     "<command> :Unknown command"
     */
-
     return 0;
 };
 

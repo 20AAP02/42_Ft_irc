@@ -40,14 +40,15 @@ bool Channel::has_user(int fd) const {
     return false;
 };
 
+
+
 void Channel::update_user_list(int fd) 
 {
-	(void)fd;
     std::vector<Client>::iterator it = _users.begin();
     for (; it != _users.end(); it++) 
 	{
-        // if (it->getclientsocket() == fd)
-        //     continue;
+        if (it->getclientsocket() == fd)
+            continue;
         std::string msg = ":localhost 353 " + it->getclientnick() + " = " + _channelName + " :" + get_all_user_nicks() + "\n:localhost 366 " + it->getclientnick() + " " + _channelName + " :End of /NAMES list.\n";
         send(it->getclientsocket(), msg.c_str(), msg.size(), 0);
     }
@@ -178,6 +179,12 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
 		if (member->getNickmask() != user.getNickmask())
 			send(member->getclientsocket(), msg.c_str(), msg.size(), 0);
+}
+
+void Channel::sendMessage(str Message)
+{
+	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
+			send(member->getclientsocket(), Message.c_str(), Message.size(), 0);
 }
 
 void Channel::topicCommand(const Client &user, const str command)
