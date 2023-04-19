@@ -294,5 +294,6 @@ void Msg_Handle::names_command(str in, const Client &it)
 {
 	Channel UserChan = *get_channel_by_name(in);
 	str msg = ":localhost 353 " + it.getclientnick() + " = " + in + " :" + UserChan.get_all_user_nicks() + "\n:localhost 366 " + it.getclientnick() + " " + in + " :End of /NAMES list.\n";
+	std::cout << msg;
 	send(it.getclientsocket(), msg.c_str(), msg.size(), 0);
 }
