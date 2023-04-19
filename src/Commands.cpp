@@ -284,9 +284,9 @@ void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
 		it->is_waiting_for_pong = false;
 }
 
-void Msg_Handle::names_command(str in,std::vector<Client>::iterator it)
+void Msg_Handle::names_command(str in, const Client &it)
 {
 	Channel UserChan = *get_channel_by_name(in);
-	str msg = ":localhost 353 " + it->getclientnick() + " = " + in + " :" + UserChan.get_all_user_nicks() + "\n:localhost 366 " + it->getclientnick() + " " + in + " :End of /NAMES list.\n";
-	send(it->getclientsocket(), msg.c_str(), msg.size(), 0);
+	str msg = ":localhost 353 " + it.getclientnick() + " = " + in + " :" + UserChan.get_all_user_nicks() + "\n:localhost 366 " + it.getclientnick() + " " + in + " :End of /NAMES list.\n";
+	send(it.getclientsocket(), msg.c_str(), msg.size(), 0);
 }
