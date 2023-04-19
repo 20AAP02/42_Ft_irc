@@ -19,7 +19,7 @@
 # include <Channel.hpp>
 
 #define MAX_CLIENTS 10
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 10
 
 typedef std::string	str;
 

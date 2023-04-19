@@ -123,7 +123,6 @@ void Server::handleClientDisconnection(int i)
     std::cout << "SERVER PRINT: " << "Client disconnected" << std::endl;
     std::cout << PURPLE "NUMBER of clients: " BLANK << msg_handler.get_cli_num()<<std::endl;
 
-
       //DEBUG
     //msg_handler.print_all_client_vector_or_index(-1);
 }
@@ -157,7 +156,7 @@ void Server::handleClientCommunication()
                 {
                     char buffer[BUFFER_SIZE];
                     std::memset(buffer, 0, sizeof(buffer));
-                    int num_bytes = recv(msg_handler.get_pollfd_clients_fd(i), buffer, sizeof(buffer), 0);
+                    int num_bytes = recv(msg_handler.get_pollfd_clients_fd(i), buffer, BUFFER_SIZE, 0);
                     if (!num_bytes)
                         handleClientDisconnection(i);
                     else

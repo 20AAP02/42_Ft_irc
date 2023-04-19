@@ -244,6 +244,27 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 		send(fd, err_msg.c_str(), err_msg.size(), 0);
 	}
 }
+str itoa(int num)
+{
+    std::string str;
+    bool is_negative = false;
+    if (num < 0) {
+        is_negative = true;
+        num = -num;
+    }
+    while (num > 0) {
+        char digit = static_cast<char>('0' + num % 10);
+        str.insert(0, 1, digit);
+        num /= 10;
+    }
+    if (is_negative) {
+        str.insert(0, 1, '-');
+    }
+    if (str.empty()) {
+        str = "0";
+    }
+    return str;
+}
 
 void Msg_Handle::list_command(int fd) 
 {
@@ -251,7 +272,7 @@ void Msg_Handle::list_command(int fd)
     std::vector<Channel> channels = get_channels();
 
     for (size_t i = 0; i < channels.size(); i++)
-        msg += ":localhost 322 " + get_client_by_fd(fd)->getclientnick() + " " + channels[i].getName() + " 3 :" + channels[i].getTopic() + "\n";
+        msg += ":localhost 322 " + get_client_by_fd(fd)->getclientnick() + " " + channels[i].getName() + " " + itoa(channels[i].getNumberOfUsers()) + " :" + channels[i].getTopic() + "\n";
     msg += ":localhost 323 " + get_client_by_fd(fd)->getclientnick() + " :End of /LIST\n";
     send(fd, msg.c_str(), msg.size(), 0);
 }
