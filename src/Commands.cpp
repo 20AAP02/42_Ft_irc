@@ -129,9 +129,9 @@ void Msg_Handle::topic_command(str word, std::vector<Client>::iterator it, str s
 
 void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 {
-	(void)word;
-	(void)it;
-	(void)s;
+	std::cout << "word -> " << word << std::endl;
+	std::cout << "s -> " << s << std::endl;
+	(void) it;
 }
 
 void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
@@ -280,7 +280,7 @@ void Msg_Handle::list_command(int fd)
 
 void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
 {
-	if (in == "PONG :localhost\r\n")
+	if (in == "PONG :localhost\n")
 		it->is_waiting_for_pong = false;
 }
 

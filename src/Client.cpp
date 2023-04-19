@@ -44,7 +44,7 @@ struct pollfd Client::get_client_poll(){
 
 void Client::ping_client()
 {
-    str msg = "PING :localhost\r\n";
+    str msg = "PING :localhost\n";
 	send(this->getclientsocket(), msg.c_str(), msg.size(), 0);
     this->_time_ping = time(NULL);
     this->is_waiting_for_pong = true;
