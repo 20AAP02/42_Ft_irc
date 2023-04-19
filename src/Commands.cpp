@@ -10,7 +10,7 @@ void Msg_Handle::Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg
 {
 	size_t found = msg.find(":");
 	if (found != std::string::npos)
-		cli_it->sendPrivateMsg(*get_client_by_name(channel_to), msg.substr(found, msg.size() - found), "PRIVMSG");
+		cli_it->sendPrivateMsg(*get_client_by_name(channel_to), msg.substr(found, msg.size() - found), "PRIVMSG " + get_client_by_name(channel_to)->getclientnick());
 }
 
 void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, str channel_to)
