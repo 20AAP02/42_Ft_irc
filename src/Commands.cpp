@@ -280,7 +280,7 @@ void Msg_Handle::list_command(int fd)
 
 void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
 {
-	if (in == "PONG :localhost\n")
+	if (in == "PONG :localhost\r\n")
 		it->is_waiting_for_pong = false;
 }
 
