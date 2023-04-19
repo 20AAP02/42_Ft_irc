@@ -129,9 +129,28 @@ void Msg_Handle::topic_command(str word, std::vector<Client>::iterator it, str s
 
 void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 {
-	(void)word;
-	(void)it;
-	(void)s;
+	(void) it;
+	std::stringstream file(s);
+	str part;
+	str mode;
+	int sucess = 0;
+	while (getline(file, part, ' '))
+	{
+		if (part == "MODE" || part == word)
+			continue;
+		mode = part;
+		getline(file, part, ' ');
+		if (part == "+b")
+			sucess = get_channel_by_name(word)->addClientBanned(it->getNickmask(), get_client_by_name(part)->getNickmask());
+		else if (part == "-b")
+			sucess = get_channel_by_name(word)->rmvClientBanned(it->getNickmask(), get_client_by_name(part)->getNickmask());
+		else if (part == "+o")
+			sucess = get_channel_by_name(word)->addChannelOp(it->getNickmask(), get_client_by_name(part)->getNickmask());
+		else if (part == "-o")
+			sucess = get_channel_by_name(word)->rmvChannelOp(it->getNickmask(), get_client_by_name(part)->getNickmask());
+		if (sucess)
+			get_channel_by_name(word)->sendMessage(*it, mode + " " + part, "MODE");
+	}
 }
 
 void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
