@@ -107,14 +107,17 @@ int Msg_Handle::Client_login(str in, int fd)
 void Msg_Handle::handleOperatorCommand(str in, int fd)
 {
     std::vector<Client>::iterator it = get_client_by_fd(fd);
-    if (!it->is_admin())
-        return;
     str command, word;
     std::stringstream s(in);
+
     while (s >> word)
     {
         command = word;
         s >> word;
+        std::cout << RED "WORD: " BLANK << word <<std::endl;
+        std::vector<Channel>::iterator ct = get_channel_by_name(word);
+        if (ct == _channels.end() || !ct->isChannelOperator(it->getNickmask()))
+            return;
         if (command == "INVITE")
             invite_command(it, in);
         else if (command == "KICK")
