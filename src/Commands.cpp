@@ -297,7 +297,7 @@ void Msg_Handle::whois_command(str in,  std::vector<Client>::iterator asker)
 	if (asked == _clients.end())
 		return;
 	str msg = ":localhost 311 " + asker->getclientnick() + " " + asked->getclientnick() + " " + asked->getclientuser() + " localhost * :" + asked->getRealName() + "\n" ;
-	msg += ":localhost 312 "  + asker->getclientnick() + " " + asked->getclientnick() + " *.our IRC server\n" ;
+	msg += ":localhost 312 "  + asker->getclientnick() + " " + asked->getclientnick() + " *.our_IRC_server\n" ;
 	msg += ":localhost 671 " + asker->getclientnick() + " " + asked->getclientnick() + " :is connected via SSL\n"; 
 	msg += ":localhost 318 " + asker->getclientnick() + " " + asked->getclientnick() + " :End of /WHOIS list.\n";
 	send(asker->getclientsocket(), msg.c_str(), msg.size(), 0);
