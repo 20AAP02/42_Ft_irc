@@ -45,7 +45,7 @@ str Channel::get_all_user_nicks()
 {
 	std::stringstream ss;
 	for (std::vector<Client>::const_iterator it = _users.begin(); it != _users.end(); ++it) {
-		if (it->is_admin())
+		if (this->isChannelOperator(it->getNickmask()))
 			ss << "@"<<it->getclientnick() << " ";
 		else
 			ss << it->getclientnick() << " ";
