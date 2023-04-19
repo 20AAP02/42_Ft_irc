@@ -117,7 +117,7 @@ void Client::set_user_bool()
     this->_user_cl = true;
 }
 
-str Client::getRealName()
+const str Client::getRealName() const
 {
     return (this->_realname);
 }

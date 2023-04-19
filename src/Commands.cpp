@@ -309,3 +309,15 @@ void Msg_Handle::names_command(str in, const Client &it)
 	str msg = ":localhost 353 " + it.getclientnick() + " = " + in + " :" + UserChan.get_all_user_nicks() + "\n:localhost 366 " + it.getclientnick() + " " + in + " :End of /NAMES list.\n";
 	send(it.getclientsocket(), msg.c_str(), msg.size(), 0);
 }
+
+void Msg_Handle::whois_command(str in,  std::vector<Client>::iterator asker)
+{
+	std::vector<Client>::const_iterator asked  = get_client_by_name(in);
+	if (asked == _clients.end())
+		return;
+	str msg = ":localhost 311 " + asker->getclientnick() + " " + asked->getclientnick() + " " + asked->getclientuser() + " localhost * :" + asked->getRealName() + "\n" ;
+	msg += ":localhost 312 "  + asker->getclientnick() + " " + asked->getclientnick() + " *.our IRC server\n" ;
+	msg += ":localhost 671 " + asker->getclientnick() + " " + asked->getclientnick() + " :is connected via SSL\n"; 
+	msg += ":localhost 318 " + asker->getclientnick() + " " + asked->getclientnick() + " :End of /WHOIS list.\n";
+	send(asker->getclientsocket(), msg.c_str(), msg.size(), 0);
+}

@@ -1,6 +1,11 @@
-CAP LS 302
-PASS 1234
-NICK ze
-USER ze02 * *:realname
+PASS ola123
+USER dabnui * 0 : danielSequeira
+NICK dani
 
-PONG :localhost
+
+WHOIS daniboy
+:localhost 311 nick_asker nick_asked user_asked localhost * :realname
+:localhost 319 nick_asker nick_asked :@#channel_op #channel_not_op
+:localhost 312 nick_asker nick_asked *.afternet.org :AfterNET IRC Network
+:localhost 671 nick_asker nick_asked :is connected via SSL
+:localhost 318 nick_asker nick_asked :End of /WHOIS list.

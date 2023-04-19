@@ -114,11 +114,10 @@ void Msg_Handle::handleOperatorCommand(str in, int fd)
     {
         command = word;
         s >> word;
-        std::cout << RED "WORD: " BLANK << word <<std::endl;
         std::vector<Channel>::iterator ct = get_channel_by_name(word);
         if (ct == _channels.end() || !ct->isChannelOperator(it->getNickmask()))
             return;
-        if (command == "INVITE")
+        else if (command == "INVITE")
             invite_command(it, in);
         else if (command == "KICK")
             kick_command(it, in, fd);
@@ -164,6 +163,8 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             list_command(fd);
         else if (command == "NAMES")
             names_command(word, *it);
+        else if(command == "WHOIS")
+            whois_command(word, it);
     }
 }
 
