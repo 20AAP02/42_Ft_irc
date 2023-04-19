@@ -60,7 +60,6 @@ public:
     int get_cli_num();
     void delete_client_from_channels(int fd);
     void delete_last_client(void);
-    void update_users_lists_on_quit(int fd);
     std::vector<Client>::iterator get_client_by_fd(int fd);
     std::vector<Client>::iterator get_client_by_name(const str& name);
     std::vector<Channel>::iterator get_channel_by_name(const str& name);

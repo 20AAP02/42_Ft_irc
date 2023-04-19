@@ -303,9 +303,8 @@ void Msg_Handle::delete_client_from_channels(int fd)
     std::vector<Channel>::iterator it = _channels.begin();
     for (; it != _channels.end(); it++)
     {
-//        it->print_all_user_DEBUG();
         it->delete_users_by_fd(fd);
-//        it->print_all_user_DEBUG();
+        it->update_user_list(fd);
     }
 }
 
@@ -387,14 +386,5 @@ void Msg_Handle::print_all_client_vector_or_index(int opt)
 
         std::cout << RED << "[DEBUG](print_all_client_vector_or_index)" << BLANK << "Index " << opt << " NIck: " << it->getclientnick() << " USER: " << it->getclientuser() << " Realname : " << it->getRealName() << " FD : " << it->getclientsocket() << "\n";
         opt++;
-    }
-}
-
-void Msg_Handle::update_users_lists_on_quit(int fd)
-{
-    std::vector<Channel>::iterator it = _channels.begin();
-    for (; it != _channels.end(); it++) {
-            it->update_user_list(fd);
-        //if (it->has_user(fd))
     }
 }

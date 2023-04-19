@@ -42,11 +42,12 @@ bool Channel::has_user(int fd) const {
 
 void Channel::update_user_list(int fd) 
 {
+	(void)fd;
     std::vector<Client>::iterator it = _users.begin();
     for (; it != _users.end(); it++) 
 	{
-        if (it->getclientsocket() == fd)
-            continue;
+        // if (it->getclientsocket() == fd)
+        //     continue;
         std::string msg = ":localhost 353 " + it->getclientnick() + " = " + _channelName + " :" + get_all_user_nicks() + "\n:localhost 366 " + it->getclientnick() + " " + _channelName + " :End of /NAMES list.\n";
         send(it->getclientsocket(), msg.c_str(), msg.size(), 0);
     }

@@ -113,19 +113,11 @@ void Server::handleClientDisconnection(int i)
     close(msg_handler.get_pollfd_clients_fd(i));
     msg_handler.delete_client_from_channels(fd);
     msg_handler.delete_client(fd);
-    
     msg_handler.set_pollfd_clients_fd(-1, i);
     msg_handler.set_pollfd_clients_events(0, i);
-    
     msg_handler.del_cli_num();
-    msg_handler.update_users_lists_on_quit(fd);
-
-
     std::cout << "SERVER PRINT: " << "Client disconnected" << std::endl;
     std::cout << PURPLE "NUMBER of clients: " BLANK << msg_handler.get_cli_num()<<std::endl;
-
-      //DEBUG
-    //msg_handler.print_all_client_vector_or_index(-1);
 }
 
 void Server::signal_handler(int sig)
@@ -147,8 +139,6 @@ void Server::handleClientCommunication()
             ft_error("Error in poll()");
         for (int i = 0; i <= MAX_CLIENTS; i++)
         {
-            // if (msg_handler.get_pollfd_clients_fd(i) == -1)
-            //     continue;
             if (msg_handler.get_pollfd_clients_revents(i) == POLLIN)
             {
                 if (i == 0)
