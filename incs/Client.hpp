@@ -59,7 +59,7 @@ public:
     bool get_nick_bool();
     bool get_user_bool();
     long get_time_ping();
-    str getRealName();
+    const str getRealName() const;
     str getNickmask() const;
     void sendPrivateMsg(const Client& recipient, const str& message, const str &type) const;
 
