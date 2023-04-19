@@ -162,12 +162,6 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 			send(member->getclientsocket(), msg.c_str(), msg.size(), 0);
 }
 
-void Channel::sendMessageToUser(const Client &user, const Client &receiver, const str &message, const str &msgType) const
-{
-	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " " + msgType + " " + this->_channelName + " " + message + "\n";
-	send(receiver.getclientsocket(), msg.c_str(), msg.size(), 0);
-}
-
 void Channel::topicCommand(const Client &user, const str command)
 {
 	std::cout << "SERVER PRINT: "
@@ -431,7 +425,7 @@ void Channel::changeTopic(const Client &user, const str &newTopic)
 		return;
 	this->_channelTopic = newTopic;
 	this->sendMessage(user, this->getTopic(), "TOPIC");
-	this->sendMessageToUser(user, user, this->getTopic(), "TOPIC");
+	user.sendPrivateMsg(user, this->getTopic(), "TOPIC " + this->_channelName);
 }
 
 void Channel::changeChannelMode(const str &mode)

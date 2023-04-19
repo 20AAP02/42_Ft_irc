@@ -61,6 +61,7 @@ public:
     long get_time_ping();
     str getRealName();
     str getNickmask() const;
+    void sendPrivateMsg(const Client& recipient, const str& message, const str &type) const;
 
     // Add Channel to list
     // Remove Channel to list

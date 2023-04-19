@@ -10,7 +10,7 @@ void Msg_Handle::Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg
 {
 	size_t found = msg.find(":");
 	if (found != std::string::npos)
-		_channels[0].sendMessageToUser(*cli_it, *get_client_by_name(channel_to), msg.substr(found, msg.size() - found), "PRIVMSG");
+		cli_it->sendPrivateMsg(*get_client_by_name(channel_to), msg.substr(found, msg.size() - found), "PRIVMSG");
 }
 
 void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, str channel_to)
@@ -143,7 +143,7 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 	str receiver = s.substr(name_pos, channel_pos - name_pos - 1);
 	str channel = s.substr(channel_pos, s.length() - channel_pos);
 	channel.erase(channel.size() - 1);
-	_channels[0].sendMessageToUser(*it, *get_client_by_name(receiver), channel, "INVITE");
+	it->sendPrivateMsg(*get_client_by_name(receiver), channel, "INVITE");
 }
 
 void Msg_Handle::iterate_over_clients(std::vector<Client> vect, int caller_fd)
@@ -236,7 +236,7 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 				channel->leave(*get_client_by_name(userName), "kicked");
 			}
 		}
-		_channels[0].sendMessageToUser(*it, *get_client_by_name(userName), reason, "KICK " + channelName);
+		it->sendPrivateMsg(*get_client_by_name(userName), reason, "KICK " + channelName);
 	}
 	catch (...)
 	{
