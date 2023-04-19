@@ -41,6 +41,18 @@ void Channel::delete_client_from_operators(int fd)
     }
 }
 
+str Channel::get_all_user_nicks()
+{
+	std::stringstream ss;
+	for (std::vector<Client>::const_iterator it = _users.begin(); it != _users.end(); ++it) {
+		if (it->is_admin())
+			ss << "@"<<it->getclientnick() << " ";
+		else
+			ss << it->getclientnick() << " ";
+	}
+	return ss.str();
+}
+
 Channel::Channel(const str &name, const str &topic)
 {
 	str notPermittedChars = " \f\n\r\t\v,";

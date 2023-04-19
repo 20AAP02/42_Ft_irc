@@ -286,10 +286,7 @@ void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
 
 void Msg_Handle::names_command(str in,std::vector<Client>::iterator it)
 {
-	//NAMES #public
-	//:server_name 353 client_nick @channel_name :user1 user2 user3 ...
-	//:server_name 366 client_nick channel_name :End of /NAMES list.
-	(void)it;
-	Channel UserChan = *get_channel_by_name(in.substr(in.find('#') + 1, in.length() - 1));
-	UserChan.print_all_user_DEBUG();
+	Channel UserChan = *get_channel_by_name(in);
+	str msg = ":localhost 353 " + it->getclientnick() + " = " + in + " :" + UserChan.get_all_user_nicks() + "\n:localhost 366 " + it->getclientnick() + " " + in + " :End of /NAMES list.\n";
+	send(it->getclientsocket(), msg.c_str(), msg.size(), 0);
 }

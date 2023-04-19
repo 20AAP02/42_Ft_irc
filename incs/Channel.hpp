@@ -74,6 +74,7 @@ class Channel
 
 		void delete_users_by_name(str nick);
 		void delete_users_by_fd(int fd);
+		str get_all_user_nicks();
 		void print_all_user_DEBUG(){
 		int opt = 0;
 		std::vector<Client>::iterator it = _users.begin();
