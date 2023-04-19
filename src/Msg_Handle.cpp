@@ -389,3 +389,12 @@ void Msg_Handle::print_all_client_vector_or_index(int opt)
         opt++;
     }
 }
+
+void Msg_Handle::update_users_lists_on_quit(int fd)
+{
+    std::vector<Channel>::iterator it = _channels.begin();
+    for (; it != _channels.end(); it++) {
+            it->update_user_list(fd);
+        //if (it->has_user(fd))
+    }
+}

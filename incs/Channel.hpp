@@ -86,7 +86,8 @@ class Channel
 			opt++;
    			}
 		};
-
+		bool has_user(int fd) const;
+		void update_user_list(int fd);
 	private:
 		str _channelName;
 		str _channelTopic;

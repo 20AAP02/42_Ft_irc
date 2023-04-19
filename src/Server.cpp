@@ -109,15 +109,16 @@ void Server::handleNewConnection()
 
 void Server::handleClientDisconnection(int i)
 {
-    //std::cout << "FD TO CLOSE:"<< msg_handler.get_pollfd_clients_fd(i) << std::endl;
+    int fd = msg_handler.get_pollfd_clients_fd(i);
     close(msg_handler.get_pollfd_clients_fd(i));
-    msg_handler.delete_client_from_channels(msg_handler.get_pollfd_clients_fd(i));
-    msg_handler.delete_client(msg_handler.get_pollfd_clients_fd(i));
+    msg_handler.delete_client_from_channels(fd);
+    msg_handler.delete_client(fd);
     
     msg_handler.set_pollfd_clients_fd(-1, i);
     msg_handler.set_pollfd_clients_events(0, i);
     
     msg_handler.del_cli_num();
+    msg_handler.update_users_lists_on_quit(fd);
 
 
     std::cout << "SERVER PRINT: " << "Client disconnected" << std::endl;
