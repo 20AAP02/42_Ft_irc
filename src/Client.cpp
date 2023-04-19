@@ -152,6 +152,7 @@ str Client::getNickmask() const {
  void Client::sendPrivateMsg(const Client& recipient, const str& message, const str &type) const
  {
 	std::string msg = ":" + this->getclientnick() + "!~" + this->getNickmask() + " " + type + " " + message + "\n";
+	std::cout << msg;
 	send(recipient.getclientsocket(), msg.c_str(), msg.size(), 0);
  }
 
