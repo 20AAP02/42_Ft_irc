@@ -1,11 +1,11 @@
 #ifndef CLIENT_HPP
-#define CLIENT_HPP
-
-#include <string>
-#include <cstdlib>
-#include <unistd.h>
-#include <iostream>
-#include <sys/socket.h>
+# define CLIENT_HPP
+ 
+# include <string>
+# include <cstdlib>
+# include <unistd.h>
+# include <iostream>
+# include <sys/socket.h>
 
 typedef std::string str;
 

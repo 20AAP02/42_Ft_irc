@@ -65,7 +65,11 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
 			{
 				std::size_t found = s.find(':');
 				if (found != s.npos)
+				{
 					channel->leave(*it, s.substr(found, s.size() - found));
+					for (std::vector<Client>::const_iterator member = channel->getUsers().begin(); member != channel->getUsers().end(); member++)
+						Msg_Handle().names_command(channel->getName(), *member);
+				}
 			}
 		}
 	}
@@ -101,6 +105,8 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 			}
 			else
 				_channels[check].addUser(*it);
+			for (std::vector<Client>::const_iterator member = _channels[check].getUsers().begin(); member != _channels[check].getUsers().end(); member++)
+				Msg_Handle().names_command(_channels[check].getName(), *member);
 		}
 		catch (const std::exception &e)
 		{

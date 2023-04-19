@@ -1,22 +1,22 @@
 #ifndef MSG_HANDLE_HPP
-#define MSG_HANDLE_HPP
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <map>
-#include <Client.hpp>
-#include <Channel.hpp>
-#include <Server.hpp>
-#include <list>
-#include <sstream>
-
-#include <Channel.hpp>
-#include <NumericReplys.hpp>
+# define MSG_HANDLE_HPP
+ 
+# include <iostream>
+# include <string>
+# include <vector>
+# include <map>
+# include <Client.hpp>
+# include <Channel.hpp>
+# include <Server.hpp>
+# include <list>
+# include <sstream>
+ 
+# include <Channel.hpp>
+# include <NumericReplys.hpp>
 
 
 typedef std::string str;
-#define TIMEOUT 10
+# define TIMEOUT 10
 
 class Msg_Handle
 {

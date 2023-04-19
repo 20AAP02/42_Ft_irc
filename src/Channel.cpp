@@ -147,8 +147,6 @@ void Channel::addUser(const Client &user)
 		this->_channelOperators.push_back(user.getNickmask());
 	this->sendMessage(user, "", "JOIN");
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
-	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
-		Msg_Handle().names_command(this->getName(), *member);
 }
 
 void Channel::sendMessage(const Client &user, const str &message, const str &msgType)
@@ -205,8 +203,6 @@ void Channel::leave(const Client &user, const str &goodbyMessage)
 {
 	this->sendMessage(user, goodbyMessage, "PART");
 	this->removeUser(user);
-	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
-		Msg_Handle().names_command(this->getName(), *member);
 }
 
 // ----------- Checker Member Functions ----------
