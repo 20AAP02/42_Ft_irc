@@ -236,7 +236,7 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 				channel->leave(*get_client_by_name(userName), "kicked");
 			}
 		}
-		it->sendPrivateMsg(*get_client_by_name(userName), reason, "KICK " + channelName + " " + it->getclientnick());
+		it->sendPrivateMsg(*get_client_by_name(userName), reason, "KICK " + channelName + " " + get_client_by_name(userName)->getclientnick());
 	}
 	catch (...)
 	{
