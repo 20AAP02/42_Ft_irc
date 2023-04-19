@@ -158,6 +158,8 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             who_command(s.str(), fd);
         else if (command == "LIST")
             list_command(fd);
+        else if (command == "NAMES")
+            names_command(s.str(), it);
     }
 }
 

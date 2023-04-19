@@ -41,6 +41,7 @@ int Msg_Handle::pwd_handle(str word, int fd, std::vector<Client>::iterator it)
 	{
 		std::cout << "SERVER PRINT: "
 				  << "Password Incorrecta" << std::endl;
+		std::cout << "PASS:" << _password << "TRY:" << word << std::endl;
 		std::string exit_msg = ":127.0.0.1 464 user :WrongPass\n";
 		send(fd, exit_msg.c_str(), exit_msg.size(), 0);
 		std::cout << "SERVER PRINT: "
@@ -281,4 +282,14 @@ void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
 {
 	if (in == "PONG :localhost\r\n")
 		it->is_waiting_for_pong = false;
+}
+
+void Msg_Handle::names_command(str in,std::vector<Client>::iterator it)
+{
+	//NAMES #public
+	//:server_name 353 client_nick @channel_name :user1 user2 user3 ...
+	//:server_name 366 client_nick channel_name :End of /NAMES list.
+	(void)it;
+	Channel UserChan = *get_channel_by_name(in.substr(in.find('#') + 1, in.length() - 1));
+	UserChan.print_all_user_DEBUG();
 }
