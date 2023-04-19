@@ -45,8 +45,10 @@ class Channel
 		bool canChangeTopic(const str &nickMask);
 
 		// Seters
-		void addChannelOp(const str &op, const str &newUser);
-    	void delete_client_from_operators(int fd);
+		int addChannelOp(const str &op, const str &newUser);
+    	int rmvChannelOp(const str &op, const str &userToRemove);
+		int addClientBanned(const str &op, const str &nickMask);
+		int rmvClientBanned(const str &op, const str &nickMask);
 
 		// Activate/Deactivate Modes
 		void banFlag(const str &nickMask);

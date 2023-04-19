@@ -31,16 +31,6 @@ void Channel::delete_users_by_fd(int fd)
 	}
 };
 
-void Channel::delete_client_from_operators(int fd)
-{
-	(void)fd;
-    std::vector<str>::iterator it = _channelOperators.begin();
-    for (; it != _channelOperators.end(); it++)
-    {
-		
-    }
-}
-
 str Channel::get_all_user_nicks()
 {
 	std::stringstream ss;
@@ -305,12 +295,59 @@ bool Channel::canChangeTopic(const str &nickMask)
 
 // ----------- Seters -----------
 
-void Channel::addChannelOp(const str &op, const str &newUser)
+int Channel::addChannelOp(const str &op, const str &newUser)
 {
 	if (!(this->userIsMemberOfChannel(newUser)) || !(this->isChannelOperator(op)))
-		return;
-	this->_channelOperators.push_back(newUser);
+		return 0;
+	if (!(this->isChannelOperator(newUser)))
+	{
+		this->_channelOperators.push_back(newUser);
+		return 1;
+	}
+	return 0;
 }
+
+int Channel::rmvChannelOp(const str &op, const str &userToRemove)
+{
+	if (!(this->userIsMemberOfChannel(userToRemove)) || !(this->isChannelOperator(op)))
+		return 0;
+	for (std::vector<str>::iterator member = this->_channelOperators.begin(); member != this->_channelOperators.end(); member++)
+	{
+		if (*member == userToRemove)
+		{
+			this->_channelOperators.erase(member);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int Channel::addClientBanned(const str &op, const str &nickMask)
+{
+	if (!(this->isChannelOperator(op)))
+		return 0;
+	for (std::vector<str>::iterator mask = this->_channelModes["+b"].begin(); mask != this->_channelModes["+b"].end(); mask++)
+		if (nickMask == *mask)
+			return 0;
+	this->_channelModes["+b"].push_back(nickMask);
+	return 1;
+}
+	
+int Channel::rmvClientBanned(const str &op, const str &nickMask)
+{
+	if (!(this->isChannelOperator(op)))
+		return 0;
+	for (std::vector<str>::iterator mask = this->_channelModes["+b"].begin(); mask != this->_channelModes["+b"].end(); mask++)
+	{
+		if (nickMask == *mask)
+		{
+			this->_channelModes["+b"].erase(mask);
+			return 1;
+		}
+	}
+	return 0;
+}
+
 
 // ----------- Activate/Deactivate Modes -----------
 
