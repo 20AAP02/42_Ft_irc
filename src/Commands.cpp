@@ -277,12 +277,10 @@ str itoa(int num)
         str.insert(0, 1, digit);
         num /= 10;
     }
-    if (is_negative) {
+    if (is_negative)
         str.insert(0, 1, '-');
-    }
-    if (str.empty()) {
+    else if (str.empty())
         str = "0";
-    }
     return str;
 }
 
