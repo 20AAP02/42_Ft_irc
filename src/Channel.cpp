@@ -233,6 +233,7 @@ void Channel::leave(const Client &user, const str &goodbyMessage)
 		send(member->getclientsocket(), message.c_str(), message.size(), 0); // temos q mandar a todos nao so a 1 
 	}
 	this->sendMessage(user, goodbyMessage, "PART");
+	user.sendPrivateMsg(user, this->getName() + " " + goodbyMessage, "PART");
 	this->removeUser(user);
 }
 
