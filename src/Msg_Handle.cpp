@@ -121,8 +121,8 @@ void Msg_Handle::handleOperatorCommand(str in, int fd)
             invite_command(it, in);
         else if (command == "KICK")
             kick_command(it, in, fd);
-        // else if(command == "OPER")
-        //     ;
+		else if (command == "MODE")
+            mode_command(word, it, s.str());
     }
 }
 
@@ -150,8 +150,6 @@ void Msg_Handle::handleClientCommand(str in, int fd)
             nick_name_set(it, word);
         else if (command == "PART")
             part_command(word, it, s.str());
-        else if (command == "MODE")
-            mode_command(word, it, s.str());
         else if (command == "TOPIC")
             topic_command(word, it, s.str());
         // else if (command == "QUIT")

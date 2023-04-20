@@ -54,8 +54,8 @@ Channel::Channel(const str &name, const str &topic)
 	this->_channelName = name;
 	this->_channelTopic = topic;
 	this->_channelType.push_back(name[0]);
-	this->_channelModes.insert(std::pair<str, std::vector<str> >("+b", std::vector<str>(1, "0")));
-	this->_channelModes.insert(std::pair<str, std::vector<str> >("+e", std::vector<str>(1, "0")));
+	this->_channelModes.insert(std::pair<str, std::vector<str> >("+b", std::vector<str>(1, "1")));
+	this->_channelModes.insert(std::pair<str, std::vector<str> >("+e", std::vector<str>(1, "1")));
 	this->_channelModes.insert(std::pair<str, std::vector<str> >("+l", std::vector<str>(1, "0")));
 	this->_channelModes.insert(std::pair<str, std::vector<str> >("+i", std::vector<str>(1, "0")));
 	this->_channelModes.insert(std::pair<str, std::vector<str> >("+I", std::vector<str>(1, "0")));
@@ -126,7 +126,7 @@ std::ostream &operator<<(std::ostream &o, Channel const &i)
 
 void Channel::addUser(const Client &user)
 {
-	if (this->userIsMemberOfChannel(user.getNickmask()) && !this->isBanned(user.getNickmask()))
+	if (this->userIsMemberOfChannel(user.getNickmask()) || this->isBanned(user.getNickmask()))
 		return;
 	if (this->channelSizeLimit() != 0 && this->channelSizeLimit() > (int)this->getNumberOfUsers())
 		return;
