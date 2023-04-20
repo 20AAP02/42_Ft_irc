@@ -135,26 +135,31 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 	int sucess = 0;
 	while (getline(file, part, ' '))
 	{
+		
 		if (part == "MODE" || part == word)
 			continue;
 		mode = part;
 		getline(file, part, ' ');
 		str user = part.substr(0, part.find_first_of(" \n\r"));
+		std::vector<Client>::iterator user_mode_=get_client_by_name(user);
+		std::vector<Channel>::iterator ch_mode_=get_channel_by_name(word);
+		if(_clients.end() == user_mode_)
+			return;
 		if (mode == "+b")
 		{
-			sucess = get_channel_by_name(word)->addClientBanned(*it, get_client_by_name(user)->getNickmask());
+			sucess = ch_mode_->addClientBanned(*it, user_mode_->getNickmask());
 			if (sucess)
 				kick_command(it, "KICK " + word + " " + user + " :Banned from this channel\n", it->getclientsocket());
 		}
 		else if (mode == "-b")
-			sucess = get_channel_by_name(word)->rmvClientBanned(*it, get_client_by_name(user)->getNickmask());
+			sucess = ch_mode_->rmvClientBanned(*it, user_mode_->getNickmask());
 		else if (mode == "+o")
-			sucess = get_channel_by_name(word)->addChannelOp(*it, get_client_by_name(user)->getNickmask());
+			sucess = ch_mode_->addChannelOp(*it, user_mode_->getNickmask());
 		else if (mode == "-o")
-			sucess = get_channel_by_name(word)->rmvChannelOp(*it, get_client_by_name(user)->getNickmask());
+			sucess = ch_mode_->rmvChannelOp(*it, user_mode_->getNickmask());
 		if (sucess)
 		{
-			get_channel_by_name(word)->sendMessage(*it, mode + " " + part, "MODE");
+			ch_mode_->sendMessage(*it, mode + " " + part, "MODE");
 			it->sendPrivateMsg(*it, word + " " + mode + " " + part, "MODE");
 		}
 	}
