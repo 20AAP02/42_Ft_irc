@@ -506,12 +506,6 @@ int Channel::changeTopic(const Client &user, const str &newTopic)
 	if (!(this->canChangeTopic(user.getNickmask())))
 		return NumericReplys().rpl_chanoprivsneeded(user, this->getName());
 	this->_channelTopic = newTopic;
-	if (newTopic == "")
-	{
-		for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
-			NumericReplys().rpl_notopic(*member, this->getName());
-		return 1;
-	}
 	this->sendMessage(user, this->getTopic(), "TOPIC");
 	user.sendPrivateMsg(user, this->getTopic(), "TOPIC " + this->_channelName);
 	return 1;
