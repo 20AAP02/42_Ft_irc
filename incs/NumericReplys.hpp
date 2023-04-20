@@ -45,6 +45,9 @@ class NumericReplys
 		// ERR_INVITEONLYCHAN (473)
 		int rpl_inviteonlychan(const Client &client, const str &channelName);
 
+		// ERR_NOTONCHANNEL (442)
+		int rpl_notonchannel(const Client &client, const str &channelName);
+
 	private:
 
 };

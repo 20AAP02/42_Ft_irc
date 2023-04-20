@@ -131,6 +131,17 @@ int NumericReplys::rpl_inviteonlychan(const Client &client, const str &channelNa
 	return 0;
 }
 
+// ERR_NOTONCHANNEL (442)
+int NumericReplys::rpl_notonchannel(const Client &client, const str &channelName)
+{
+	std::string msg = ":localhost 442 ";
+    msg += client.getclientnick() + " ";
+    msg += channelName + " :You're not on that channel";
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 0;
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

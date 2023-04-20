@@ -96,7 +96,7 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 		{
 			if (check == (int)_channels.size())
 			{
-				_channels.push_back(Channel(channelName, "no topic"));
+				_channels.push_back(Channel(channelName, ""));
 				_channels.back().addUser(*it);
 			}
 			else

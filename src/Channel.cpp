@@ -163,6 +163,10 @@ int Channel::addUser(const Client &user)
 		this->_channelOperators.push_back(user.getNickmask());
 	this->sendMessage(user, "", "JOIN");
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
+	if (this->getTopic() == "")
+		NumericReplys().rpl_notopic(user, this->getName());
+	else
+		NumericReplys().rpl_topic(user, this->getName(), this->getTopic());
 	for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
 	{
 		message = ":localhost 353 " + member->getclientnick() + " = " + this->_channelName + " :" + this->get_all_user_nicks() + "\n:localhost 366 " + member->getclientnick() + " " + this->_channelName + " :End of /NAMES list.\n";
@@ -195,6 +199,11 @@ void Channel::topicCommand(const Client &user, const str command)
 {
 	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " TOPIC " + this->getName() + " ";
 	// Send user current topic
+	if (!(this->userIsMemberOfChannel(user.getNickmask())))
+	{
+		NumericReplys().rpl_notonchannel(user, this->getName());
+		return;
+	}
 	if (command.find_first_not_of(" \t\n\f\r\v") == command.npos)
 	{
 		if (this->getTopic().find_first_not_of(" \t\n\f\r\v") == this->getTopic().npos)
@@ -204,7 +213,7 @@ void Channel::topicCommand(const Client &user, const str command)
 	}
 	else if (command.find_first_not_of(" \t\n\f\r\v:") == command.npos)
 	{
-		this->changeTopic(user, "No topic");
+		this->changeTopic(user, "");
 	}
 	else
 	{
@@ -496,6 +505,12 @@ int Channel::changeTopic(const Client &user, const str &newTopic)
 	if (!(this->canChangeTopic(user.getNickmask())))
 		return NumericReplys().rpl_chanoprivsneeded(user, this->getName());
 	this->_channelTopic = newTopic;
+	if (newTopic == "")
+	{
+		for (std::vector<Client>::iterator member = this->_users.begin(); member != this->_users.end(); member++)
+			NumericReplys().rpl_notopic(*member, this->getName());
+		return 1;
+	}
 	this->sendMessage(user, this->getTopic(), "TOPIC");
 	user.sendPrivateMsg(user, this->getTopic(), "TOPIC " + this->_channelName);
 	return 1;
