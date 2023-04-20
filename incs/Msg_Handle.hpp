@@ -85,7 +85,8 @@ public:
     void who_command(str in,int fd);
     void handle_pong(str in,std::vector<Client>::iterator it);
     void whois_command(str in,std::vector<Client>::iterator it);
-
+    bool nick_already_used(str new_nick, int fd);
+    void nick_command(str in,std::vector<Client>::iterator it);
     /*DEBUG Functions*/
     void print_all_client_vector_or_index(int opt);
 };

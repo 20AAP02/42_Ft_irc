@@ -556,4 +556,25 @@ const std::map<str, std::vector<str> > &Channel::getChannelModes() const
 }
 
 
+void Channel::update_client_nick(int fd, str newnick) 
+{
+    str oldnickmask;
+    std::vector<Client>::iterator it = _users.begin();
+    for (; it != _users.end(); it++) 
+    {
+        if (it->getclientsocket() == fd)
+        {
+            oldnickmask = it->getNickmask();
+            it->setnick(newnick);
+            break;
+        }
+    }
+    std::vector<str>::iterator vecit = _channelOperators.begin();
+    for (; vecit != _channelOperators.end(); vecit++) 
+    {
+        if (*vecit == oldnickmask)
+            *vecit = it->getNickmask(); 
+    }
+}
+
 /* ************************************************************************** */

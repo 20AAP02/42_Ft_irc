@@ -42,7 +42,8 @@ int Msg_Handle::Client_login(str in, int fd)
         else if (word == "NICK")
         {
             s >> word;
-            nick_name_set(it, word);
+            if(!nick_already_used(word,fd))
+                nick_name_set(it, word);
         }
         else if (word == "USER")
         {
@@ -102,8 +103,10 @@ int Msg_Handle::handleClientCommand(str in, int fd)
             join_command(word, it, s.str());
         else if (command == "PRIVMSG")
             privmsg_handle(it, s.str(), word);
-        else if (command == "NICK")
-            nick_name_set(it, word);
+        else if (command == "NICK"){
+            if(!nick_already_used(word,fd))
+                nick_command(word, it);
+        }
         else if (command == "PART")
             part_command(word, it, s.str());
         else if (command == "TOPIC")

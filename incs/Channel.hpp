@@ -73,7 +73,7 @@ class Channel
 		const str &getType() const;
 		const std::vector<str> &getChannelOperators() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
-
+		void update_client_nick(int fd, str newnick) ;
 		void delete_users_by_name(str nick);
 		void delete_users_by_fd(int fd);
 		str get_all_user_nicks();

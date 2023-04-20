@@ -329,3 +329,36 @@ void Msg_Handle::whois_command(str in,  std::vector<Client>::iterator asker)
 	msg += ":localhost 318 " + asker->getclientnick() + " " + asked->getclientnick() + " :End of /WHOIS list.\n";
 	send(asker->getclientsocket(), msg.c_str(), msg.size(), 0);
 }
+
+bool Msg_Handle::nick_already_used(str new_nick, int fd){
+	 std::vector<Client>::iterator it = _clients.begin();
+    for (; it != _clients.end(); it++)
+    {
+        if (it->getclientnick() == new_nick && it->getclientsocket() != fd)
+        {
+			//:luna.AfterNET.Org 433 * rdrake :Nickname is already in use.
+			str msg =":localhost 433 ";
+			if(it->getclientnick() == "")
+				msg += "*";
+			else
+				msg += it->getclientnick();
+			msg += " " + new_nick + " :Nickname is already in use.\n";
+			send(fd,msg.c_str(), msg.size(), 0);
+            return true;
+        }
+    }
+	return false;
+}
+
+void Msg_Handle::nick_command(str in,std::vector<Client>::iterator it)
+{
+    str msg = ":" + it->getNickmask() + " NICK :" + in + "\n"; 
+    it->setnick(in);
+    for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
+        if(channel->has_user(it->getclientsocket()))
+        {
+            channel->sendMessage(msg);
+            channel->update_client_nick(it->getclientsocket(),in);
+            channel->update_user_list(it->getclientsocket());
+        }
+}
