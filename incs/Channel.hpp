@@ -29,9 +29,9 @@ class Channel
 		
 		void addUser(const Client &user);
 		void sendMessage(const Client &user, const str &message, const str &msgType);
+		void sendMessage(str Message);
 		void leave(const Client &user, const str &goodbyMessage);
 		void topicCommand(const Client &user, const str command);
-
 		// Checkers
 		int userIsMemberOfChannel(const str &nickMask) const;
 		std::size_t getNumberOfUsers() const;
@@ -86,7 +86,8 @@ class Channel
 			opt++;
    			}
 		};
-
+		bool has_user(int fd) const;
+		void update_user_list(int fd);
 	private:
 		str _channelName;
 		str _channelTopic;
