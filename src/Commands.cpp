@@ -258,15 +258,14 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 			reason = s.substr(s.find(":"), s.length() - 2);
 		else
 			reason = ":No reason";
-		std::cout << "REASON: " << reason << "BOOL " << isReason << std::endl;
 		for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 		{
-			if (channel->getName() == channelName)
+			if (channel->getName() == channelName && channel->isChannelOperator(it->getNickmask()))
 			{
 				channel->leave(*get_client_by_name(userName), "kicked");
+				it->sendPrivateMsg(*get_client_by_name(userName), reason, "KICK " + channelName + " " + get_client_by_name(userName)->getclientnick());
 			}
 		}
-		it->sendPrivateMsg(*get_client_by_name(userName), reason, "KICK " + channelName + " " + get_client_by_name(userName)->getclientnick());
 	}
 	catch (...)
 	{
