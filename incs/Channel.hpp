@@ -9,6 +9,7 @@
 # include <Client.hpp>
 # include <sys/socket.h> // send()
 # include <sstream> // std::ostringstream
+# include <NumericReplys.hpp>
 # define BLANK "\033[0m"
 # define RED "\033[38;5;1m"
 # define PURPLE "\033[38;5;13m"
@@ -27,8 +28,8 @@ class Channel
 		Channel( Channel const & src );
 		~Channel();
 		
-		void addUser(const Client &user);
-		void sendMessage(const Client &user, const str &message, const str &msgType);
+		int addUser(const Client &user);
+		int sendMessage(const Client &user, const str &message, const str &msgType);
 		void sendMessage(str Message);
 		void leave(const Client &user, const str &goodbyMessage);
 		void topicCommand(const Client &user, const str command);
@@ -45,10 +46,10 @@ class Channel
 		bool canChangeTopic(const str &nickMask);
 
 		// Seters
-		int addChannelOp(const str &op, const str &newUser);
-    	int rmvChannelOp(const str &op, const str &userToRemove);
-		int addClientBanned(const str &op, const str &nickMask);
-		int rmvClientBanned(const str &op, const str &nickMask);
+		int addChannelOp(const Client &op, const str &newUser);
+    	int rmvChannelOp(const Client &op, const str &userToRemove);
+		int addClientBanned(const Client &op, const str &nickMask);
+		int rmvClientBanned(const Client &op, const str &nickMask);
 
 		// Activate/Deactivate Modes
 		void banFlag(const str &nickMask);
@@ -104,7 +105,7 @@ class Channel
 		void removeFromVector(const Client &user, std::vector<str> &vector);
         void removeUser(const Client &user);
 		void changeChannelMode(const str &mode);
-		void changeTopic(const Client &user, const str &newTopic);
+		int changeTopic(const Client &user, const str &newTopic);
 };
 
 std::ostream &			operator<<( std::ostream & o, Channel const & i );

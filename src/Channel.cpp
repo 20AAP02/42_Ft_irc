@@ -148,12 +148,14 @@ std::ostream &operator<<(std::ostream &o, Channel const &i)
 ** --------------------------------- METHODS ----------------------------------
 */
 
-void Channel::addUser(const Client &user)
+int Channel::addUser(const Client &user)
 {
-	if (this->userIsMemberOfChannel(user.getNickmask()) || this->isBanned(user.getNickmask()))
-		return;
+	if (this->userIsMemberOfChannel(user.getNickmask()))
+		return 0;
+	if (this->isBanned(user.getNickmask()))
+		return NumericReplys().rpl_bannedfromchan(user, this->getName());
 	if (this->channelSizeLimit() != 0 && this->channelSizeLimit() > (int)this->getNumberOfUsers())
-		return;
+		return NumericReplys().rpl_channelisfull(user, this->getName());
 	std::string message = ":" + user.getclientnick() + "!";
 	message.append(user.getNickmask() + " JOIN " + this->_channelName + "\n");
 	this->_users.push_back(user);
@@ -166,12 +168,13 @@ void Channel::addUser(const Client &user)
 		message = ":localhost 353 " + member->getclientnick() + " = " + this->_channelName + " :" + this->get_all_user_nicks() + "\n:localhost 366 " + member->getclientnick() + " " + this->_channelName + " :End of /NAMES list.\n";
 		send(member->getclientsocket(), message.c_str(), message.size(), 0);
 	}
+	return 1;
 }
 
-void Channel::sendMessage(const Client &user, const str &message, const str &msgType)
+int Channel::sendMessage(const Client &user, const str &message, const str &msgType)
 {
 	if (!(this->canSpeak(user.getNickmask())))
-		return;
+		return NumericReplys().rpl_chanoprivsneeded(user, this->getName());
 	str msg = ":" + user.getclientnick() + "!";
 	if (this->isChannelOperator(user.getNickmask()))
 		msg += "@";
@@ -179,6 +182,7 @@ void Channel::sendMessage(const Client &user, const str &message, const str &msg
 	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
 		if (member->getNickmask() != user.getNickmask())
 			send(member->getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 1;
 }
 
 void Channel::sendMessage(str Message)
@@ -189,36 +193,21 @@ void Channel::sendMessage(str Message)
 
 void Channel::topicCommand(const Client &user, const str command)
 {
-	std::cout << "SERVER PRINT: "
-			  << "in channel topic: command -> " << command << std::endl;
-	if (!(this->userIsMemberOfChannel(user.getNickmask())))
-		return;
-	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " TOPIC " + this->getName();
-	std::cout << "SERVER PRINT: "
-			  << "in channel topic: msg -> " << msg << std::endl;
+	str msg = ":" + user.getclientnick() + "!~" + user.getNickmask() + " TOPIC " + this->getName() + " ";
 	// Send user current topic
 	if (command.find_first_not_of(" \t\n\f\r\v") == command.npos)
 	{
-		std::cout << "SERVER PRINT: "
-				  << "show topic" << std::endl;
-		msg += " ";
-		// No topic
 		if (this->getTopic().find_first_not_of(" \t\n\f\r\v") == this->getTopic().npos)
-			msg += "No topic is set (" + this->getTopic() + ")\n";
+			NumericReplys().rpl_notopic(user, this->getName());
 		else
-			msg += this->getTopic() + "\n";
-		send(user.getclientsocket(), msg.c_str(), msg.size(), 0);
+			NumericReplys().rpl_topic(user, this->getName(), this->getTopic());
 	}
 	else if (command.find_first_not_of(" \t\n\f\r\v:") == command.npos)
 	{
-		std::cout << "SERVER PRINT: "
-				  << "clean topic" << std::endl;
-		this->changeTopic(user, "No topic is set");
+		this->changeTopic(user, "No topic");
 	}
 	else
 	{
-		std::cout << "SERVER PRINT: "
-				  << "change topic" << std::endl;
 		str topic = command.substr(command.find(":") + 1);
 		this->changeTopic(user, topic);
 	}
@@ -326,10 +315,12 @@ bool Channel::canChangeTopic(const str &nickMask)
 
 // ----------- Seters -----------
 
-int Channel::addChannelOp(const str &op, const str &newUser)
+int Channel::addChannelOp(const Client &op, const str &newUser)
 {
-	if (!(this->userIsMemberOfChannel(newUser)) || !(this->isChannelOperator(op)))
+	if (!(this->userIsMemberOfChannel(newUser)))
 		return 0;
+	if (!(this->isChannelOperator(op.getNickmask())))
+		return NumericReplys().rpl_chanoprivsneeded(op, this->getName());
 	if (!(this->isChannelOperator(newUser)))
 	{
 		this->_channelOperators.push_back(newUser);
@@ -338,10 +329,12 @@ int Channel::addChannelOp(const str &op, const str &newUser)
 	return 0;
 }
 
-int Channel::rmvChannelOp(const str &op, const str &userToRemove)
+int Channel::rmvChannelOp(const Client &op, const str &userToRemove)
 {
-	if (!(this->userIsMemberOfChannel(userToRemove)) || !(this->isChannelOperator(op)))
+	if (!(this->isChannelOperator(userToRemove)))
 		return 0;
+	if (!(this->isChannelOperator(op.getNickmask())))
+		return NumericReplys().rpl_chanoprivsneeded(op, this->getName());
 	for (std::vector<str>::iterator member = this->_channelOperators.begin(); member != this->_channelOperators.end(); member++)
 	{
 		if (*member == userToRemove)
@@ -353,10 +346,10 @@ int Channel::rmvChannelOp(const str &op, const str &userToRemove)
 	return 0;
 }
 
-int Channel::addClientBanned(const str &op, const str &nickMask)
+int Channel::addClientBanned(const Client &op, const str &nickMask)
 {
-	if (!(this->isChannelOperator(op)))
-		return 0;
+	if (!(this->isChannelOperator(op.getNickmask())))
+		return NumericReplys().rpl_chanoprivsneeded(op, this->getName());
 	for (std::vector<str>::iterator mask = this->_channelModes["+b"].begin(); mask != this->_channelModes["+b"].end(); mask++)
 		if (nickMask == *mask)
 			return 0;
@@ -364,10 +357,10 @@ int Channel::addClientBanned(const str &op, const str &nickMask)
 	return 1;
 }
 	
-int Channel::rmvClientBanned(const str &op, const str &nickMask)
+int Channel::rmvClientBanned(const Client &op, const str &nickMask)
 {
-	if (!(this->isChannelOperator(op)))
-		return 0;
+	if (!(this->isChannelOperator(op.getNickmask())))
+		return NumericReplys().rpl_chanoprivsneeded(op, this->getName());
 	for (std::vector<str>::iterator mask = this->_channelModes["+b"].begin(); mask != this->_channelModes["+b"].end(); mask++)
 	{
 		if (nickMask == *mask)
@@ -498,13 +491,14 @@ void Channel::removeUser(const Client &user)
 	}
 }
 
-void Channel::changeTopic(const Client &user, const str &newTopic)
+int Channel::changeTopic(const Client &user, const str &newTopic)
 {
 	if (!(this->canChangeTopic(user.getNickmask())))
-		return;
+		return NumericReplys().rpl_chanoprivsneeded(user, this->getName());
 	this->_channelTopic = newTopic;
 	this->sendMessage(user, this->getTopic(), "TOPIC");
 	user.sendPrivateMsg(user, this->getTopic(), "TOPIC " + this->_channelName);
+	return 1;
 }
 
 void Channel::changeChannelMode(const str &mode)

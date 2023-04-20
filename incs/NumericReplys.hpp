@@ -16,27 +16,34 @@ class NumericReplys
 		~NumericReplys();
 
 		// RPL_WELCOME (001)
-		void rpl_welcome(const Client &client);
+		int rpl_welcome(const Client &client);
 
 		// RPL_NOTOPIC (331)
-		void rpl_notopic(const Client &client, const str channelName);
+		int rpl_notopic(const Client &client, const str channelName);
 
 		// RPL_TOPIC (332)
-		void rpl_topic(const Client &client, const str channelName, const str &topic);
+		int rpl_topic(const Client &client, const str channelName, const str &topic);
 
 		// RPL_NAMREPLY (353)
-		void rpl_namreply(const Client &client, const Channel &channel);
+		int rpl_namreply(const Client &client, const str &channel);
 
 		// RPL_ENDOFNAMES (366)
-		void rpl_endofnames(const Client &client, const str &channelName);
+		int rpl_endofnames(const Client &client, const str &channelName);
 
 		// ERR_CHANOPRIVSNEEDED (482)
-		void rpl_chanoprivsneeded(const Client &client, const str &channelName);
+		int rpl_chanoprivsneeded(const Client &client, const str &channelName);
+		
+		// ERR_BADCHANNELKEY (475)
+		int rpl_badchannelkey(const Client &client, const str &channelName);
 
-		// Cant enter channel messages --------------------------------------------------
-		// ERR_BADCHANNELKEY (475), ERR_BANNEDFROMCHAN (474), ERR_CHANNELISFULL (471), ERR_INVITEONLYCHAN (473)
+		// ERR_BANNEDFROMCHAN (474)
+		int rpl_bannedfromchan(const Client &client, const str &channelName);
 
-		void rpl_cannotEnterChannel(const Client &client, const str &channelName);
+		// ERR_CHANNELISFULL (471)
+		int rpl_channelisfull(const Client &client, const str &channelName);
+
+		// ERR_INVITEONLYCHAN (473)
+		int rpl_inviteonlychan(const Client &client, const str &channelName);
 
 	private:
 

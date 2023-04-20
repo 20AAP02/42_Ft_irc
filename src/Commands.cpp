@@ -112,7 +112,6 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 
 void Msg_Handle::topic_command(str word, std::vector<Client>::iterator it, str s)
 {
-	std::cout << "SERVER PRINT: " << "entered topic_command() function: word -> " << word << " | s -> " << s << std::endl;
 	for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 	{
 		if (channel->getName() == word)
@@ -143,15 +142,16 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 		str user = part.substr(0, part.find_first_of(" \n\r"));
 		if (mode == "+b")
 		{
-			sucess = get_channel_by_name(word)->addClientBanned(it->getNickmask(), get_client_by_name(user)->getNickmask());
-			kick_command(it, "KICK " + word + " " + user + " :Banned from this channel\n", it->getclientsocket());
+			sucess = get_channel_by_name(word)->addClientBanned(*it, get_client_by_name(user)->getNickmask());
+			if (sucess)
+				kick_command(it, "KICK " + word + " " + user + " :Banned from this channel\n", it->getclientsocket());
 		}
 		else if (mode == "-b")
-			sucess = get_channel_by_name(word)->rmvClientBanned(it->getNickmask(), get_client_by_name(user)->getNickmask());
+			sucess = get_channel_by_name(word)->rmvClientBanned(*it, get_client_by_name(user)->getNickmask());
 		else if (mode == "+o")
-			sucess = get_channel_by_name(word)->addChannelOp(it->getNickmask(), get_client_by_name(user)->getNickmask());
+			sucess = get_channel_by_name(word)->addChannelOp(*it, get_client_by_name(user)->getNickmask());
 		else if (mode == "-o")
-			sucess = get_channel_by_name(word)->rmvChannelOp(it->getNickmask(), get_client_by_name(user)->getNickmask());
+			sucess = get_channel_by_name(word)->rmvChannelOp(*it, get_client_by_name(user)->getNickmask());
 		if (sucess)
 		{
 			get_channel_by_name(word)->sendMessage(*it, mode + " " + part, "MODE");
