@@ -36,7 +36,6 @@ public:
     int Client_login(str in, int fd);
     void handlerealname(str in, std::vector<Client>::iterator it);
     int handleClientCommand(str in, int fd);
-    void handleOperatorCommand(str in, int fd);
     // 0 keep connection alive or 1 to disconnect
     int check_input(str in, int fd);
     void set_password(str pass);

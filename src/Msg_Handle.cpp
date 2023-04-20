@@ -81,25 +81,6 @@ int Msg_Handle::Client_login(str in, int fd)
     return 0;
 }
 
-void Msg_Handle::handleOperatorCommand(str in, int fd)
-{
-    std::vector<Client>::iterator it = get_client_by_fd(fd);
-    str command, word;
-    std::stringstream s(in);
-
-    while (s >> word)
-    {
-        command = word;
-        s >> word;
-        std::vector<Channel>::iterator ct = get_channel_by_name(word);
-        if (ct == _channels.end() || !ct->isChannelOperator(it->getNickmask()))
-            return;
-        else if (command == "INVITE")
-            invite_command(it, in);
-        else if (command == "KICK")
-            kick_command(it, in, fd);
-    }
-}
 
 int Msg_Handle::handleClientCommand(str in, int fd)
 {
@@ -139,6 +120,10 @@ int Msg_Handle::handleClientCommand(str in, int fd)
             mode_command(word, it, s.str());
         else if (command == "QUIT")
             return 1;
+        else if (command == "INVITE")
+            invite_command(it, in);
+        else if (command == "KICK")
+            kick_command(it, in, fd);
     }
     return 0;
 }
@@ -147,7 +132,6 @@ int Msg_Handle::check_input(str in, int fd)
 {
     if (Client_login(in, fd) || handleClientCommand(in, fd))
         return 1;
-    handleOperatorCommand(in, fd);
     /*
     421     ERR_UNKNOWNCOMMAND
     "<command> :Unknown command"

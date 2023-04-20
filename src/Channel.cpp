@@ -192,7 +192,7 @@ int Channel::sendMessage(const Client &user, const str &message, const str &msgT
 void Channel::sendMessage(str Message)
 {
 	for (std::vector<Client>::const_iterator member = this->_users.begin(); member != this->_users.end(); member++)
-			send(member->getclientsocket(), Message.c_str(), Message.size(), 0);
+		send(member->getclientsocket(), Message.c_str(), Message.size(), 0);
 }
 
 void Channel::topicCommand(const Client &user, const str command)

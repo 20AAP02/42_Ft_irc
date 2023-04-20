@@ -162,14 +162,18 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 
 void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 {
-	std::size_t name_pos = s.find("INVITE ") + 7;
-	std::size_t channel_pos = s.find("#");
-	if (name_pos == str::npos || channel_pos == str::npos || !it->is_admin())
-		return;
-	str receiver = s.substr(name_pos, channel_pos - name_pos - 1);
-	str channel = s.substr(channel_pos, s.length() - channel_pos);
-	channel.erase(channel.size() - 1);
-	it->sendPrivateMsg(*get_client_by_name(receiver), channel, "INVITE");
+	std::stringstream in(s);
+	str command, receiver, channel;
+
+	in >> command;
+	in >> receiver;
+	in >> channel;
+
+	std::vector<Channel>::iterator Userchan = get_channel_by_name(channel);
+	if (Userchan != _channels.end() && Userchan->isChannelOperator(it->getNickmask()))
+		it->sendPrivateMsg(*get_client_by_name(receiver), receiver + " " + channel, command);
+	else
+		std::cout << "NOT OPERATOR\n";
 }
 
 void Msg_Handle::iterate_over_clients(std::vector<Client> vect, int caller_fd)
