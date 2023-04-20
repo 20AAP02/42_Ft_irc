@@ -73,10 +73,10 @@ int Msg_Handle::Client_login(str in, int fd)
     if (it->get_nick_bool() && it->get_user_bool() && it->get_pass_bool())
     {
         it->set_logged();
-        _channels[0].addUser(*it);
-        std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";
-        it->set_admin(true);
-        it->ping_client();
+        it->ping_client();    
+        std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";      
+       //_channels[0].addUser(*it);        
+        //it->set_admin(true);
         NumericReplys().rpl_welcome(*it);
     }
     return 0;

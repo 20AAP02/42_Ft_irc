@@ -173,7 +173,7 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 	if (Userchan != _channels.end() && Userchan->isChannelOperator(it->getNickmask()))
 		it->sendPrivateMsg(*get_client_by_name(receiver), receiver + " " + channel, command);
 	else
-		std::cout << "NOT OPERATOR\n";
+		NumericReplys().rpl_chanoprivsneeded(*it,channel);
 }
 
 void Msg_Handle::iterate_over_clients(std::vector<Client> vect, int caller_fd)
@@ -260,10 +260,14 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 			reason = ":No reason";
 		for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 		{
-			if (channel->getName() == channelName && channel->isChannelOperator(it->getNickmask()))
+			if (channel->getName() == channelName)
 			{
+				if(channel->isChannelOperator(it->getNickmask())){
 				channel->leave(*get_client_by_name(userName), "kicked");
 				it->sendPrivateMsg(*get_client_by_name(userName), reason, "KICK " + channelName + " " + get_client_by_name(userName)->getclientnick());
+				}
+				else
+					NumericReplys().rpl_chanoprivsneeded(*it,channelName);
 			}
 		}
 	}
@@ -355,7 +359,7 @@ void Msg_Handle::nick_command(str in,std::vector<Client>::iterator it)
     str msg = ":" + it->getNickmask() + " NICK :" + in + "\n"; 
     it->setnick(in);
     for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
-        if(channel->has_user(it->getclientsocket()))
+        if(channel->has_user(it->getNickmask()))
         {
             channel->sendMessage(msg);
             channel->update_client_nick(it->getclientsocket(),in);

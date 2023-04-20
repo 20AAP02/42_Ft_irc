@@ -31,9 +31,9 @@ void Channel::delete_users_by_fd(int fd)
 	}
 };
 
-bool Channel::has_user(int fd) const {
+bool Channel::has_user(str nick_mask) const {
     for (std::vector<Client>::const_iterator it = _users.begin(); it != _users.end(); ++it) {
-        if (it->getclientsocket() == fd) {
+        if (it->getNickmask() == nick_mask) {
             return true;
         }
     }
@@ -162,6 +162,7 @@ int Channel::addUser(const Client &user)
 	if ((int)this->_channelOperators.size() == 0)
 		this->_channelOperators.push_back(user.getNickmask());
 	this->sendMessage(user, "", "JOIN");
+	usleep(10000);
 	send(user.getclientsocket(), message.c_str(), message.size(), 0);
 	if (this->getTopic() == "")
 		NumericReplys().rpl_notopic(user, this->getName());

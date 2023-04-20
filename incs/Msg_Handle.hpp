@@ -16,7 +16,7 @@
 
 
 typedef std::string str;
-# define TIMEOUT 10
+# define TIMEOUT 1000
 
 class Msg_Handle
 {

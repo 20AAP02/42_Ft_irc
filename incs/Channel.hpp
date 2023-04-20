@@ -87,7 +87,7 @@ class Channel
 			opt++;
    			}
 		};
-		bool has_user(int fd) const;
+		bool has_user(str nick_mask) const;
 		void update_user_list(int fd);
 	private:
 		str _channelName;
