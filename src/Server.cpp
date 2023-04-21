@@ -73,13 +73,10 @@ void Server::listenForIncomingConnections()
 void Server::addNewClientToPoll()
 {
     int client_socket = msg_handler.get_client_socket_last();
-    //msg_handler.delete_last_client();
     msg_handler.set_pollfd_clients_fd(client_socket, msg_handler.get_cli_num() + 1);
     msg_handler.set_pollfd_clients_events(POLLIN, msg_handler.get_cli_num() + 1);
     fcntl(client_socket, F_SETFL, O_NONBLOCK);
     msg_handler.add_cli_num();
-    //DEBUG
-    //msg_handler.print_all_client_vector_or_index(-1);
 }
 
 void Server::handleNewConnection()
@@ -90,8 +87,6 @@ void Server::handleNewConnection()
     int client_socket = accept(this->server_socket_, (struct sockaddr *)&client_addr, &client_addr_len);
     if (client_socket < 0)
         std::cerr << "Failed to accept incoming connection" << std::endl;
-    // client_sockets_.push_back(client_socket);
-    // msg_handler.add_client(client_socket);
     if (msg_handler.get_cli_num() < MAX_CLIENTS)
     {
         msg_handler.add_client(client_socket);

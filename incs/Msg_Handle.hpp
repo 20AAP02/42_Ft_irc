@@ -5,18 +5,18 @@
 # include <string>
 # include <vector>
 # include <map>
-# include <Client.hpp>
-# include <Channel.hpp>
-# include <Server.hpp>
 # include <list>
 # include <sstream>
  
+# include <Client.hpp>
+# include <Channel.hpp>
+# include <Server.hpp>
 # include <Channel.hpp>
 # include <NumericReplys.hpp>
 
-#include <map>
 typedef std::string str;
-# define TIMEOUT 1000
+
+# define TIMEOUT 10
 
 class Msg_Handle
 {
