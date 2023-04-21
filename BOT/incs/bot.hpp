@@ -13,10 +13,6 @@
 
 typedef std::string	str;
 
-const str SERVER_ADDRESS = "localhost";
-const str SERVER_PORT = "8080";
-const str CHANNEL = "#example";
-const str PASSWORD = "ola123";
 
 
 class Bot
@@ -26,12 +22,14 @@ class Bot
         str _ServPassword;
         str _ChannelToJoin;
         int _BotSocket;
+        bool _is_ponged ;
     public:
         Bot(str ServPort, str ServPassword, str Channeltojoin);
         void createBotSocket();
         void connectToServer();
         void RegisterInServer();
         void MainConnectionLoop();
+        void HandleServerInput(char *buffer, int num_bytes);
         //~Bot();
 };
 
