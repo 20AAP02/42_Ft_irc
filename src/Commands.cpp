@@ -140,26 +140,25 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 			continue;
 		mode = part;
 		getline(file, part, ' ');
-		str user = part.substr(0, part.find_first_of(" \n\r"));
-		std::vector<Client>::iterator user_mode_=get_client_by_name(user);
-		std::vector<Channel>::iterator ch_mode_=get_channel_by_name(word);
-		if(_clients.end() == user_mode_)
+		std::vector<Client>::iterator client = get_client_by_name(part.substr(0, part.find_first_of(" \n\r")));
+		if(_clients.end() == client)
 			return;
+		Channel channel = *get_channel_by_name(word);
 		if (mode == "+b")
 		{
-			sucess = ch_mode_->addClientBanned(*it, user_mode_->getNickmask());
+			sucess = channel.addClientBanned(*it, client->getNickmask());
 			if (sucess)
-				kick_command(it, "KICK " + word + " " + user + " :Banned from this channel\n", it->getclientsocket());
+				kick_command(it, "KICK " + word + " " + client->getNickmask() + " :Banned from this channel\n", it->getclientsocket());
 		}
 		else if (mode == "-b")
-			sucess = ch_mode_->rmvClientBanned(*it, user_mode_->getNickmask());
+			sucess = channel.rmvClientBanned(*it, client->getNickmask());
 		else if (mode == "+o")
-			sucess = ch_mode_->addChannelOp(*it, user_mode_->getNickmask());
+			sucess = channel.addChannelOp(*it, client->getNickmask());
 		else if (mode == "-o")
-			sucess = ch_mode_->rmvChannelOp(*it, user_mode_->getNickmask());
+			sucess = channel.rmvChannelOp(*it, client->getNickmask());
 		if (sucess)
 		{
-			ch_mode_->sendMessage(*it, mode + " " + part, "MODE");
+			channel.sendMessage(*it, mode + " " + part, "MODE");
 			it->sendPrivateMsg(*it, word + " " + mode + " " + part, "MODE");
 		}
 	}
@@ -364,7 +363,7 @@ void Msg_Handle::nick_command(str in,std::vector<Client>::iterator it)
     str msg = ":" + it->getNickmask() + " NICK :" + in + "\n"; 
     it->setnick(in);
     for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
-        if(channel->has_user(it->getNickmask()))
+        if(channel->userIsMemberOfChannel(it->getNickmask()))
         {
             channel->sendMessage(msg);
             channel->update_client_nick(it->getclientsocket(),in);

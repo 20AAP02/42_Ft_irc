@@ -33,6 +33,13 @@ class Channel
 		void sendMessage(str Message);
 		void leave(const Client &user, const str &goodbyMessage);
 		void topicCommand(const Client &user, const str command);
+		
+		void update_client_nick(int fd, str newnick) ;
+		void delete_users_by_name(str nick);
+		void delete_users_by_fd(int fd);
+		str get_all_user_nicks();
+		void update_user_list(int fd);
+
 		// Checkers
 		int userIsMemberOfChannel(const str &nickMask) const;
 		std::size_t getNumberOfUsers() const;
@@ -73,22 +80,7 @@ class Channel
 		const str &getType() const;
 		const std::vector<str> &getChannelOperators() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
-		void update_client_nick(int fd, str newnick) ;
-		void delete_users_by_name(str nick);
-		void delete_users_by_fd(int fd);
-		str get_all_user_nicks();
-		void print_all_user_DEBUG(){
-		int opt = 0;
-		std::vector<Client>::iterator it = _users.begin();
-		for (; it != _users.end(); it++)
-		{
-			std::cout << "####CLIENTS LIST####\n" ;
-			std::cout << YELLOW << "[DEBUG](print_all_USER_vector_or_index)" << BLANK << "Index " << opt << " NIck: " << it->getclientnick() << " USER: " << it->getclientuser() << " Realname : " << it->getRealName() << " FD : " << it->getclientsocket() << "\n";
-			opt++;
-   			}
-		};
-		bool has_user(str nick_mask) const;
-		void update_user_list(int fd);
+	
 	private:
 		str _channelName;
 		str _channelTopic;
@@ -104,7 +96,6 @@ class Channel
 		// Additional fucntions
 		void removeFromVector(const Client &user, std::vector<str> &vector);
         void removeUser(const Client &user);
-		void changeChannelMode(const str &mode);
 		int changeTopic(const Client &user, const str &newTopic);
 };
 
