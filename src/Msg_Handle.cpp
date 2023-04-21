@@ -119,7 +119,7 @@ int Msg_Handle::handleClientCommand(str in, int fd)
             names_command(word, *it);
         else if(command == "WHOIS")
             whois_command(word, it);
-		else if (command == "MODE")
+		else if (command == "MODE" || command == "mode")
             mode_command(word, it, s.str());
         else if (command == "QUIT")
             return 1;

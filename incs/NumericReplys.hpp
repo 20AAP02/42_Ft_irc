@@ -48,6 +48,12 @@ class NumericReplys
 		// ERR_NOTONCHANNEL (442)
 		int rpl_notonchannel(const Client &client, const str &channelName);
 
+		// RPL_BANLIST (367)
+		int rpl_banlist(const Client &client, const str &channelName, const std::vector<str> &bannedMasks);
+
+		// RPL_ENDOFBANLIST (368)
+		int rpl_endofbanlist(const Client &client, const str &channelName);
+
 	private:
 
 };

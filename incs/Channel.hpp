@@ -80,6 +80,7 @@ class Channel
 		const str &getType() const;
 		const std::vector<str> &getChannelOperators() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
+		const std::vector<str> &getBanList();
 	
 	private:
 		str _channelName;

@@ -142,6 +142,36 @@ int NumericReplys::rpl_notonchannel(const Client &client, const str &channelName
 	return 0;
 }
 
+// RPL_BANLIST (367)
+int NumericReplys::rpl_banlist(const Client &client, const str &channelName, const std::vector<str> &bannedMasks)
+{
+	for (std::vector<str>::const_iterator mask = bannedMasks.begin(); mask != bannedMasks.end(); mask++)
+	{
+		if (*mask == "1" || *mask == "0")
+			continue;
+		std::string msg = ":localhost 367 ";
+		msg += client.getclientnick() + " ";
+		msg += channelName + " " + *mask;
+		msg += "\n";
+		send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	}
+	this->rpl_endofbanlist(client, channelName);
+	return 0;
+}
+
+// RPL_ENDOFBANLIST (368)
+int NumericReplys::rpl_endofbanlist(const Client &client, const str &channelName)
+{
+	std::string msg = ":localhost 368 ";
+    msg += client.getclientnick() + " ";
+    msg += channelName + " :End of channel ban list";
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 0;
+}
+
+
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
