@@ -126,6 +126,11 @@ void Msg_Handle::topic_command(str word, std::vector<Client>::iterator it, str s
 	}
 }
 
+void showModeList(Channel channel, std::vector<Client>::iterator client, const str mode)
+{
+	// mostrar lista de banidos <- exemplo
+}
+
 void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 {
 	(void) it;
@@ -133,6 +138,7 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 	str part;
 	str mode;
 	int sucess = 0;
+	Channel channel = *get_channel_by_name(word);
 	while (getline(file, part, ' '))
 	{
 		
@@ -141,9 +147,10 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 		mode = part;
 		getline(file, part, ' ');
 		std::vector<Client>::iterator client = get_client_by_name(part.substr(0, part.find_first_of(" \n\r")));
+		if (part.find_first_not_of(" \n\r\t") == part.npos)
+			showModeList(channel, it, mode);
 		if(_clients.end() == client)
 			return;
-		Channel channel = *get_channel_by_name(word);
 		if (mode == "+b")
 		{
 			sucess = channel.addClientBanned(*it, client->getNickmask());
