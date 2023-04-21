@@ -69,7 +69,6 @@ void Bot::MainConnectionLoop()
     }
 }
 
-
 void Bot::HandleServerInput(char *buffer, int num_bytes)
 {
     std::cout << buffer << std::endl;
@@ -99,13 +98,14 @@ void Bot::HandlePRIVMSG(str buf)
     str SenderNickMask, nick, message, command, sendernick;
     std::stringstream s(buf);
     s >> SenderNickMask;
-    s >> nick;
     s >> command;
+    s >> nick;
     s >> message;
     size_t findcol = SenderNickMask.find(":") + 1;
     size_t findexc = SenderNickMask.find("!") - 1;
-    if (findcol != str::npos && findexc != str::npos )
-        sendernick = SenderNickMask.substr(findcol, findexc);
+    if (findcol == str::npos || findexc == str::npos || nick[0] == '#' )
+        return; 
+    sendernick = SenderNickMask.substr(findcol, findexc);
     str teste = "PRIVMSG " + sendernick + " " + ChatGPT(message) + "\r\n";
     send(_BotSocket, teste.c_str(), teste.size(), 0);
 }

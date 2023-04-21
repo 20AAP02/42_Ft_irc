@@ -13,8 +13,6 @@
 
 typedef std::string	str;
 
-
-
 class Bot
 {
     private:
@@ -32,10 +30,18 @@ class Bot
         void HandleServerInput(char *buffer, int num_bytes);
         void HandlePRIVMSG(str buf);
         str ChatGPT(str buf);
-        //~Bot();
+        ~Bot(){};
 };
 
 
+/*			COLOURS		*/
 
+# define BLANK "\033[0m"
+# define RED "\033[38;5;1m"
+# define PURPLE "\033[38;5;13m"
+# define YELLOW "\033[33m"
+# define BLUE "\033[38;5;14m"
+# define GREEN "\033[38;5;47m"
+# define ORANGE "\033[38;5;208m"
 
 #endif
