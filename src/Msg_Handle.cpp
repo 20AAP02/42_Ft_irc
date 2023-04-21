@@ -131,15 +131,15 @@ int Msg_Handle::handleClientCommand(str in, int fd)
     return 0;
 }
 
-int Msg_Handle::check_input(str in, int fd)
+bool Msg_Handle::check_input(str in, int fd)
 {
     if (Client_login(in, fd) || handleClientCommand(in, fd))
-        return 1;
+        return true;
     /*
     421     ERR_UNKNOWNCOMMAND
     "<command> :Unknown command"
     */
-    return 0;
+    return false;
 };
 
 void Msg_Handle::add_cli_num()
@@ -351,22 +351,14 @@ void Msg_Handle::print_all_client_vector_or_index(int opt)
 bool Msg_Handle::append_partial_message(const char* buffer, int num_bytes, int client_fd)
 {
     _partial_messages[client_fd] += str(buffer, num_bytes);
-    std::cout << "PARTIAL -> [" << _partial_messages[client_fd] << "]"<< std::endl;
+    std::cout << "PARTIAL CHAR -> [" << _partial_messages[client_fd][_partial_messages[client_fd].size()-1] << "]"<< std::endl;
     if (_partial_messages[client_fd][_partial_messages[client_fd].size()-1] == '\n')
     {
-        if(check_input(_partial_messages[client_fd].c_str(), client_fd))
-        {
-            _partial_messages.erase(client_fd);
-            return false;
-        }
-        else
-        {
-            _partial_messages.erase(client_fd);
-            return true;
-        }
-        
+        str aux = _partial_messages[client_fd];
+        _partial_messages.erase(client_fd);
+        return check_input(aux, client_fd);        
     }
-    return true;
+    return false;
 }
 
 bool Msg_Handle::is_buffer_empty(int fd)

@@ -316,8 +316,11 @@ void Msg_Handle::list_command(int fd)
 
 void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
 {
-	if (in == "PONG :localhost\r\n")
+	if (in == "PONG :localhost\r\n" || in == "PONG :localhost\n")
+	{
+		std::cout << "PONG VERIFIED\n";
 		it->is_waiting_for_pong = false;
+	}
 }
 
 void Msg_Handle::names_command(str in, const Client &it)
