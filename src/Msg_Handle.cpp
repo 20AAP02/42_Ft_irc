@@ -73,6 +73,7 @@ int Msg_Handle::Client_login(str in, int fd)
     if (it->get_nick_bool() && it->get_user_bool() && it->get_pass_bool())
     {
         it->set_logged();
+        usleep(10000);
         it->ping_client();    
         std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";      
        //_channels[0].addUser(*it);        

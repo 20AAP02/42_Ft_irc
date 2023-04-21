@@ -30,6 +30,8 @@ class Bot
         void RegisterInServer();
         void MainConnectionLoop();
         void HandleServerInput(char *buffer, int num_bytes);
+        void HandlePRIVMSG(str buf);
+        str ChatGPT(str buf);
         //~Bot();
 };
 

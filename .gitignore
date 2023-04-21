@@ -7,7 +7,7 @@
 *.o
 *.obj
 ircserv
-
+ircBOT
 # Precompiled Headers
 *.gch
 *.pch

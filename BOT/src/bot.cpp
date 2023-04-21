@@ -62,8 +62,10 @@ void Bot::MainConnectionLoop()
             break;
         }
         else
+        {
             HandleServerInput(buffer, num_bytes);
-        std::memset(buffer, 0, num_bytes);
+            std::memset(buffer, 0, num_bytes);
+        }
     }
 }
 
@@ -71,7 +73,9 @@ void Bot::MainConnectionLoop()
 void Bot::HandleServerInput(char *buffer, int num_bytes)
 {
     std::cout << buffer << std::endl;
-    if (!_is_ponged && str(buffer, num_bytes).find("PING :localhost\r\n"))
+    str buf(buffer, num_bytes);
+    std::cout << "BUFFER:" << "["<< buf << "]" <<std::endl ;
+    if (!_is_ponged && buf.find("PING :localhost"))
     {
         _is_ponged = true;
         std::ostringstream PONG_msg;
@@ -84,4 +88,30 @@ void Bot::HandleServerInput(char *buffer, int num_bytes)
         join_msg << "WHO " << _ChannelToJoin << "\r\n";
         send(_BotSocket, join_msg.str().c_str(), join_msg.str().size(), 0);
     }
+    else if (_is_ponged && buf.find("PRIVMSG ") != std::string::npos)
+        HandlePRIVMSG(buf);
+    else
+        return;
+}
+
+void Bot::HandlePRIVMSG(str buf)
+{
+    str SenderNickMask, nick, message, command, sendernick;
+    std::stringstream s(buf);
+    s >> SenderNickMask;
+    s >> nick;
+    s >> command;
+    s >> message;
+    size_t findcol = SenderNickMask.find(":") + 1;
+    size_t findexc = SenderNickMask.find("!") - 1;
+    if (findcol != str::npos && findexc != str::npos )
+        sendernick = SenderNickMask.substr(findcol, findexc);
+    str teste = "PRIVMSG " + sendernick + " " + ChatGPT(message) + "\r\n";
+    send(_BotSocket, teste.c_str(), teste.size(), 0);
+}
+
+str Bot::ChatGPT(str message)
+{
+    //connect to api
+    return message;
 }
