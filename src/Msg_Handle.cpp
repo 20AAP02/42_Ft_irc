@@ -347,3 +347,32 @@ void Msg_Handle::print_all_client_vector_or_index(int opt)
         opt++;
     }
 }
+
+bool Msg_Handle::append_partial_message(const char* buffer, int num_bytes, int client_fd)
+{
+    _partial_messages[client_fd] += str(buffer, num_bytes);
+    std::cout << "PARTIAL -> [" << _partial_messages[client_fd] << "]"<< std::endl;
+    if (_partial_messages[client_fd][_partial_messages[client_fd].size()-1] == '\n')
+    {
+        if(check_input(_partial_messages[client_fd].c_str(), client_fd))
+        {
+            _partial_messages.erase(client_fd);
+            return false;
+        }
+        else
+        {
+            _partial_messages.erase(client_fd);
+            return true;
+        }
+        
+    }
+    return true;
+}
+
+bool Msg_Handle::is_buffer_empty(int fd)
+{
+    if (_partial_messages.find(fd) == _partial_messages.end()) {
+        return true;
+    }
+    return _partial_messages[fd].empty();
+}

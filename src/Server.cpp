@@ -128,7 +128,6 @@ void Server::signal_handler(int sig)
         close(msg_handler.get_pollfd_clients_fd(i));
 }
 
-
 void Server::handleClientCommunication()
 {
     signal(SIGINT, &Server::signal_handler);
@@ -150,11 +149,13 @@ void Server::handleClientCommunication()
                     int num_bytes = recv(msg_handler.get_pollfd_clients_fd(i), buffer, BUFFER_SIZE, 0);
                     if (!num_bytes)
                         handleClientDisconnection(i);
-                    else
+                    else if (buffer[num_bytes-1] == '\n' && msg_handler.is_buffer_empty(msg_handler.get_pollfd_clients_fd(i)))
                     {
                         if(msg_handler.check_input(buffer, msg_handler.get_pollfd_clients_fd(i)))
                             handleClientDisconnection(i);
                     }
+                    else if (!msg_handler.append_partial_message(buffer, num_bytes, msg_handler.get_pollfd_clients_fd(i)))
+                        handleClientDisconnection(i);
                 }
             }
             if (i && msg_handler.checkPingTimeout(msg_handler.get_pollfd_clients_fd(i)))

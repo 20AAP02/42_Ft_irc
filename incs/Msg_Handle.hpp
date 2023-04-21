@@ -14,7 +14,7 @@
 # include <Channel.hpp>
 # include <NumericReplys.hpp>
 
-
+#include <map>
 typedef std::string str;
 # define TIMEOUT 1000
 
@@ -25,7 +25,7 @@ private:
     std::vector<Channel> _channels;
     str _password;
     int num_clients;
-
+    std::map<int, str> _partial_messages;
 public:
     //Para já fica como public
     struct pollfd client_pollfd[MAX_CLIENTS + 1];
@@ -89,6 +89,9 @@ public:
     void nick_command(str in,std::vector<Client>::iterator it);
     /*DEBUG Functions*/
     void print_all_client_vector_or_index(int opt);
+    bool append_partial_message(const char* buffer, int num_bytes, int client_fd);
+    bool is_buffer_empty(int fd);
+
 };
 
 #endif
