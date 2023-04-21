@@ -22,15 +22,17 @@ const str PASSWORD = "ola123";
 class Bot
 {
     private:
-        str _ServAddress;
-        int _ServPort;
+        str _ServPort;
         str _ServPassword;
         str _ChannelToJoin;
         int _BotSocket;
     public:
-        Bot();
-        //createBotSocket();
-        ~Bot();
+        Bot(str ServPort, str ServPassword, str Channeltojoin);
+        void createBotSocket();
+        void connectToServer();
+        void RegisterInServer();
+        void MainConnectionLoop();
+        //~Bot();
 };
 
 
