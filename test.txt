@@ -10,5 +10,3 @@ WHOIS daniboy
 :localhost 671 nick_asker nick_asked :is connected via SSL
 :localhost 318 nick_asker nick_asked :End of /WHOIS list.
 
-
-:toni!toni02@AN-7981140A.cpe.netcabo.pt INVITE dani #ola

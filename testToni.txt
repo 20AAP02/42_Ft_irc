@@ -1,5 +1,5 @@
 CAP LS 302
-PASS 1234
+PASS ola123
 NICK toni
 USER toni02 * * :realname
 
