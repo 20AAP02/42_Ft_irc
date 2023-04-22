@@ -374,3 +374,10 @@ void Msg_Handle::nick_command(str in,std::vector<Client>::iterator it)
             channel->update_user_list(it->getclientsocket());
         }
 }
+
+void Msg_Handle::notice_command(std::vector<Client>::iterator cli_it, str msg, str receiver)
+{
+	size_t found = msg.find(":");
+	if (found != std::string::npos)
+ 		cli_it->sendPrivateMsg(*get_client_by_name(receiver), msg.substr(found, msg.size() - found), "NOTICE " + get_client_by_name(receiver)->getclientnick());
+}

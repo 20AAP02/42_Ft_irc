@@ -71,6 +71,7 @@ public:
     */
     void nick_name_set(std::vector<Client>::iterator cli_it,str nick);
     void privmsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to);
+    void notice_command(std::vector<Client>::iterator cli_it, str msg, str receiver);
     void Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to);
     int pwd_handle(str word, int fd, std::vector<Client>::iterator it);
     void part_command(str word, std::vector<Client>::iterator it, str s);

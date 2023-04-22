@@ -10,3 +10,4 @@ WHOIS daniboy
 :localhost 671 nick_asker nick_asked :is connected via SSL
 :localhost 318 nick_asker nick_asked :End of /WHOIS list.
 
+:teste1!teste1q1@AN-7981140A.cpe.netcabo.pt NOTICE dani :ola
