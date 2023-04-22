@@ -97,6 +97,7 @@ void Bot::HandlePRIVMSG(str buf)
 {
     str SenderNickMask, nick, message, command, sendernick;
     std::stringstream s(buf);
+    std::string response_from_bot;
     s >> SenderNickMask;
     s >> command;
     s >> nick;
@@ -106,12 +107,56 @@ void Bot::HandlePRIVMSG(str buf)
     if (findcol == str::npos || findexc == str::npos || nick[0] == '#' )
         return; 
     sendernick = SenderNickMask.substr(findcol, findexc);
-    str teste = "PRIVMSG " + sendernick + " " + ChatGPT(message) + "\r\n";
+    ChatGPT(message,sendernick,response_from_bot);
+    str teste = "PRIVMSG " + sendernick + " " + response_from_bot + "\r\n";
     send(_BotSocket, teste.c_str(), teste.size(), 0);
+    std::cout<<"RESPOSTA NO MAIN "<<response_from_bot<<"\n";
 }
 
-str Bot::ChatGPT(str message)
+void Bot::ChatGPT(str message, str sendernick, str &response)
 {
     //connect to api
-    return message;
+    std::string bearer = TOKEN; 
+    std::string args1 = "-d '{ \
+    \"model\" : \"text-davinci-003\", \
+    \"prompt\" : \" ";
+    std::string args2 = " \", \
+    \"temperature\": 0.9, \
+    \"max_tokens\": 150, \
+    \"top_p\": 1, \
+    \"frequency_penalty\": 0, \
+    \"presence_penalty\": 0.6, \
+    \"stop\": [\" Human:\", \" AI:\"] }' \
+    ";
+std::string request = "curl https://api.openai.com/v1/completions  -H \"Content-Type: application/json\" -H 'Authorization: Bearer " + bearer +"'"+' '+ args1 + message + args2;
+std::string output_file = sendernick + ".msg";
+std::string final_cmd = request + " > " + output_file;
+system(final_cmd.c_str());
+
+std::ifstream response_file(output_file.c_str());
+std::string response_raw;
+std::string response_send;
+std::getline(response_file, response_raw);
+std::cout<<response_raw<<"\n";
+response_raw.find("\n\n");
+response_send= response_raw.substr(response_raw.find("\"text\":") + 8, response_raw.find("index\"") -  response_raw.find("\"text\":") - 11);
+int i=0;
+for(;i<5;i++){
+    if(response_send[i] != '\\' && response_send[i] != 'n')
+        break;
+}
+response_raw = response_send.substr(i,response_send.size()-i);
+response_send = response_raw;
+std::stringstream stream_1(response_send);
+std::string final;
+std::string words;
+while(stream_1 >> words){
+    final.append(words);
+    final.append(" ");
+}
+std::cout<<"\n\nFILTERED: "<< final <<std::endl;
+std::string remove_comand= "rm " + output_file;
+system(remove_comand.c_str());
+response = final;
+
 }

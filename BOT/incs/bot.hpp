@@ -2,6 +2,7 @@
 # define BOT_HPP
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <sys/socket.h>
@@ -10,7 +11,10 @@
 #include <cstdlib>
 # include <poll.h>
 # include <cstring>
+#include <algorithm>
+#include <string>
 
+# define TOKEN "XXX"
 typedef std::string	str;
 
 class Bot
@@ -29,7 +33,7 @@ class Bot
         void MainConnectionLoop();
         void HandleServerInput(char *buffer, int num_bytes);
         void HandlePRIVMSG(str buf);
-        str ChatGPT(str msg);
+        void ChatGPT(str msg,str sendernick,str &response);
         ~Bot(){};
 };
 
