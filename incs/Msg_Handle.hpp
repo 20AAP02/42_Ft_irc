@@ -5,18 +5,18 @@
 # include <string>
 # include <vector>
 # include <map>
-# include <Client.hpp>
-# include <Channel.hpp>
-# include <Server.hpp>
 # include <list>
 # include <sstream>
  
+# include <Client.hpp>
+# include <Channel.hpp>
+# include <Server.hpp>
 # include <Channel.hpp>
 # include <NumericReplys.hpp>
 
-
 typedef std::string str;
-# define TIMEOUT 1000
+
+# define TIMEOUT 10
 
 class Msg_Handle
 {
@@ -25,7 +25,7 @@ private:
     std::vector<Channel> _channels;
     str _password;
     int num_clients;
-
+    std::map<int, str> _partial_messages;
 public:
     //Para já fica como public
     struct pollfd client_pollfd[MAX_CLIENTS + 1];
@@ -37,7 +37,7 @@ public:
     void handlerealname(str in, std::vector<Client>::iterator it);
     int handleClientCommand(str in, int fd);
     // 0 keep connection alive or 1 to disconnect
-    int check_input(str in, int fd);
+    bool check_input(str in, int fd);
     void set_password(str pass);
 
     void add_client(int fd);
@@ -71,6 +71,7 @@ public:
     */
     void nick_name_set(std::vector<Client>::iterator cli_it,str nick);
     void privmsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to);
+    void notice_command(std::vector<Client>::iterator cli_it, str msg, str receiver);
     void Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg,str channel_to);
     int pwd_handle(str word, int fd, std::vector<Client>::iterator it);
     void part_command(str word, std::vector<Client>::iterator it, str s);
@@ -89,6 +90,9 @@ public:
     void nick_command(str in,std::vector<Client>::iterator it);
     /*DEBUG Functions*/
     void print_all_client_vector_or_index(int opt);
+    bool append_partial_message(const char* buffer, int num_bytes, int client_fd);
+    bool is_buffer_empty(int fd);
+
 };
 
 #endif

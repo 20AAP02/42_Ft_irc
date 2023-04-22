@@ -197,7 +197,7 @@ void Msg_Handle::iterate_over_clients(std::vector<Client> vect, int caller_fd)
 	{
 		if (client_it->getclientsocket() == caller_fd)
 			continue;
-		str msg = ":localhost 352 " + get_client_by_fd(caller_fd)->getclientnick() + " * " + client_it->getclientuser() + " localhost *.localhost "+ client_it->getclientnick()+ " Hx :0 "+ "AFAZERrealname"+"\n";
+		str msg = ":localhost 352 " + get_client_by_fd(caller_fd)->getclientnick() + " * " + client_it->getclientuser() + " localhost *.localhost "+ client_it->getclientnick()+ " Hx :0 "+ client_it->getRealName() +"\n";
 		send(caller_fd, msg.c_str(), msg.size(), 0);
 	}
 }
@@ -235,7 +235,7 @@ void Msg_Handle::who_command(str in, int fd)
 				if (get_client_by_name(word) != _clients.end())
 				{
 					std::cout << "Details About " << word << " asked by " << get_client_by_fd(fd)->getclientnick() << "\n";
-					str msg = ":localhost 352 " + get_client_by_fd(fd)->getclientnick() + " * " + get_client_by_name(word)->getclientuser() + " localhost *.localhost "+ get_client_by_name(word)->getclientnick()+ " Hx :0 "+ "AFAZERrealname"+"\n";
+					str msg = ":localhost 352 " + get_client_by_fd(fd)->getclientnick() + " * " + get_client_by_name(word)->getclientuser() + " localhost *.localhost "+ get_client_by_name(word)->getclientnick()+ " Hx :0 "+  get_client_by_name(word)->getRealName() +"\n";
 					send(fd, msg.c_str(), msg.size(), 0);
 				}
 				else
@@ -326,8 +326,11 @@ void Msg_Handle::list_command(int fd)
 
 void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
 {
-	if (in == "PONG :localhost\r\n")
+	if (in == "PONG :localhost\r\n" || in == "PONG :localhost\n")
+	{
+		std::cout << "PONG VERIFIED\n";
 		it->is_waiting_for_pong = false;
+	}
 }
 
 void Msg_Handle::names_command(str in, const Client &it)
@@ -380,4 +383,11 @@ void Msg_Handle::nick_command(str in,std::vector<Client>::iterator it)
             channel->update_client_nick(it->getclientsocket(),in);
             channel->update_user_list(it->getclientsocket());
         }
+}
+
+void Msg_Handle::notice_command(std::vector<Client>::iterator cli_it, str msg, str receiver)
+{
+	size_t found = msg.find(":");
+	if (found != std::string::npos)
+ 		cli_it->sendPrivateMsg(*get_client_by_name(receiver), msg.substr(found, msg.size() - found), "NOTICE " + get_client_by_name(receiver)->getclientnick());
 }

@@ -73,6 +73,7 @@ int Msg_Handle::Client_login(str in, int fd)
     if (it->get_nick_bool() && it->get_user_bool() && it->get_pass_bool())
     {
         it->set_logged();
+        usleep(10000);
         it->ping_client();    
         std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";      
        //_channels[0].addUser(*it);        
@@ -119,7 +120,9 @@ int Msg_Handle::handleClientCommand(str in, int fd)
             names_command(word, *it);
         else if(command == "WHOIS")
             whois_command(word, it);
-		else if (command == "MODE" || command == "mode")
+        else if (command == "NOTICE")
+            notice_command(it, s.str(), word);
+		else if (command == "MODE")
             mode_command(word, it, s.str());
         else if (command == "QUIT")
             return 1;
@@ -131,15 +134,15 @@ int Msg_Handle::handleClientCommand(str in, int fd)
     return 0;
 }
 
-int Msg_Handle::check_input(str in, int fd)
+bool Msg_Handle::check_input(str in, int fd)
 {
     if (Client_login(in, fd) || handleClientCommand(in, fd))
-        return 1;
+        return true;
     /*
     421     ERR_UNKNOWNCOMMAND
     "<command> :Unknown command"
     */
-    return 0;
+    return false;
 };
 
 void Msg_Handle::add_cli_num()
@@ -346,4 +349,25 @@ void Msg_Handle::print_all_client_vector_or_index(int opt)
         std::cout << RED << "[DEBUG](print_all_client_vector_or_index)" << BLANK << "Index " << opt << " NIck: " << it->getclientnick() << " USER: " << it->getclientuser() << " Realname : " << it->getRealName() << " FD : " << it->getclientsocket() << "\n";
         opt++;
     }
+}
+
+bool Msg_Handle::append_partial_message(const char* buffer, int num_bytes, int client_fd)
+{
+    _partial_messages[client_fd] += str(buffer, num_bytes);
+    std::cout << "PARTIAL CHAR -> [" << _partial_messages[client_fd][_partial_messages[client_fd].size()-1] << "]"<< std::endl;
+    if (_partial_messages[client_fd][_partial_messages[client_fd].size()-1] == '\n')
+    {
+        str aux = _partial_messages[client_fd];
+        _partial_messages.erase(client_fd);
+        return check_input(aux, client_fd);        
+    }
+    return false;
+}
+
+bool Msg_Handle::is_buffer_empty(int fd)
+{
+    if (_partial_messages.find(fd) == _partial_messages.end()) {
+        return true;
+    }
+    return _partial_messages[fd].empty();
 }

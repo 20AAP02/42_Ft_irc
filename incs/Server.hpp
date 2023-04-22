@@ -14,7 +14,8 @@
 # include <errno.h>
 # include <sstream>
 # include <signal.h>
- 
+# include <cstdio> // perror()
+# include <cerrno> // errno, EINTR
  
 # include <Channel.hpp>
 
@@ -29,7 +30,6 @@ public:
 private:
     int port_;
     int server_socket_;
-    //struct pollfd server_pollfd;
     void getPortAndPassword(const str& port);
     void createServerSocket();
     void bindServerSocket();
@@ -42,9 +42,6 @@ private:
     static void signal_handler(int sig);
 };
 
-# include <cstdio> // perror()
-# include <cerrno> // errno, EINTR
-# include <arpa/inet.h>
 
 /*			COLOURS		*/
 
