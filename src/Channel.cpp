@@ -4,69 +4,6 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-void Channel::delete_users_by_name(str nick)
-{
-	std::vector<Client>::iterator it = _users.begin();
-	for (; it != _users.end(); it++)
-	{
-		if (it->getclientnick() == nick)
-		{
-			_users.erase(it);
-			break;
-		}	
-	}
-};
-
-
-void Channel::delete_users_by_fd(int fd)
-{
-	std::vector<Client>::iterator it = _users.begin();
-	for (; it != _users.end(); it++)
-	{
-		if (it->getclientsocket() == fd)
-		{
-			_users.erase(it);
-			break;
-		}
-	}
-};
-
-bool Channel::has_user(str nick_mask) const {
-    for (std::vector<Client>::const_iterator it = _users.begin(); it != _users.end(); ++it) {
-        if (it->getNickmask() == nick_mask) {
-            return true;
-        }
-    }
-    return false;
-};
-
-
-
-void Channel::update_user_list(int fd) 
-{
-    std::vector<Client>::iterator it = _users.begin();
-    for (; it != _users.end(); it++) 
-	{
-        if (it->getclientsocket() == fd)
-            continue;
-        std::string msg = ":localhost 353 " + it->getclientnick() + " = " + _channelName + " :" + get_all_user_nicks() + "\n:localhost 366 " + it->getclientnick() + " " + _channelName + " :End of /NAMES list.\n";
-        send(it->getclientsocket(), msg.c_str(), msg.size(), 0);
-    }
-}
-
-
-str Channel::get_all_user_nicks()
-{
-	std::stringstream ss;
-	for (std::vector<Client>::const_iterator it = _users.begin(); it != _users.end(); ++it) {
-		if (this->isChannelOperator(it->getNickmask()))
-			ss << "@"<<it->getclientnick() << " ";
-		else
-			ss << it->getclientnick() << " ";
-	}
-	return ss.str();
-}
-
 Channel::Channel(const str &name, const str &topic)
 {
 	str notPermittedChars = " \f\n\r\t\v,";
@@ -234,6 +171,79 @@ void Channel::leave(const Client &user, const str &goodbyMessage)
 	this->sendMessage(user, goodbyMessage, "PART");
 	user.sendPrivateMsg(user, this->getName() + " " + goodbyMessage, "PART");
 	this->removeUser(user);
+}
+
+void Channel::update_client_nick(int fd, str newnick) 
+{
+    str oldnickmask;
+    std::vector<Client>::iterator it = _users.begin();
+    for (; it != _users.end(); it++) 
+    {
+        if (it->getclientsocket() == fd)
+        {
+            oldnickmask = it->getNickmask();
+            it->setnick(newnick);
+            break;
+        }
+    }
+    std::vector<str>::iterator vecit = _channelOperators.begin();
+    for (; vecit != _channelOperators.end(); vecit++) 
+    {
+        if (*vecit == oldnickmask)
+            *vecit = it->getNickmask(); 
+    }
+}
+
+void Channel::delete_users_by_name(str nick)
+{
+	std::vector<Client>::iterator it = _users.begin();
+	for (; it != _users.end(); it++)
+	{
+		if (it->getclientnick() == nick)
+		{
+			_users.erase(it);
+			break;
+		}	
+	}
+};
+
+
+void Channel::delete_users_by_fd(int fd)
+{
+	std::vector<Client>::iterator it = _users.begin();
+	for (; it != _users.end(); it++)
+	{
+		if (it->getclientsocket() == fd)
+		{
+			_users.erase(it);
+			break;
+		}
+	}
+};
+
+void Channel::update_user_list(int fd) 
+{
+    std::vector<Client>::iterator it = _users.begin();
+    for (; it != _users.end(); it++) 
+	{
+        if (it->getclientsocket() == fd)
+            continue;
+        std::string msg = ":localhost 353 " + it->getclientnick() + " = " + _channelName + " :" + get_all_user_nicks() + "\n:localhost 366 " + it->getclientnick() + " " + _channelName + " :End of /NAMES list.\n";
+        send(it->getclientsocket(), msg.c_str(), msg.size(), 0);
+    }
+}
+
+
+str Channel::get_all_user_nicks()
+{
+	std::stringstream ss;
+	for (std::vector<Client>::const_iterator it = _users.begin(); it != _users.end(); ++it) {
+		if (this->isChannelOperator(it->getNickmask()))
+			ss << "@"<<it->getclientnick() << " ";
+		else
+			ss << it->getclientnick() << " ";
+	}
+	return ss.str();
 }
 
 // ----------- Checker Member Functions ----------
@@ -511,11 +521,6 @@ int Channel::changeTopic(const Client &user, const str &newTopic)
 	return 1;
 }
 
-void Channel::changeChannelMode(const str &mode)
-{
-	(void)mode;
-}
-
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
@@ -550,26 +555,11 @@ const std::map<str, std::vector<str> > &Channel::getChannelModes() const
 	return this->_channelModes;
 }
 
-
-void Channel::update_client_nick(int fd, str newnick) 
+const std::vector<str> &Channel::getBanList()
 {
-    str oldnickmask;
-    std::vector<Client>::iterator it = _users.begin();
-    for (; it != _users.end(); it++) 
-    {
-        if (it->getclientsocket() == fd)
-        {
-            oldnickmask = it->getNickmask();
-            it->setnick(newnick);
-            break;
-        }
-    }
-    std::vector<str>::iterator vecit = _channelOperators.begin();
-    for (; vecit != _channelOperators.end(); vecit++) 
-    {
-        if (*vecit == oldnickmask)
-            *vecit = it->getNickmask(); 
-    }
+	return this->_channelModes["+b"];
 }
+
+
 
 /* ************************************************************************** */

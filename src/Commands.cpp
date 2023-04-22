@@ -126,6 +126,12 @@ void Msg_Handle::topic_command(str word, std::vector<Client>::iterator it, str s
 	}
 }
 
+void showModeList(Channel channel, std::vector<Client>::iterator client, const str mode)
+{
+	if (mode == "+b")
+		NumericReplys().rpl_banlist(*client, channel.getName(), channel.getBanList());
+}
+
 void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 {
 	(void) it;
@@ -133,35 +139,37 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 	str part;
 	str mode;
 	int sucess = 0;
+	Channel &channel = *get_channel_by_name(word);
 	while (getline(file, part, ' '))
 	{
-		
-		if (part == "MODE" || part == word)
+		if (part == "MODE" || part == "mode" || part.find(word) != part.npos)
 			continue;
 		mode = part;
-		getline(file, part, ' ');
-		str user = part.substr(0, part.find_first_of(" \n\r"));
-		std::vector<Client>::iterator user_mode_=get_client_by_name(user);
-		std::vector<Channel>::iterator ch_mode_=get_channel_by_name(word);
-		if(_clients.end() == user_mode_)
-			return;
-		if (mode == "+b")
+		if (getline(file, part, ' '))
 		{
-			sucess = ch_mode_->addClientBanned(*it, user_mode_->getNickmask());
+			std::vector<Client>::iterator client = get_client_by_name(part.substr(0, part.find_first_of(" \n\r")));
+			if (client == _clients.end())
+				return;
+			if (mode == "+b")
+			{
+				sucess = channel.addClientBanned(*it, client->getNickmask());
+				if (sucess)
+					kick_command(it, "KICK " + word + " " + client->getclientnick() + " :You have been banned\n", it->getclientsocket());
+			}
+			else if (mode == "-b")
+				sucess = channel.rmvClientBanned(*it, client->getNickmask());
+			else if (mode == "+o")
+				sucess = channel.addChannelOp(*it, client->getNickmask());
+			else if (mode == "-o")
+				sucess = channel.rmvChannelOp(*it, client->getNickmask());
 			if (sucess)
-				kick_command(it, "KICK " + word + " " + user + " :Banned from this channel\n", it->getclientsocket());
+			{
+				channel.sendMessage(*it, mode + " " + part, "MODE");
+				it->sendPrivateMsg(*it, word + " " + mode + " " + part, "MODE");
+			}
 		}
-		else if (mode == "-b")
-			sucess = ch_mode_->rmvClientBanned(*it, user_mode_->getNickmask());
-		else if (mode == "+o")
-			sucess = ch_mode_->addChannelOp(*it, user_mode_->getNickmask());
-		else if (mode == "-o")
-			sucess = ch_mode_->rmvChannelOp(*it, user_mode_->getNickmask());
-		if (sucess)
-		{
-			ch_mode_->sendMessage(*it, mode + " " + part, "MODE");
-			it->sendPrivateMsg(*it, word + " " + mode + " " + part, "MODE");
-		}
+		else
+			showModeList(channel, it, mode);
 	}
 }
 
@@ -262,14 +270,15 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 		if (isReason)
 			reason = s.substr(s.find(":"), s.length() - 2);
 		else
-			reason = ":No reason";
+			reason = ":Kicked";
 		for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 		{
 			if (channel->getName() == channelName)
 			{
-				if(channel->isChannelOperator(it->getNickmask())){
-				channel->leave(*get_client_by_name(userName), "kicked");
-				it->sendPrivateMsg(*get_client_by_name(userName), reason, "KICK " + channelName + " " + get_client_by_name(userName)->getclientnick());
+				if(channel->isChannelOperator(it->getNickmask()))
+				{
+					channel->leave(*get_client_by_name(userName), reason.substr(reason.find(":") + 1));
+					it->sendPrivateMsg(*get_client_by_name(userName), reason, "KICK " + channelName + " " + get_client_by_name(userName)->getclientnick());
 				}
 				else
 					NumericReplys().rpl_chanoprivsneeded(*it,channelName);
@@ -372,7 +381,7 @@ void Msg_Handle::nick_command(str in,std::vector<Client>::iterator it)
     str msg = ":" + it->getNickmask() + " NICK :" + in + "\n"; 
     it->setnick(in);
     for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
-        if(channel->has_user(it->getNickmask()))
+        if(channel->userIsMemberOfChannel(it->getNickmask()))
         {
             channel->sendMessage(msg);
             channel->update_client_nick(it->getclientsocket(),in);
