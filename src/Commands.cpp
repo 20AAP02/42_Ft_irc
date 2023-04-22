@@ -148,7 +148,6 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 		if (getline(file, part, ' '))
 		{
 			std::vector<Client>::iterator client = get_client_by_name(part.substr(0, part.find_first_of(" \n\r")));
-			std::cout << "Debug: client to ban -> " << client->getNickmask() << std::endl;
 			if (client == _clients.end())
 				return;
 			if (mode == "+b")
