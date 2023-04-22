@@ -108,7 +108,7 @@ void Bot::HandlePRIVMSG(str buf)
         return; 
     sendernick = SenderNickMask.substr(findcol, findexc);
     ChatGPT(message,sendernick,response_from_bot);
-    str teste = "PRIVMSG " + sendernick + " " + response_from_bot + "\r\n";
+    str teste = "PRIVMSG " + sendernick + " :" + response_from_bot + "\r\n";
     send(_BotSocket, teste.c_str(), teste.size(), 0);
     std::cout<<"RESPOSTA NO MAIN "<<response_from_bot<<"\n";
 }
@@ -128,15 +128,19 @@ void Bot::ChatGPT(str message, str sendernick, str &response)
     \"presence_penalty\": 0.6, \
     \"stop\": [\" Human:\", \" AI:\"] }' \
     ";
+std::cout<<"MESSAGE: "+ message + "\n";
 std::string request = "curl https://api.openai.com/v1/completions  -H \"Content-Type: application/json\" -H 'Authorization: Bearer " + bearer +"'"+' '+ args1 + message + args2;
 std::string output_file = sendernick + ".msg";
 std::string final_cmd = request + " > " + output_file;
 system(final_cmd.c_str());
 
+
+//File Handling
 std::ifstream response_file(output_file.c_str());
 std::string response_raw;
-std::string response_send;
 std::getline(response_file, response_raw);
+
+std::string response_send;
 std::cout<<response_raw<<"\n";
 response_raw.find("\n\n");
 response_send= response_raw.substr(response_raw.find("\"text\":") + 8, response_raw.find("index\"") -  response_raw.find("\"text\":") - 11);
@@ -150,13 +154,16 @@ response_send = response_raw;
 std::stringstream stream_1(response_send);
 std::string final;
 std::string words;
-while(stream_1 >> words){
+/*while(stream_1 >> words){
+    //if(words!=)
     final.append(words);
     final.append(" ");
-}
-std::cout<<"\n\nFILTERED: "<< final <<std::endl;
+}*/
+std::replace(response_send.begin(),response_send.end(),'\n',' ');
+
+std::cout<<"\n\nFILTERED: "<< response_send <<std::endl;
 std::string remove_comand= "rm " + output_file;
-system(remove_comand.c_str());
-response = final;
+//system(remove_comand.c_str());
+response = response_send;
 
 }
