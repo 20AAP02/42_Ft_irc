@@ -130,8 +130,6 @@ int Msg_Handle::handleClientCommand(str in, int fd)
             invite_command(it, in);
         else if (command == "KICK")
             kick_command(it, in, fd);
-        else
-            NumericReplys().rpl_wrongcmd(*get_client_by_fd(fd),"ERROR");
     }
     return 0;
 }

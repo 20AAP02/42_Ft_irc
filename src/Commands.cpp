@@ -56,8 +56,6 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
 	str channelName;
 	while (getline(file, channelName, ','))
 	{
-		if (word.find(":") != word.npos)
-			return;
 		for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 		{
 			if (channel->getName() == channelName)
@@ -65,6 +63,10 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
 				std::size_t found = s.find(':');
 				if (found != s.npos)
 					channel->leave(*it, s.substr(found, s.size() - found));
+				else{
+					NumericReplys().rpl_wrongcmd(*it,"ERROR");
+					return;
+				}
 			}
 		}
 	}
