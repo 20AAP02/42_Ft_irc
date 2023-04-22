@@ -15,11 +15,11 @@ void Msg_Handle::Privatemsg_handle(std::vector<Client>::iterator cli_it, str msg
 
 void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, str channel_to)
 {
-
-	if (channel_to.c_str()[0] != '#')
+	if (channel_to.c_str()[0] != '#' && channel_to.c_str()[0] != '&')
 		Privatemsg_handle(cli_it, msg, channel_to);
 	for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 	{
+			std::cout<< "AQUI - >[" <<channel->getName()<<"] Channelname->["<<channel_to << "]\n";
 		if (channel->getName() == channel_to)
 		{
 			std::size_t found = msg.find(':');
@@ -344,8 +344,13 @@ void Msg_Handle::whois_command(str in,  std::vector<Client>::iterator asker)
 
 bool Msg_Handle::nick_already_used(str new_nick, int fd){
 	 std::vector<Client>::iterator it = _clients.begin();
-    for (; it != _clients.end(); it++)
-    {
+    if(new_nick == "NICK" || new_nick == "")
+		{
+			NumericReplys().rpl_wrongcmd(*get_client_by_fd(fd),"ERROR");
+			return true;
+		}
+    for (; it != _clients.end(); it++){
+
         if (it->getclientnick() == new_nick && it->getclientsocket() != fd)
         {
 			//:luna.AfterNET.Org 433 * rdrake :Nickname is already in use.

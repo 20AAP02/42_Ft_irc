@@ -142,6 +142,17 @@ int NumericReplys::rpl_notonchannel(const Client &client, const str &channelName
 	return 0;
 }
 
+// ERR_WRONG_CMD (431)
+int NumericReplys::rpl_wrongcmd(const Client &client, const str &channelName)
+{
+	std::string msg = ":localhost 431 ";
+    msg += client.getclientnick() + " ";
+    msg += channelName + " :Wrong Command";
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 0;
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

@@ -48,6 +48,9 @@ class NumericReplys
 		// ERR_NOTONCHANNEL (442)
 		int rpl_notonchannel(const Client &client, const str &channelName);
 
+		//ERR_WRONG_CMD (431)
+		int rpl_wrongcmd(const Client &client, const str &channelName);
+
 	private:
 
 };
