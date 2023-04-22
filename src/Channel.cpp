@@ -115,8 +115,8 @@ int Channel::addUser(const Client &user)
 
 int Channel::sendMessage(const Client &user, const str &message, const str &msgType)
 {
-	if (!(this->canSpeak(user.getNickmask())))
-		return NumericReplys().rpl_chanoprivsneeded(user, this->getName());
+	/*if (!(this->canSpeak(user.getNickmask())))
+		return NumericReplys().rpl_chanoprivsneeded(user, this->getName());*/
 	str msg = ":" + user.getclientnick() + "!";
 	if (this->isChannelOperator(user.getNickmask()))
 		msg += "@";

@@ -217,7 +217,8 @@ void Msg_Handle::who_command(str in, int fd)
 	{
 		try
 		{
-			if (word[0] == '#')
+			std::cout<<"WORD->"<<word<<"\n";
+			if (word[0] == '#' || word[0] == '&')
 			{
 				str _channel = word.substr(1, word.length() - 1);
 				for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
@@ -335,8 +336,10 @@ void Msg_Handle::handle_pong(str in,std::vector<Client>::iterator it)
 
 void Msg_Handle::names_command(str in, const Client &it)
 {
-	Channel UserChan = *get_channel_by_name(in);
-	str msg = ":localhost 353 " + it.getclientnick() + " = " + in + " :" + UserChan.get_all_user_nicks() + "\n:localhost 366 " + it.getclientnick() + " " + in + " :End of /NAMES list.\n";
+	std::vector<Channel>::iterator chan_it =get_channel_by_name(in);
+	if(chan_it == _channels.end())
+		return;
+	str msg = ":localhost 353 " + it.getclientnick() + " = " + in + " :" + chan_it->get_all_user_nicks() + "\n:localhost 366 " + it.getclientnick() + " " + in + " :End of /NAMES list.\n";
 	send(it.getclientsocket(), msg.c_str(), msg.size(), 0);
 }
 
@@ -379,15 +382,18 @@ bool Msg_Handle::nick_already_used(str new_nick, int fd){
 
 void Msg_Handle::nick_command(str in,std::vector<Client>::iterator it)
 {
-    str msg = ":" + it->getNickmask() + " NICK :" + in + "\n"; 
+    str old_nickmask = it->getNickmask();
+	str msg = ":" + old_nickmask + " NICK :" + in + "\n"; 
     it->setnick(in);
-    for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
-        if(channel->userIsMemberOfChannel(it->getNickmask()))
+    for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++){
+        if(channel->userIsMemberOfChannel(old_nickmask))
         {
             channel->sendMessage(msg);
             channel->update_client_nick(it->getclientsocket(),in);
             channel->update_user_list(it->getclientsocket());
         }
+	}
+	send(it->getclientsocket(),msg.c_str(), msg.size(), 0);
 }
 
 void Msg_Handle::notice_command(std::vector<Client>::iterator cli_it, str msg, str receiver)

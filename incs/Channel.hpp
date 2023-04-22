@@ -81,6 +81,18 @@ class Channel
 		const std::vector<str> &getChannelOperators() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
 		const std::vector<str> &getBanList();
+		
+		
+		void print_all_user_DEBUG(){
+		int opt = 0;
+		std::vector<Client>::iterator it = _users.begin();
+		for (; it != _users.end(); it++)
+		{
+			std::cout << "####CLIENTS LIST####\n" ;
+			std::cout << YELLOW << "[DEBUG](print_all_USER_vector_or_index)" << BLANK << "Index " << opt << " NIck: " << it->getclientnick() << " USER: " << it->getclientuser() << " Realname : " << it->getRealName() << " FD : " << it->getclientsocket() << "\n";
+			opt++;
+   			}
+		};
 	
 	private:
 		str _channelName;
