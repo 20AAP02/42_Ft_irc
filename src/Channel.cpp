@@ -555,7 +555,7 @@ const std::map<str, std::vector<str> > &Channel::getChannelModes() const
 	return this->_channelModes;
 }
 
-const std::vector<str> &Channel::getBanList()
+const std::vector<str> Channel::getBanList()
 {
 	return this->_channelModes["+b"];
 }
