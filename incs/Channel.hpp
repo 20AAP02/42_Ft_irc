@@ -80,7 +80,7 @@ class Channel
 		const str &getType() const;
 		const std::vector<str> &getChannelOperators() const;
 		const std::map<str, std::vector<str> > &getChannelModes() const;
-		const std::vector<str> &getBanList();
+		const std::vector<str> getBanList();
 		
 		
 		void print_all_user_DEBUG(){

@@ -127,15 +127,14 @@ void Msg_Handle::topic_command(str word, std::vector<Client>::iterator it, str s
 	}
 }
 
-void showModeList(Channel channel, std::vector<Client>::iterator client, const str mode)
+void showModeList(Channel &channel, std::vector<Client>::iterator client, const str mode)
 {
-	if (mode == "+b")
+	if (mode == "+b\r\n")
 		NumericReplys().rpl_banlist(*client, channel.getName(), channel.getBanList());
 }
 
 void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 {
-	(void) it;
 	std::stringstream file(s);
 	str part;
 	str mode;
