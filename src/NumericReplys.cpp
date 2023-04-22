@@ -170,6 +170,17 @@ int NumericReplys::rpl_endofbanlist(const Client &client, const str &channelName
 	return 0;
 }
 
+// RPL_WRONGCOMMAND (431)
+int NumericReplys::rpl_wrongcmd(const Client &client, const str &channelName)
+{
+	std::string msg = ":localhost 431 ";
+    msg += client.getclientnick() + " ";
+    msg += channelName + " :Wrong Command";
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 0;
+}
+
 
 
 

@@ -19,7 +19,6 @@ void Msg_Handle::privmsg_handle(std::vector<Client>::iterator cli_it, str msg, s
 		Privatemsg_handle(cli_it, msg, channel_to);
 	for (std::vector<Channel>::iterator channel = _channels.begin(); channel != _channels.end(); channel++)
 	{
-			std::cout<< "AQUI - >[" <<channel->getName()<<"] Channelname->["<<channel_to << "]\n";
 		if (channel->getName() == channel_to)
 		{
 			std::size_t found = msg.find(':');
