@@ -141,11 +141,15 @@ void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
 	str mode;
 	int sucess = 0;
 	Channel &channel = *get_channel_by_name(word);
+	std::vector<Channel>::iterator ch_it =  get_channel_by_name(word);
+	if(ch_it == _channels.end())
+		return;
 	while (getline(file, part, ' '))
 	{
 		if (part == "MODE" || part == "mode" || part.find(word) != part.npos)
 			continue;
 		mode = part;
+		
 		if (getline(file, part, ' '))
 		{
 			std::vector<Client>::iterator client = get_client_by_name(part.substr(0, part.find_first_of(" \n\r")));

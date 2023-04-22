@@ -3,9 +3,6 @@
 
 Msg_Handle::Msg_Handle()
 {
-    std::string public_channel = "#public";
-    std::string public_topic = "Public Topic";
-    _channels.push_back(Channel(public_channel, public_topic));
     num_clients = 0;
     for (int i = 1; i < MAX_CLIENTS + 1; i++)
         this->set_pollfd_clients_fd(-1, i);
@@ -76,8 +73,6 @@ int Msg_Handle::Client_login(str in, int fd)
         usleep(10000);
         it->ping_client();    
         std::cout << "SERVER PRINT: " << it->getclientnick() << " ->LOGGED IN \n";      
-       //_channels[0].addUser(*it);        
-        //it->set_admin(true);
         NumericReplys().rpl_welcome(*it);
     }
     return 0;
