@@ -57,6 +57,21 @@ class NumericReplys
 		// RPL_ENDOFBANLIST (368)
 		int rpl_endofbanlist(const Client &client, const str &channelName);
 
+		// ERR_NOSUCHNICK (401)
+		int rpl_nosuchnick(const Client &client, const str &nickName);
+
+		// RPL_CHANNELMODEIS (324)
+		int rpl_channelmodeis(const Client &client, const str &channel, const str &modes);
+
+		// ERR_NOSUCHCHANNEL (403)
+		int rpl_nosuchchannel(const Client &client, const str &channelName);
+
+		// ERR_INVALIDMODEPARAM (696)
+		int rpl_invalidmodeparam(const Client &client, const str &channel, const str &mode, const str &parameter, const str &description);
+
+		// ERR_NEEDMOREPARAMS (461)
+		int rpl_needmoreparams(const Client &client, const str &command);
+
 	private:
 
 };

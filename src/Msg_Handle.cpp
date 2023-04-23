@@ -118,7 +118,7 @@ int Msg_Handle::handleClientCommand(str in, int fd)
         else if (command == "NOTICE")
             notice_command(it, s.str(), word);
 		else if (command == "MODE" || command == "mode")
-            mode_command(word, it, s.str());
+            mode_command(it, s.str());
         else if (command == "QUIT")
             return 1;
         else if (command == "INVITE")

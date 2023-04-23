@@ -17,6 +17,7 @@
 # define BLUE "\033[38;5;14m"
 # define GREEN "\033[38;5;47m"
 # define ORANGE "\033[38;5;208m"
+# define WHITESPACE " \f\n\r\t\v"
 typedef std::string	str;
 
 class Channel
@@ -25,7 +26,6 @@ class Channel
 	public:
 
 		Channel(const str &name, const str &topic);
-		Channel( Channel const & src );
 		~Channel();
 		
 		int addUser(const Client &user);
@@ -57,21 +57,23 @@ class Channel
     	int rmvChannelOp(const Client &op, const str &userToRemove);
 		int addClientBanned(const Client &op, const str &nickMask);
 		int rmvClientBanned(const Client &op, const str &nickMask);
+		int addChannelKey(const Client &op, const str &key);
+		int rmvChannelKey(const Client &op, const str &key);
 
 		// Activate/Deactivate Modes
 		void banFlag(const str &nickMask);
 		void banExeptionFlag(const str &nickMask);
-		void sizeLimitFlag(const str &nickMask, int optionalLimit);
+		int sizeLimitFlag(const str &nickMask, int optionalLimit);
 		void inviteFlag(const str &nickMask);
 		void inviteExeptionFlag(const str &nickMask);
-		void keyFlag(const str &nickMask, const str &key);
+		int keyFlag(const str &nickMask, const str &key);
 		void moderaterFlag(const str &nickMask);
 		void secretFlag(const str &nickMask);
 		void protectedTopicFlag(const str &nickMask);
 		void exeternalMsgFlag(const str &nickMask);
 
 		// Operators
-		Channel &		operator=( Channel const & rhs );
+		Channel &		operator=( Channel & rhs );
 
 		// Accessors
 		const std::vector<Client> &getUsers() const;
@@ -79,7 +81,7 @@ class Channel
         const str &getTopic() const;
 		const str &getType() const;
 		const std::vector<str> &getChannelOperators() const;
-		const std::map<str, std::vector<str> > &getChannelModes() const;
+		std::map<str, std::vector<str> > &getChannelModes();
 		const std::vector<str> getBanList();
 		
 		

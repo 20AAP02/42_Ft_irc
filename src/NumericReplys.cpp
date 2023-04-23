@@ -181,7 +181,60 @@ int NumericReplys::rpl_wrongcmd(const Client &client, const str &channelName)
 	return 0;
 }
 
+// ERR_NOSUCHNICK (401)
+int NumericReplys::rpl_nosuchnick(const Client &client, const str &nickName)
+{
+	std::string msg = ":localhost 401 ";
+    msg += client.getclientnick() + " ";
+    msg += nickName + " :No such nick";
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 0;
+}
 
+// RPL_CHANNELMODEIS (324)
+int NumericReplys::rpl_channelmodeis(const Client &client, const str &channel, const str &modes)
+{
+	std::string msg = ":localhost 324 ";
+    msg += client.getclientnick() + " ";
+    msg += channel + " " + modes;
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 0;
+}
+
+// ERR_NOSUCHCHANNEL (403)
+int NumericReplys::rpl_nosuchchannel(const Client &client, const str &channelName)
+{
+	std::string msg = ":localhost 403 ";
+    msg += client.getclientnick() + " ";
+    msg += channelName + " :No such channel";
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 0;
+}
+
+// ERR_INVALIDMODEPARAM (696)
+int NumericReplys::rpl_invalidmodeparam(const Client &client, const str &channel, const str &mode, const str &parameter, const str &description)
+{
+	std::string msg = ":localhost 696 ";
+    msg += client.getclientnick() + " ";
+    msg += channel + " " + mode + " " + parameter + " " + description;
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 0;
+}
+
+// ERR_NEEDMOREPARAMS (461)
+int NumericReplys::rpl_needmoreparams(const Client &client, const str &command)
+{
+	std::string msg = ":localhost 461 ";
+    msg += client.getclientnick() + " ";
+    msg += command + " :Not enough parameters";
+    msg += "\n";
+    send(client.getclientsocket(), msg.c_str(), msg.size(), 0);
+	return 0;
+}
 
 
 /*

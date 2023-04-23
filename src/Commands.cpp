@@ -101,14 +101,29 @@ void Msg_Handle::join_command(str word, std::vector<Client>::iterator it, str s)
 				_channels.back().addUser(*it);
 			}
 			else
-				_channels[check].addUser(*it);
+			{
+				if (_channels[check].getChannelModes()["+k"][0] == "0")
+					_channels[check].addUser(*it);
+				else
+				{
+					std::stringstream keyParser(s);
+					int counter = 0;
+					str key;
+					while (keyParser >> key)
+						counter++;
+					if (counter != 3 || _channels[check].getChannelModes()["+k"][1] != key)
+						NumericReplys().rpl_badchannelkey(*it, _channels[check].getName());
+					else
+						_channels[check].addUser(*it);
+					
+				}
+			}
 		}
 		catch (const std::exception &e)
 		{
 			std::cout << "SERVER PRINT: join throwed exeption -> " << e.what() << '\n';
 		}
 	}
-	(void)s;
 }
 
 void Msg_Handle::topic_command(str word, std::vector<Client>::iterator it, str s)
@@ -127,53 +142,88 @@ void Msg_Handle::topic_command(str word, std::vector<Client>::iterator it, str s
 	}
 }
 
-void showModeList(Channel &channel, std::vector<Client>::iterator client, const str mode)
+void showChannelModes(const Client &client, Channel &channel)
 {
-	if (mode == "+b\r\n")
-		NumericReplys().rpl_banlist(*client, channel.getName(), channel.getBanList());
+	str modes = "+tn";
+	if (channel.getChannelModes()["+k"][0] == "1")
+		modes += "k";
+	if (channel.getChannelModes()["+l"][0] == "1")
+		modes += "l";
+	if ((int)modes.size() > 3)
+	{
+		if (channel.getChannelModes()["+k"][0] == "1")
+			modes += " " + channel.getChannelModes()["+k"][1];
+		if (channel.getChannelModes()["+l"][0] == "1")
+			modes += " " + channel.getChannelModes()["+l"][1];
+	}		
+	NumericReplys().rpl_channelmodeis(client, channel.getName(), modes);
 }
 
-void Msg_Handle::mode_command(str word, std::vector<Client>::iterator it, str s)
+void Msg_Handle::mode_command(std::vector<Client>::iterator it, str s)
 {
 	std::stringstream file(s);
-	str part;
-	str mode;
-	int sucess = 0;
-	Channel &channel = *get_channel_by_name(word);
-	std::vector<Channel>::iterator ch_it =  get_channel_by_name(word);
-	if(ch_it == _channels.end())
-		return;
-	while (getline(file, part, ' '))
+	str parser;
+	str channelName;
+	str command;
+	str parameter;
+	while (file >> parser)
 	{
-		if (part == "MODE" || part == "mode" || part.find(word) != part.npos)
+		if (parser == "MODE" || parser == "mode")
 			continue;
-		mode = part;
-		
-		if (getline(file, part, ' '))
+		else if ((int)channelName.size() == 0)
+			channelName = parser;
+		else if ((int)command.size() == 0)
+			command = parser;
+		else if ((int)parameter.size() == 0)
 		{
-			std::vector<Client>::iterator client = get_client_by_name(part.substr(0, part.find_first_of(" \n\r")));
-			if (client == _clients.end())
-				return;
-			if (mode == "+b")
-			{
-				sucess = channel.addClientBanned(*it, client->getNickmask());
-				if (sucess)
-					kick_command(it, "KICK " + word + " " + client->getclientnick() + " :You have been banned\n", it->getclientsocket());
-			}
-			else if (mode == "-b")
-				sucess = channel.rmvClientBanned(*it, client->getNickmask());
-			else if (mode == "+o")
-				sucess = channel.addChannelOp(*it, client->getNickmask());
-			else if (mode == "-o")
-				sucess = channel.rmvChannelOp(*it, client->getNickmask());
-			if (sucess)
-			{
-				channel.sendMessage(*it, mode + " " + part, "MODE");
-				it->sendPrivateMsg(*it, word + " " + mode + " " + part, "MODE");
-			}
+			parameter = parser;
+			while (file >> parser)
+				parameter += " " + parser;
+			break;
 		}
-		else
-			showModeList(channel, it, mode);
+	}
+
+	std::vector<Channel>::iterator channel = get_channel_by_name(channelName);
+	std::vector<Client>::iterator client = get_client_by_name(parameter);
+
+	int sucessfullCommand = 0;
+	if (channelName.find_first_not_of(WHITESPACE) == channelName.npos) // Command: MODE
+		NumericReplys().rpl_needmoreparams(*it, "MODE");
+	else if (channel == _channels.end()) // Command: MODE <invalid channel>
+		NumericReplys().rpl_nosuchchannel(*it, channelName);
+	else if (!(channel->isChannelOperator(it->getNickmask()))) // if user isn't op, it can't use MODE command
+		NumericReplys().rpl_chanoprivsneeded(*it, channelName);
+	else if (command.find_first_not_of(WHITESPACE) == command.npos) // Command: MODE <channel>
+		showChannelModes(*it, *channel);
+	else if (parameter.find_first_not_of(WHITESPACE) == parameter.npos && (command == "+b" || command == "-b")) // Command: MODE <channel> <command>
+		NumericReplys().rpl_banlist(*it, channelName, channel->getBanList());
+	else if (client == _clients.end() && (command != "+k" && command != "+l" && command != "-k" && command != "-l")) // Command: MODE <channel> <+b/-b/+o/-o> <invalid nick>
+		NumericReplys().rpl_nosuchnick(*it, parameter);
+	else if (parameter.find_first_not_of(WHITESPACE) == parameter.npos && (command == "+k" || command == "-k" || command == "+l")) // Command: MODE <channel> <+k/-k/+l>
+		NumericReplys().rpl_needmoreparams(*it, "MODE " + command);
+	else if (command == "-l" && channel->channelSizeLimit() > 0) // Command: MODE <channel> -l
+		channel->sizeLimitFlag(it->getNickmask(), 0);
+	else if (((command == "+o" || command == "-o") && parameter.find_first_not_of(WHITESPACE) == parameter.npos) || (command == "+l" && atoi(parameter.c_str()) < (int)channel->getNumberOfUsers())) // MODE <channel> <+o/-o> |OU| MODE <channel> +l (n < channelLen) 
+		std::cout << "Ignore command\n";
+	else if (command == "+b") // Command: MODE <channel> +b <nick>
+		sucessfullCommand = channel->addClientBanned(*it, client->getNickmask());
+	else if (command == "-b") // Command: MODE <channel> -b <nick>
+		sucessfullCommand = channel->rmvClientBanned(*it, client->getNickmask());
+	else if (command == "+o") // Command: MODE <channel> +o <nick>
+		sucessfullCommand = channel->addChannelOp(*it, client->getNickmask());
+	else if (command == "-o") // Command: MODE <channel> -o <nick>
+		sucessfullCommand = channel->rmvChannelOp(*it, client->getNickmask());
+	else if (command == "+k") // Command: MODE <channel> +k <key>
+		sucessfullCommand = channel->addChannelKey(*it, parameter);
+	else if (command == "-k") // Command: MODE <channel> -k <key>
+		sucessfullCommand = channel->rmvChannelKey(*it, parameter);
+	else if (command == "+l")
+		sucessfullCommand = channel->sizeLimitFlag(it->getNickmask(), atoi(parameter.c_str()));
+	
+	if (sucessfullCommand)
+	{
+		channel->sendMessage(*it, command + " " + parameter, "MODE");
+		it->sendPrivateMsg(*it, channelName + " " + command + " " + parameter, "MODE");
 	}
 }
 

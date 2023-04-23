@@ -27,19 +27,6 @@ Channel::Channel(const str &name, const str &topic)
 	this->_channelModes.insert(std::pair<str, std::vector<str> >("+n", std::vector<str>(1, "1")));
 }
 
-Channel::Channel(const Channel &src) : _channelName(src.getName()), _channelTopic(src.getTopic()), _channelType(src.getType())
-{
-	for (std::vector<Client>::const_iterator client = src.getUsers().begin(); client != src.getUsers().end(); client++)
-		this->_users.push_back(*client);
-	for (std::vector<str>::const_iterator op = src.getChannelOperators().begin(); op != src.getChannelOperators().end(); op++)
-		this->_channelOperators.push_back(*op);
-	for (std::map<str, std::vector<str> >::const_iterator mode = src.getChannelModes().begin(); mode != src.getChannelModes().end(); mode++)
-	{
-		for (int i = 0; i < (int)mode->second.size(); i++)
-			this->_channelModes[mode->first].push_back(mode->second[i]);
-	}
-}
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
@@ -52,7 +39,7 @@ Channel::~Channel()
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Channel &Channel::operator=(Channel const &rhs)
+Channel &Channel::operator=(Channel &rhs)
 {
 	if (this != &rhs)
 	{
@@ -91,7 +78,7 @@ int Channel::addUser(const Client &user)
 		return 0;
 	if (this->isBanned(user.getNickmask()))
 		return NumericReplys().rpl_bannedfromchan(user, this->getName());
-	if (this->channelSizeLimit() != 0 && this->channelSizeLimit() > (int)this->getNumberOfUsers())
+	if (this->channelSizeLimit() != 0 && this->channelSizeLimit() <= (int)this->getNumberOfUsers())
 		return NumericReplys().rpl_channelisfull(user, this->getName());
 	std::string message = ":" + user.getclientnick() + "!";
 	message.append(user.getNickmask() + " JOIN " + this->_channelName + "\n");
@@ -392,6 +379,29 @@ int Channel::rmvClientBanned(const Client &op, const str &nickMask)
 	return 0;
 }
 
+int Channel::addChannelKey(const Client &op, const str &key)
+{
+	if (!(this->isChannelOperator(op.getNickmask())))
+		return NumericReplys().rpl_chanoprivsneeded(op, this->getName());
+	this->_channelModes["+k"][0] = "1";
+	if ((int)this->_channelModes["+k"].size() == 1)
+		this->_channelModes["+k"].push_back(key);
+	else
+		this->_channelModes["+k"][1] = key;
+	return 1;
+}
+
+int Channel::rmvChannelKey(const Client &op, const str &key)
+{
+	if (!(this->isChannelOperator(op.getNickmask())))
+		return NumericReplys().rpl_chanoprivsneeded(op, this->getName());
+	if (this->_channelModes["+k"][0] == "0")
+		return NumericReplys().rpl_invalidmodeparam(op, this->_channelName, "-k", key, ":Channel key already unset");
+	this->_channelModes["+k"][0] = "0";
+	this->_channelModes["+k"].pop_back();
+	return 1;
+}
+
 
 // ----------- Activate/Deactivate Modes -----------
 
@@ -407,11 +417,14 @@ void Channel::banExeptionFlag(const str &nickMask)
 		this->_channelModes["+e"][0][0] = (this->_channelModes["+e"][0] == "0") + 48;
 }
 
-void Channel::sizeLimitFlag(const str &nickMask, int optionalLimit)
+int Channel::sizeLimitFlag(const str &nickMask, int optionalLimit)
 {
 	if (this->isChannelOperator(nickMask))
 	{
-		this->_channelModes["+l"][0][0] = (this->_channelModes["+l"][0] == "0") + 48;
+		if (optionalLimit == 0)
+			this->_channelModes["+l"][0] = "0";
+		else
+			this->_channelModes["+l"][0] = "1";
 		if (optionalLimit > 0)
 		{
 			std::ostringstream limit;
@@ -421,7 +434,9 @@ void Channel::sizeLimitFlag(const str &nickMask, int optionalLimit)
 			else
 				this->_channelModes["+l"][1] = limit.str();
 		}
+		return 1;
 	}
+	return 0;
 }
 
 void Channel::inviteFlag(const str &nickMask)
@@ -436,20 +451,25 @@ void Channel::inviteExeptionFlag(const str &nickMask)
 		this->_channelModes["+I"][0][0] = (this->_channelModes["+I"][0] == "0") + 48;
 }
 
-void Channel::keyFlag(const str &nickMask, const str &key)
+int Channel::keyFlag(const str &nickMask, const str &key)
 {
 	if (this->isChannelOperator(nickMask))
 	{
-		if (this->_channelModes["+k"][0] == "1" && this->_channelModes["+k"][1] == key)
+		if (this->_channelModes["+k"][0] == "1")
+		{
 			this->_channelModes["+k"][0][0] = '0';
+			this->_channelModes["+k"].pop_back();
+		}
 		else if (this->_channelModes["+k"][0] == "1")
-			return;
+			return 0;
 		else
 		{
 			this->_channelModes["+k"][0][0] = '1';
-			this->_channelModes["+k"][1] = key;
+			this->_channelModes["+k"].push_back(key);
 		}
+		return 1;
 	}
+	return -1;
 }
 
 void Channel::moderaterFlag(const str &nickMask)
@@ -550,7 +570,7 @@ const std::vector<str> &Channel::getChannelOperators() const
 	return this->_channelOperators;
 }
 
-const std::map<str, std::vector<str> > &Channel::getChannelModes() const
+std::map<str, std::vector<str> > &Channel::getChannelModes()
 {
 	return this->_channelModes;
 }
