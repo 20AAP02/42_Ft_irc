@@ -75,10 +75,9 @@ void Bot::MainConnectionLoop()
 
 void Bot::HandleServerInput(char *buffer, int num_bytes)
 {
-    std::cout << buffer << std::endl;
     str buf(buffer, num_bytes);
-    std::cout << "BUFFER:"
-              << "[" << buf << "]" << std::endl;
+    //std::cout << "BUFFER:"
+         //     << "[" << buf << "]" << std::endl;
 
     if (buf.find("PING :localhost") != std::string::npos)
     {
@@ -100,7 +99,7 @@ void Bot::HandleServerInput(char *buffer, int num_bytes)
         str teste = "PRIVMSG ";
         teste += "#public";
         teste += " :";
-        teste += "I\'ve reached Public\r\n";
+        teste += "I'll be your assistant, anything you need send me a private message!\r\n";
         send(_BotSocket, teste.c_str(), teste.size(), 0);
         str PONG_msg("PONG :localhost\r\n");
         send(_BotSocket, PONG_msg.c_str(), PONG_msg.size(), 0);
@@ -128,16 +127,15 @@ void Bot::HandlePRIVMSG(str buf)
         return;
     sendernick = SenderNickMask.substr(findcol, findexc);
     ChatGPT(message, sendernick, response_from_bot);
+    std::cout <<  RED "HUMAN :[" << message << "]\n" BLANK;
     str teste = "PRIVMSG " + sendernick + " :" + response_from_bot + "\r\n";
     send(_BotSocket, teste.c_str(), teste.size(), 0);
+    std::cout << GREEN "BOT :[" << response_from_bot << "]\n" BLANK;
+
 }
 
-void Bot::ChatGPT(str message, str sendernick, str &response)
+void Bot::handlehistory(str sendernick,str &message, std::ofstream &history_conversation_out)
 {
-    if (!sendernick.size() || !message.size())
-        return;
-
-    // Verify if exist history conversation
     std::ifstream history_conversation;
     std::string history_file_name = sendernick + ".history";
     str history_string;
@@ -153,58 +151,71 @@ void Bot::ChatGPT(str message, str sendernick, str &response)
         history_string += "\\n";
         }
     }
-    std::cout << "AQUI e o historico [" << history_string << "]\n";
+    //std::cout << "AQUI e o historico [" << history_string << "]\n";
     history_conversation.close();
-    std::ofstream history_conversation_out;
+    //std::ofstream history_conversation_out;
     history_conversation_out.open(history_file_name.c_str(), std::ios_base::app);
     message.erase(message.begin(), message.begin() + 1);
     message.erase(message.end() - 1, message.end());
-    std::cout << "Mensagem que entra na funcao: " << message << std::endl;
+    //std::cout << "Mensagem que entra na funcao: " << message << std::endl;
     history_conversation_out<<"Human:" + message + "\\n";
-    // connect to api
- std::string bearer = TOKEN;
+    //return history_conversation_out;
+}
+
+void Bot::makeAPIrequest(str output_file, str message)
+{
+     std::string bearer = TOKEN;
      std::string args1 = "-d '{ \
      \"model\" : \"text-davinci-003\", \
      \"prompt\" : \" ";
      std::string args2 = " \", \
-     \"temperature\": 0.9, \
-     \"max_tokens\": 150, \
+     \"temperature\": 0.1, \
+     \"max_tokens\" : 200, \
      \"top_p\": 1, \
      \"frequency_penalty\": 0, \
      \"presence_penalty\": 0.6, \
      \"stop\": [\" Human:\", \" AI:\"] }' \
      ";
- std::cout<<"MESSAGE: "+ history_string + "\n";
- std::string request = "curl https://api.openai.com/v1/completions  -H \"Content-Type: application/json\" -H 'Authorization: Bearer " + bearer +"'"+' '+ args1 + message + args2;
- std::string output_file = sendernick + ".msg";
- std::string final_cmd = request + " > " + output_file;
- system(final_cmd.c_str());
+    //std::cout<<"MESSAGE: "+ history_string + "\n";
+    std::string request = "curl https://api.openai.com/v1/completions  -H \"Content-Type: application/json\" -H 'Authorization: Bearer " + bearer +"'"+' '+ args1 + message + args2;
+    std::string final_cmd = request + " > " + output_file;
+    system(final_cmd.c_str());
+}
 
-
- //File Handling
- std::ifstream response_file(output_file.c_str());
- std::string response_raw;
- std::getline(response_file, response_raw);
-
- std::string response_send;
- std::cout<<response_raw<<"\n";
-
- response_send= response_raw.substr(response_raw.find("\"text\":") + 8, response_raw.find("index\"") -  response_raw.find("\"text\":") - 11);
-
- 
-
-  
+str Bot::HandleResponse(str output_file,std::ofstream &history_conversation_out)
+{
+    std::ifstream response_file(output_file.c_str());
+    std::string response_raw;
+    std::getline(response_file, response_raw);
+    str response_send;
+    //std::cout<<response_raw<<"\n";
+    if (response_raw.find("\"error\":") != std::string::npos || response_raw.find("id") == str::npos)
+        return "Error on Api call";
+    response_send= response_raw.substr(response_raw.find("\"text\":") + 8, response_raw.find("index\"") -  response_raw.find("\"text\":") - 11);
     std::replace(response_send.begin(),response_send.end(),'\n',' ');
    // std::cout<<"\n\nFILTERED NOT TREATED: "<< response_send <<std::endl;
-    
-    response_send=remove_from_str("\\n", response_send);
-    history_conversation_out<<"AI:"+response_send + "\\n";
-
+    response_send = remove_from_str("\\n", response_send);
+    history_conversation_out << "AI:"+response_send + "\\n";
     //std::cout<<"\n\nFILTERED: "<< response_send <<std::endl;
     std::string remove_comand= "rm " + output_file;
     //system(remove_comand.c_str());
-    response = response_send;
+    return response_send;
 }
+
+void Bot::ChatGPT(str message, str sendernick, str &response)
+{
+    if (!sendernick.size() || !message.size())
+        return;
+    // Verify if exist history conversation
+    std::ofstream history_conversation_out ;
+    handlehistory(sendernick, message, history_conversation_out);
+    std::string output_file = sendernick + ".msg";
+    // connect to api
+    makeAPIrequest(output_file, message);
+    //File Handling
+    response = HandleResponse(output_file, history_conversation_out);
+}
+
 str Bot::remove_from_str(str expr, str string_)
 {
     str aux_string(string_);

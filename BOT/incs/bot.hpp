@@ -15,7 +15,7 @@
 #include <string>
 
 
-# define TOKEN "XXX"
+# define TOKEN "xxx"
 typedef std::string	str;
 
 class Bot
@@ -35,6 +35,9 @@ class Bot
         void HandleServerInput(char *buffer, int num_bytes);
         void HandlePRIVMSG(str buf);
         void ChatGPT(str msg,str sendernick,str &response);
+        void handlehistory(str sendernick,str &message, std::ofstream &history_conversation_out);
+        void makeAPIrequest(str out_file, str message);
+        str HandleResponse(str out_file,std::ofstream &history );
         str remove_from_str(str expr,str string_);
         ~Bot(){};
 };
