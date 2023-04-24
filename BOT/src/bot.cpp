@@ -189,6 +189,8 @@ str Bot::HandleResponse(str output_file,std::ofstream &history_conversation_out)
     std::getline(response_file, response_raw);
     str response_send;
     //std::cout<<response_raw<<"\n";
+    if (response_raw.find("\"error\":") != std::string::npos)
+        return "Error on Api call";
     response_send= response_raw.substr(response_raw.find("\"text\":") + 8, response_raw.find("index\"") -  response_raw.find("\"text\":") - 11);
     std::replace(response_send.begin(),response_send.end(),'\n',' ');
    // std::cout<<"\n\nFILTERED NOT TREATED: "<< response_send <<std::endl;
