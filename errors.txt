@@ -18,5 +18,5 @@ Corrigido - No commando "mode #ola -b ze1!ze02@localhost", o server nao identifi
   um client conectado. Este client estava com nc, e quando fiz ctrl c, o servidor nao reparou em nada e continou a pensar que estava conectado 
   a um cliente
 
-- Quando fechei o servidor, estando a usar o valgrind ele, mostrou todos os invalid reads que já tinha falado. Mostrou tb varios erros 
+- Quando fechei o servidor, estando a usar o valgrind ele, mostrou varios erros 
   destes ("Warning: invalid file descriptor -1 in syscall close()"). Mas de leaks nao tinha nada.
