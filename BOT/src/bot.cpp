@@ -206,7 +206,6 @@ void Bot::ChatGPT(str message, str sendernick, str &response)
 {
     if (!sendernick.size() || !message.size())
         return;
-
     // Verify if exist history conversation
     std::ofstream history_conversation_out ;
     handlehistory(sendernick, message, history_conversation_out);

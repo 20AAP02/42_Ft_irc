@@ -15,7 +15,7 @@
 #include <string>
 
 
-# define TOKEN "my bad"
+# define TOKEN "xxx"
 typedef std::string	str;
 
 class Bot
