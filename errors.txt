@@ -1,0 +1,22 @@
+ - Quando se faz dois ctrl-d de seguida, o servidor deixa de ler os comandos do client que fez isso
+
+Corrigido - Quando um user é kicked, ele na verdade sai com o PART, nao com o KICK (o que, penso eu, dá uma mensagem diferente aos outros users, 
+   mas ele sai na mesma do channel)
+
+Corrigido - Comando (MODE #ola) devia dar para qualquer user, mas de momento só dá para channel operators
+
+Corrigido - No comando NOTICE quando o nick é mal dado (exemplo: "NOTICE ze :ola jorge" -> e o nick ze, nao existe), dá invalid reads.
+   Noutras ocasioes mandou uma mensagem para o ze apesar de ele nao existir
+	- De qualquer das formas melhor será proteger caso o nick nao exista
+
+Corrigido - O comando invite dá invalid reads (só na primeira vez penso que executado) quando o comando mal feito (exemplor: "INVITE #ola #ola") 
+  (provavelmente por que o "receiver" estar desprotegido)
+
+Corrigido - No commando "mode #ola -b ze1!ze02@localhost", o server nao identifica o nick, pois o que recebe é a nickmask, e por isso nao faz deban
+
+- No fim quandofechei tres dos clients, o quarto deixou de conseguir enviar commandos ao servidor, apesar do servidor dizer que ainda tem 
+  um client conectado. Este client estava com nc, e quando fiz ctrl c, o servidor nao reparou em nada e continou a pensar que estava conectado 
+  a um cliente
+
+- Quando fechei o servidor, estando a usar o valgrind ele, mostrou todos os invalid reads que já tinha falado. Mostrou tb varios erros 
+  destes ("Warning: invalid file descriptor -1 in syscall close()"). Mas de leaks nao tinha nada.

@@ -62,7 +62,11 @@ void Msg_Handle::part_command(str word, std::vector<Client>::iterator it, str s)
 			{
 				std::size_t found = s.find(':');
 				if (found != s.npos)
-					channel->leave(*it, s.substr(found, s.size() - found));
+				{
+					channel->sendMessage(*it, s.substr(found, s.size() - found), "PART");
+					it->sendPrivateMsg(*it, channel->getName() + " " + s.substr(found, s.size() - found), "PART");
+					channel->leave(*it);
+				}
 				else{
 					NumericReplys().rpl_wrongcmd(*it,"ERROR");
 					return;
@@ -184,6 +188,9 @@ void Msg_Handle::mode_command(std::vector<Client>::iterator it, str s)
 	}
 
 	std::vector<Channel>::iterator channel = get_channel_by_name(channelName);
+	std::size_t nickmaskServ = parameter.find_last_of("!");
+	if (nickmaskServ != parameter.npos)
+		parameter = parameter.substr(0, nickmaskServ);
 	std::vector<Client>::iterator client = get_client_by_name(parameter);
 
 	int sucessfullCommand = 0;
@@ -191,10 +198,10 @@ void Msg_Handle::mode_command(std::vector<Client>::iterator it, str s)
 		NumericReplys().rpl_needmoreparams(*it, "MODE");
 	else if (channel == _channels.end()) // Command: MODE <invalid channel>
 		NumericReplys().rpl_nosuchchannel(*it, channelName);
-	else if (!(channel->isChannelOperator(it->getNickmask()))) // if user isn't op, it can't use MODE command
-		NumericReplys().rpl_chanoprivsneeded(*it, channelName);
 	else if (command.find_first_not_of(WHITESPACE) == command.npos) // Command: MODE <channel>
 		showChannelModes(*it, *channel);
+	else if (!(channel->isChannelOperator(it->getNickmask()))) // if user isn't op, it can't use MODE command
+		NumericReplys().rpl_chanoprivsneeded(*it, channelName);
 	else if (parameter.find_first_not_of(WHITESPACE) == parameter.npos && (command == "+b" || command == "-b")) // Command: MODE <channel> <command>
 		NumericReplys().rpl_banlist(*it, channelName, channel->getBanList());
 	else if (client == _clients.end() && (command != "+k" && command != "+l" && command != "-k" && command != "-l")) // Command: MODE <channel> <+b/-b/+o/-o> <invalid nick>
@@ -237,7 +244,9 @@ void Msg_Handle::invite_command(std::vector<Client>::iterator it, str s)
 	in >> channel;
 
 	std::vector<Channel>::iterator Userchan = get_channel_by_name(channel);
-	if (Userchan != _channels.end() && Userchan->isChannelOperator(it->getNickmask()))
+	if (get_client_by_name(receiver) == _clients.end())
+		NumericReplys().rpl_nosuchnick(*it, receiver);
+	else if (Userchan != _channels.end() && Userchan->isChannelOperator(it->getNickmask()))
 		it->sendPrivateMsg(*get_client_by_name(receiver), receiver + " " + channel, command);
 	else
 		NumericReplys().rpl_chanoprivsneeded(*it,channel);
@@ -332,8 +341,9 @@ void Msg_Handle::kick_command(std::vector<Client>::iterator it, str s, int fd)
 			{
 				if(channel->isChannelOperator(it->getNickmask()))
 				{
-					channel->leave(*get_client_by_name(userName), reason.substr(reason.find(":") + 1));
-					it->sendPrivateMsg(*get_client_by_name(userName), reason, "KICK " + channelName + " " + get_client_by_name(userName)->getclientnick());
+					channel->sendMessage(*it, get_client_by_name(userName)->getclientnick() + " " + reason, "KICK");
+					it->sendPrivateMsg(*it, reason, "KICK " + channelName + " " + get_client_by_name(userName)->getclientnick());
+					channel->leave(*get_client_by_name(userName));
 				}
 				else
 					NumericReplys().rpl_chanoprivsneeded(*it,channelName);
@@ -452,6 +462,8 @@ void Msg_Handle::nick_command(str in,std::vector<Client>::iterator it)
 void Msg_Handle::notice_command(std::vector<Client>::iterator cli_it, str msg, str receiver)
 {
 	size_t found = msg.find(":");
-	if (found != std::string::npos)
+	if (get_client_by_name(receiver) == _clients.end())
+		NumericReplys().rpl_nosuchnick(*cli_it, receiver);
+	else if (found != std::string::npos)
  		cli_it->sendPrivateMsg(*get_client_by_name(receiver), msg.substr(found, msg.size() - found), "NOTICE " + get_client_by_name(receiver)->getclientnick());
 }

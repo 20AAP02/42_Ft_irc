@@ -1,6 +1,0 @@
-CAP LS 302
-PASS ola123
-NICK toni
-USER toni02 * * :realname
-
-PONG :localhost

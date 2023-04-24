@@ -31,7 +31,7 @@ class Channel
 		int addUser(const Client &user);
 		int sendMessage(const Client &user, const str &message, const str &msgType);
 		void sendMessage(str Message);
-		void leave(const Client &user, const str &goodbyMessage);
+		void leave(const Client &user);
 		void topicCommand(const Client &user, const str command);
 		
 		void update_client_nick(int fd, str newnick) ;
