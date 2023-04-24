@@ -50,8 +50,16 @@
         "typeinfo": "cpp",
         "optional": "cpp",
         "fstream": "cpp",
-        "ranges": "cpp"
-	},
+        "ranges": "cpp",
+        "chrono": "cpp",
+        "ctime": "cpp",
+        "ratio": "cpp",
+        "bitset": "cpp",
+        "condition_variable": "cpp",
+        "regex": "cpp",
+        "shared_mutex": "cpp",
+        "stop_token": "cpp"
+    },
 	"makefile.launchConfigurations": [
 		{
 			"cwd": "/home/antonio/Desktop/42_Ft_irc",
