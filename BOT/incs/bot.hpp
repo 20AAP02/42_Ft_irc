@@ -15,7 +15,7 @@
 #include <string>
 
 
-# define TOKEN "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"
+# define TOKEN "fdsssssss"
 typedef std::string	str;
 
 class Bot
