@@ -345,7 +345,6 @@ void Msg_Handle::print_all_client_vector_or_index(int opt)
 bool Msg_Handle::append_partial_message(const char* buffer, int num_bytes, int client_fd)
 {
     _partial_messages[client_fd] += str(buffer, num_bytes);
-    std::cout << "PARTIAL CHAR -> [" << _partial_messages[client_fd][_partial_messages[client_fd].size()-1] << "]"<< std::endl;
     if (_partial_messages[client_fd][_partial_messages[client_fd].size()-1] == '\n')
     {
         str aux = _partial_messages[client_fd];
