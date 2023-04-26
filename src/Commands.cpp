@@ -427,6 +427,12 @@ bool Msg_Handle::nick_already_used(str new_nick, int fd){
 		}
     for (; it != _clients.end(); it++){
 
+		if (new_nick.size() > 9)
+		{
+			str msg =":localhost 432 " + new_nick + " " + new_nick + " :Erroneus nickname.\n";
+			send(fd,msg.c_str(), msg.size(), 0);
+			return true;
+		}
         if (it->getclientnick() == new_nick && it->getclientsocket() != fd)
         {
 			//:luna.AfterNET.Org 433 * rdrake :Nickname is already in use.
